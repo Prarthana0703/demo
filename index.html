@@ -1,31 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR.js Hiro Cube</title>
-    
+    <title>AR Wedding Gate</title>
+
     <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    
+
     <!-- AR.js -->
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
-    
+
     <a-scene embedded arjs>
-        
+
         <!-- Hiro Marker -->
         <a-marker preset="hiro">
-            
-            <!-- Cube -->
-            <a-box 
+
+            <!-- Wedding Gate Model (Scaled Down) -->
+            <a-entity 
+                gltf-model="wedding_gate-v1.glb"
                 position="0 0.5 0"
-                material="color: red;"
-                depth="0.5"
-                height="0.5"
-                width="0.5">
-            </a-box>
-            
+                scale="0.1 0.1 0.1"
+                rotation="-90 0 0">
+            </a-entity>
+
         </a-marker>
 
         <!-- Camera -->
