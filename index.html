@@ -18,11 +18,10 @@
         <a-light type="ambient" intensity="1"></a-light>
         <a-light type="directional" position="1 2 1"></a-light>
 
+        <!-- Hiro Marker -->
         <a-marker preset="hiro">
 
-            <!-- ❌ REMOVE GREEN PLANE -->
-
-            <!-- ✅ CENTERED GATE -->
+            <!-- 🌸 Wedding Gate (background) -->
             <a-entity 
                 gltf-model="wedding_gate-v1.glb"
                 position="0 -1.5 0"
@@ -30,7 +29,7 @@
                 rotation="-90 0 0">
             </a-entity>
 
-            <!-- ✅ COUPLE (SCALE SAME ✅) -->
+            <!-- 💍 Couple (scale unchanged) -->
             <a-entity 
                 gltf-model="model-v1-v2-v1 (1).glb"
                 position="0 0.3 0"
@@ -38,7 +37,10 @@
                 rotation="-90 0 0">
             </a-entity>
 
-            <!-- Text -->
+            <!-- 🌸 Rose Petal Rain -->
+            <a-entity petal-rain></a-entity>
+
+            <!-- ✨ Text -->
             <a-text 
                 value="Welcome to Our Wedding"
                 position="0 1.2 0"
@@ -48,9 +50,46 @@
 
         </a-marker>
 
+        <!-- Camera -->
         <a-entity camera></a-entity>
 
     </a-scene>
+
+    <!-- 🌸 Petal Rain Script -->
+    <script>
+        AFRAME.registerComponent('petal-rain', {
+            init: function () {
+                const container = this.el;
+
+                for (let i = 0; i < 30; i++) {
+                    let petal = document.createElement('a-plane');
+
+                    petal.setAttribute('src', 'rose_petal.png');
+                    petal.setAttribute('transparent', 'true');
+                    petal.setAttribute('width', '0.2');
+                    petal.setAttribute('height', '0.2');
+
+                    // random start position (top)
+                    petal.setAttribute('position', {
+                        x: (Math.random() - 0.5) * 2,
+                        y: Math.random() * 2 + 1,
+                        z: (Math.random() - 0.5) * 2
+                    });
+
+                    // falling animation
+                    petal.setAttribute('animation', {
+                        property: 'position',
+                        to: `${(Math.random() - 0.5) * 2} 0 ${(Math.random() - 0.5) * 2}`,
+                        dur: 3000 + Math.random() * 2000,
+                        loop: true,
+                        easing: 'linear'
+                    });
+
+                    container.appendChild(petal);
+                }
+            }
+        });
+    </script>
 
 </body>
 </html>
