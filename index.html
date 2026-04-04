@@ -3,13 +3,8 @@
 <head>
     <title>AR Wedding Scene</title>
 
-    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-
-    <!-- AR.js -->
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
-
-    <!-- Look-at -->
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
 </head>
 
@@ -23,25 +18,23 @@
 
     <a-marker preset="hiro">
 
-        <!-- 💖 TITLE (TOP ABOVE GATE) -->
+        <!-- 💖 TITLE -->
         <a-text 
             value="Rahul ❤️ Saira"
-            position="0 2.2 0"
+            position="0 1.8 0"
             align="center"
             color="#FFD700"
             width="4"
-            scale="1 1 1"
             look-at="[camera]">
         </a-text>
 
         <!-- 💍 WEDS -->
         <a-text 
             value="Weds"
-            position="0 1.9 0"
+            position="0 1.5 0"
             align="center"
             color="white"
             width="3"
-            scale="0.8 0.8 0.8"
             look-at="[camera]">
         </a-text>
 
@@ -53,19 +46,19 @@
             rotation="-90 0 0">
         </a-entity>
 
-        <!-- 💍 COUPLE (INSIDE GATE) -->
+        <!-- 💍 COUPLE -->
         <a-entity 
-            gltf-model="model-v1-v2-v1 (1).glb"
+            gltf-model="couple.glb"
             position="0 0.05 0"
             scale="0.6 0.6 0.6"
-            rotation="-90 0 0">
+            rotation="0 180 0">
         </a-entity>
 
         <!-- 🌸 PETALS -->
         <a-plane 
             src="rose_petal.png"
             position="-0.4 2 0"
-            width="0.3" height="0.3"
+            width="0.25" height="0.25"
             material="transparent: true; side: double"
             look-at="[camera]"
             animation="property: position; to: -0.4 -1 0; dur: 4000; loop: true">
@@ -74,36 +67,25 @@
         <a-plane 
             src="rose_petal.png"
             position="0.4 2.3 0"
-            width="0.3" height="0.3"
+            width="0.25" height="0.25"
             material="transparent: true; side: double"
             look-at="[camera]"
             animation="property: position; to: 0.4 -1 0; dur: 5000; loop: true">
         </a-plane>
 
-        <a-plane 
-            src="rose_petal.png"
-            position="0 2.5 0"
-            width="0.3" height="0.3"
-            material="transparent: true; side: double"
-            look-at="[camera]"
-            animation="property: position; to: 0 -1 0; dur: 4500; loop: true">
-        </a-plane>
-
-        <!-- 💬 MESSAGE (BOTTOM) -->
+        <!-- 💬 MESSAGE -->
         <a-text 
             value="With great joy in our hearts,\nwe invite you to celebrate our special day.\nYour presence will make it even more memorable 💐"
-            position="0 -0.4 0"
+            position="0 0.3 0"
             align="center"
             color="gold"
             width="3"
             scale="0.8 0.8 0.8"
-            look-at="[camera]"
-            animation="property: opacity; from: 0; to: 1; dur: 2000">
+            look-at="[camera]">
         </a-text>
 
     </a-marker>
 
-    <!-- Camera -->
     <a-entity camera></a-entity>
 
 </a-scene>
