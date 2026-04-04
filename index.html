@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Wedding Gate</title>
+    <title>AR Wedding Scene</title>
 
     <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
@@ -17,11 +17,19 @@
         <!-- Hiro Marker -->
         <a-marker preset="hiro">
 
-            <!-- Wedding Gate Model (Adjusted Size) -->
+            <!-- Wedding Gate -->
             <a-entity 
                 gltf-model="wedding_gate-v1.glb"
                 position="0 0.5 0"
                 scale="0.8 0.8 0.8"
+                rotation="-90 0 0">
+            </a-entity>
+
+            <!-- Couple Model -->
+            <a-entity 
+                gltf-model="model-v1-v2-v1 (1).glb"
+                position="0 0.2 0.6"
+                scale="0.2 0.2 0.2"
                 rotation="-90 0 0">
             </a-entity>
 
