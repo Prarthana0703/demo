@@ -14,13 +14,13 @@
 
 <a-scene embedded arjs>
 
-    <!-- Lights -->
+    <!-- Lighting -->
     <a-light type="ambient" intensity="1"></a-light>
     <a-light type="directional" position="1 2 1"></a-light>
 
     <a-marker preset="hiro">
 
-        <!-- 🌸 BIG GATE (adjusted down properly) -->
+        <!-- 💐 Wedding Gate -->
         <a-entity 
             gltf-model="wedding_gate-v1.glb"
             position="0 -1.2 0"
@@ -28,7 +28,7 @@
             rotation="-90 0 0">
         </a-entity>
 
-        <!-- 💍 COUPLE -->
+        <!-- 💍 Couple -->
         <a-entity 
             gltf-model="model-v1-v2-v1 (1).glb"
             position="0 0.05 0"
@@ -36,39 +36,42 @@
             rotation="-90 0 0">
         </a-entity>
 
-        <!-- 🌸 PETALS (falling + rotating + facing camera) -->
+        <!-- 🌸 PETALS (fixed texture + animation) -->
 
         <!-- Petal 1 -->
-        <a-plane src="petal.png"
-            position="-0.3 1.5 0"
-            width="0.2" height="0.2"
-            transparent="true"
+        <a-plane 
+            src="rose_petal.png"
+            position="-0.4 2 0"
+            width="0.3" height="0.3"
+            material="transparent: true; side: double; shader: flat"
             look-at="[camera]"
-            animation__fall="property: position; to: -0.3 -1 0; dur: 4000; loop: true"
+            animation__fall="property: position; to: -0.4 -1 0; dur: 4000; loop: true"
             animation__rotate="property: rotation; to: 360 360 360; dur: 3000; loop: true">
         </a-plane>
 
         <!-- Petal 2 -->
-        <a-plane src="petal.png"
-            position="0.2 1.8 0"
-            width="0.2" height="0.2"
-            transparent="true"
+        <a-plane 
+            src="rose_petal.png"
+            position="0.3 2.2 0"
+            width="0.3" height="0.3"
+            material="transparent: true; side: double; shader: flat"
             look-at="[camera]"
-            animation__fall="property: position; to: 0.2 -1 0; dur: 3500; loop: true"
+            animation__fall="property: position; to: 0.3 -1 0; dur: 3500; loop: true"
             animation__rotate="property: rotation; to: 360 360 360; dur: 2500; loop: true">
         </a-plane>
 
         <!-- Petal 3 -->
-        <a-plane src="petal.png"
-            position="0 2 0"
-            width="0.2" height="0.2"
-            transparent="true"
+        <a-plane 
+            src="rose_petal.png"
+            position="0 2.5 0"
+            width="0.3" height="0.3"
+            material="transparent: true; side: double; shader: flat"
             look-at="[camera]"
             animation__fall="property: position; to: 0 -1 0; dur: 4500; loop: true"
             animation__rotate="property: rotation; to: 360 360 360; dur: 3500; loop: true">
         </a-plane>
 
-        <!-- 💬 TEXT -->
+        <!-- 💬 Text -->
         <a-text 
             value="Welcome 💍"
             position="0 1.5 0"
