@@ -18,30 +18,22 @@
         <a-light type="ambient" intensity="1"></a-light>
         <a-light type="directional" position="1 2 1"></a-light>
 
-        <!-- Hiro Marker -->
         <a-marker preset="hiro">
 
-            <!-- Ground -->
-            <a-plane 
-                position="0 0 0"
-                rotation="-90 0 0"
-                width="2"
-                height="2"
-                color="#7BC8A4">
-            </a-plane>
+            <!-- ❌ REMOVE GREEN PLANE -->
 
-            <!-- Wedding Gate -->
+            <!-- ✅ CENTERED GATE -->
             <a-entity 
                 gltf-model="wedding_gate-v1.glb"
-                position="-1 0.0012 0"
+                position="0 0.2 0"
                 scale="1.5 1.5 1.5"
                 rotation="-90 0 0">
             </a-entity>
 
-            <!-- Couple Model (SCALE KEPT SAME ✅) -->
+            <!-- ✅ COUPLE (SCALE SAME ✅) -->
             <a-entity 
                 gltf-model="model-v1-v2-v1 (1).glb"
-                position="0 2.2 0.3"
+                position="0 0.05 0"
                 scale="0.6 0.6 0.6"
                 rotation="-90 0 0">
             </a-entity>
@@ -49,14 +41,13 @@
             <!-- Text -->
             <a-text 
                 value="Welcome to Our Wedding"
-                position="0 1 0"
+                position="0 1.2 0"
                 align="center"
                 color="gold">
             </a-text>
 
         </a-marker>
 
-        <!-- Camera -->
         <a-entity camera></a-entity>
 
     </a-scene>
