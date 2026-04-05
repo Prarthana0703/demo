@@ -285,12 +285,17 @@ async function scan() {
         if (name && name !== lastName) {
             lastName = name;
 
-            let msg = `Dear ${name}, you are invited to our wedding 💍`;
+           let msg = `Dear ${name}, you are warmly invited to celebrate the wedding of Rahul and Saira. Please do come and bless us.`;
 
-            document.querySelector("#personal-msg").setAttribute("value", msg);
-            document.querySelector("#detected-name").setAttribute("value", name);
+let displayMsg = `Dear ${name},
+You are warmly invited to celebrate the wedding of 
+Rahul & Saira 💍
+Please do come and bless us ❤️`;
 
-            speak(msg);
+document.querySelector("#personal-msg").setAttribute("value", displayMsg);
+document.querySelector("#detected-name").setAttribute("value", name);
+
+speak(msg);
         }
 
     } catch (err) {
