@@ -1,14 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Navigation Fixed</title>
+    <title>AR Navigation</title>
 
+    <!-- Google Maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh_SqXafoV8q-EEXifAaCGqWOeRi50jNA"></script>
+
+    <!-- AFRAME + AR.js -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 </head>
 
-<body>
+<body style="margin:0; overflow:hidden;">
 
-<h2>Check Console for Route Data</h2>
+<h3 style="position:absolute; z-index:1; background:white;">
+    Move your phone → AR route will appear
+</h3>
+
+<!-- AR SCENE -->
+<a-scene embedded arjs="sourceType: webcam;">
+
+    <!-- Camera -->
+    <a-camera gps-camera rotation-reader></a-camera>
+
+</a-scene>
 
 <script>
 
@@ -43,6 +58,9 @@ navigator.geolocation.getCurrentPosition(function(position) {
 
                 console.log("Decoded Points:", route);
 
+                // 🚀 SHOW IN AR
+                showAR(route);
+
             } else {
                 console.log("❌ Error:", status);
             }
@@ -50,6 +68,36 @@ navigator.geolocation.getCurrentPosition(function(position) {
     );
 
 });
+
+
+// 🚀 FUNCTION TO SHOW AR OBJECTS
+function showAR(points) {
+
+    const scene = document.querySelector("a-scene");
+
+    points.forEach((point, index) => {
+
+        const entity = document.createElement("a-box");
+
+        entity.setAttribute("gps-entity-place", `
+            latitude: ${point.lat()};
+            longitude: ${point.lng()};
+        `);
+
+        entity.setAttribute("color", "red");
+        entity.setAttribute("scale", "5 5 5");
+
+        // rotating animation (cool effect)
+        entity.setAttribute("animation", `
+            property: rotation;
+            to: 0 360 0;
+            loop: true;
+            dur: 3000
+        `);
+
+        scene.appendChild(entity);
+    });
+}
 
 </script>
 
