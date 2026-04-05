@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Saira's Wedding 💍</title>
-
-    <!-- A-Frame + AR.js loaded on demand when user taps AR Schedule -->
-    <!-- Scripts injected dynamically in openARSchedule() -->
-
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { font-family: 'Georgia', serif; background: #0D0014; color: #fff; overflow-x: hidden; }
@@ -38,15 +34,15 @@
         }
 
         /* ══ LANDING PAGE ══ */
-        #landing {
+        #page-landing {
             position: relative; z-index: 1;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             min-height: 100vh; padding: 28px 20px;
             background: radial-gradient(ellipse at top, #1a0028 0%, #0D0014 70%);
         }
+        #page-landing.hidden { display: none; }
 
-        /* Invite card */
         .invite-card {
             position: relative; z-index: 2;
             background: rgba(255,255,255,0.05);
@@ -75,133 +71,108 @@
             background: rgba(255,182,193,0.06);
             border: 1px solid rgba(255,182,193,0.2);
             border-radius: 16px; padding: 14px 10px;
-            text-align: center;
-            animation: fadeUp 1.1s ease both;
+            text-align: center; animation: fadeUp 1.1s ease both;
         }
-        .countdown-label {
-            color: rgba(255,182,193,0.55); font-size: 11px;
-            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;
-        }
+        .countdown-label { color: rgba(255,182,193,0.55); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
         .countdown-boxes { display: flex; justify-content: center; gap: 8px; }
-        .cd-box {
-            display: flex; flex-direction: column; align-items: center;
-            background: rgba(255,59,127,0.13);
-            border: 1px solid rgba(255,59,127,0.32);
-            border-radius: 10px; padding: 9px 12px; min-width: 56px;
-        }
+        .cd-box { display: flex; flex-direction: column; align-items: center; background: rgba(255,59,127,0.13); border: 1px solid rgba(255,59,127,0.32); border-radius: 10px; padding: 9px 12px; min-width: 56px; }
         .cd-num  { color: #FFB6C1; font-size: 26px; font-weight: 700; font-family: monospace; line-height: 1; }
         .cd-unit { color: rgba(255,182,193,0.45); font-size: 9px; letter-spacing: 1px; margin-top: 4px; }
 
         /* ══ BUTTONS ══ */
-        .btn-group {
-            position: relative; z-index: 2;
-            width: 100%; max-width: 370px; margin-top: 16px;
-            display: flex; flex-direction: column; gap: 11px;
-            animation: fadeUp 1.2s ease both;
-        }
-        .btn {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; padding: 15px 20px;
-            border-radius: 14px; border: none; cursor: pointer;
-            font-size: 15px; font-weight: 700; font-family: 'Georgia', serif;
-            text-align: center; text-decoration: none;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
+        .btn-group { position: relative; z-index: 2; width: 100%; max-width: 370px; margin-top: 16px; display: flex; flex-direction: column; gap: 11px; animation: fadeUp 1.2s ease both; }
+        .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px 20px; border-radius: 14px; border: none; cursor: pointer; font-size: 15px; font-weight: 700; font-family: 'Georgia', serif; text-align: center; text-decoration: none; transition: transform 0.15s ease, box-shadow 0.15s ease; }
         .btn:active { transform: scale(0.96); }
+        .btn-invite { background: linear-gradient(135deg, #FF3B7F 0%, #c0255a 100%); color: #fff; box-shadow: 0 4px 20px rgba(255,59,127,0.35); }
+        .btn-nav { background: rgba(0,200,255,0.12); color: #00C8FF; border: 1px solid rgba(0,200,255,0.4); box-shadow: 0 4px 16px rgba(0,200,255,0.12); }
+        .btn-schedule { background: rgba(255,182,193,0.1); color: #FFB6C1; border: 1px solid rgba(255,182,193,0.35); box-shadow: 0 4px 16px rgba(255,182,193,0.08); }
 
-        /* Button 1 — AR Invitation */
-        .btn-invite {
-            background: linear-gradient(135deg, #FF3B7F 0%, #c0255a 100%);
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(255,59,127,0.35);
-        }
-        .btn-invite:active { box-shadow: 0 2px 8px rgba(255,59,127,0.2); }
-
-        /* Button 2 — AR Navigation */
-        .btn-nav {
-            background: rgba(0,200,255,0.12);
-            color: #00C8FF;
-            border: 1px solid rgba(0,200,255,0.4);
-            box-shadow: 0 4px 16px rgba(0,200,255,0.12);
-        }
-        .btn-nav:active { box-shadow: none; }
-
-        /* Button 3 — AR Schedule */
-        .btn-schedule {
-            background: rgba(255,182,193,0.1);
-            color: #FFB6C1;
-            border: 1px solid rgba(255,182,193,0.35);
-            box-shadow: 0 4px 16px rgba(255,182,193,0.08);
-        }
-        .btn-schedule:active { box-shadow: none; }
-
-        /* ══ AR SCHEDULE FULLSCREEN OVERLAY ══ */
-        #ar-schedule {
-            position: fixed; inset: 0; z-index: 700;
-            background: transparent;
+        /* ══════════════════════════════════════════
+           PAGE 2: AR SCHEDULE
+           - position:fixed fills entire screen
+           - Hidden by default, shown when user taps button
+           - A-Frame <a-scene> injected directly inside so
+             its canvas naturally fills this container
+           - Camera feed shows through transparent WebGL canvas
+        ══════════════════════════════════════════ */
+        #page-ar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 5000;
+            background: #000;
             display: none;
+            overflow: hidden;
         }
-        #ar-schedule.visible {
-            display: block;
+        #page-ar.active { display: block; }
+
+        /* Force A-Frame scene + canvas to fill the container */
+        #page-ar > a-scene {
+            position: absolute !important;
+            top: 0 !important; left: 0 !important;
+            width: 100% !important; height: 100% !important;
+        }
+        #page-ar canvas {
+            width: 100% !important;
+            height: 100% !important;
+            background: transparent !important;
         }
 
-        /* Top status bar */
-        #ar-status-bar {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 800;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 18px;
-            background: linear-gradient(to bottom, rgba(13,0,20,0.9) 0%, transparent 100%);
+        /* AR loading overlay */
+        #ar-loading {
+            position: absolute; inset: 0; z-index: 5200;
+            background: #0D0014;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 18px;
+            transition: opacity 0.5s ease;
+        }
+        #ar-loading.hidden { opacity: 0; pointer-events: none; }
+        #ar-loading-text { color: rgba(255,182,193,0.8); font-size: 14px; letter-spacing: 1px; }
+
+        /* AR HUD — floats above the scene */
+        #ar-hud {
+            position: absolute;
+            inset: 0; z-index: 5100;
             pointer-events: none;
         }
-        #ar-status-text {
+        #ar-topbar {
+            pointer-events: all;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px;
+            background: linear-gradient(to bottom, rgba(13,0,20,0.85) 0%, transparent 100%);
+        }
+        #ar-status-pill {
             color: rgba(255,182,193,0.95); font-size: 13px; font-weight: 700;
-            letter-spacing: 0.3px; pointer-events: none;
-            background: rgba(13,0,20,0.6); border: 1px solid rgba(255,182,193,0.25);
-            border-radius: 20px; padding: 8px 18px; backdrop-filter: blur(6px);
+            background: rgba(13,0,20,0.65); border: 1px solid rgba(255,182,193,0.3);
+            border-radius: 20px; padding: 8px 16px; backdrop-filter: blur(8px);
+            pointer-events: none;
         }
         #ar-close-btn {
             pointer-events: all;
-            width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(13,0,20,0.75); border: 1px solid rgba(255,182,193,0.3);
-            color: #FFB6C1; font-size: 17px; cursor: pointer;
+            width: 42px; height: 42px; border-radius: 50%;
+            background: rgba(13,0,20,0.75); border: 1px solid rgba(255,182,193,0.35);
+            color: #FFB6C1; font-size: 18px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(6px); flex-shrink: 0;
+            backdrop-filter: blur(8px);
         }
-
-        /* Marker hint — shown before marker detected */
         #ar-hint {
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-            z-index: 800; width: 88%; max-width: 310px;
-            background: rgba(13,0,20,0.88);
-            border: 1px solid rgba(255,182,193,0.3);
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            z-index: 5101; width: 86%; max-width: 300px;
+            background: rgba(13,0,20,0.88); border: 1px solid rgba(255,182,193,0.3);
             border-radius: 18px; padding: 18px 22px;
             text-align: center; backdrop-filter: blur(8px);
-            pointer-events: none;
-            transition: opacity 0.4s;
+            pointer-events: none; transition: opacity 0.4s;
         }
         #ar-hint.hidden { opacity: 0; }
         #ar-hint-title { color: #FFB6C1; font-size: 15px; font-weight: 700; margin-bottom: 7px; }
         #ar-hint-body  { color: rgba(255,182,193,0.75); font-size: 12px; line-height: 1.7; }
-
-        /* Bottom event dot navigator */
         #ar-dots {
-            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
-            z-index: 800; display: flex; gap: 9px; align-items: center;
+            position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+            z-index: 5101; display: flex; gap: 9px; align-items: center;
             pointer-events: none;
         }
-        .ev-dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: rgba(255,182,193,0.25);
-            transition: all 0.4s ease;
-        }
-        .ev-dot.on {
-            background: #FF6B9D;
-            transform: scale(1.6);
-            box-shadow: 0 0 8px rgba(255,107,157,0.9);
-        }
-        canvas {
-            background: transparent !important;
-        }
+        .ev-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,182,193,0.25); transition: all 0.4s ease; }
+        .ev-dot.on { background: #FF6B9D; transform: scale(1.6); box-shadow: 0 0 8px rgba(255,107,157,0.9); }
     </style>
 </head>
 <body>
@@ -215,12 +186,10 @@
 <!-- ══ PETALS ══ -->
 <div class="petals-bg" id="petals"></div>
 
-<!-- ══════════════════════════════════════════
-     LANDING PAGE
-══════════════════════════════════════════ -->
-<div id="landing">
-
-    <!-- Invite card -->
+<!-- ════════════════════════════════
+     PAGE 1 — LANDING
+════════════════════════════════ -->
+<div id="page-landing">
     <div class="invite-card">
         <div class="eyebrow">You're invited to</div>
         <div class="names">Saira</div>
@@ -233,70 +202,52 @@
         <span class="ring">💍</span>
     </div>
 
-    <!-- Live countdown -->
     <div class="countdown-wrap">
         <div class="countdown-label">Wedding begins in</div>
         <div class="countdown-boxes">
-            <div class="cd-box">
-                <span class="cd-num" id="cd-d">--</span>
-                <span class="cd-unit">DAYS</span>
-            </div>
-            <div class="cd-box">
-                <span class="cd-num" id="cd-h">--</span>
-                <span class="cd-unit">HRS</span>
-            </div>
-            <div class="cd-box">
-                <span class="cd-num" id="cd-m">--</span>
-                <span class="cd-unit">MIN</span>
-            </div>
-            <div class="cd-box">
-                <span class="cd-num" id="cd-s">--</span>
-                <span class="cd-unit">SEC</span>
-            </div>
+            <div class="cd-box"><span class="cd-num" id="cd-d">--</span><span class="cd-unit">DAYS</span></div>
+            <div class="cd-box"><span class="cd-num" id="cd-h">--</span><span class="cd-unit">HRS</span></div>
+            <div class="cd-box"><span class="cd-num" id="cd-m">--</span><span class="cd-unit">MIN</span></div>
+            <div class="cd-box"><span class="cd-num" id="cd-s">--</span><span class="cd-unit">SEC</span></div>
         </div>
     </div>
 
-    <!-- 3 action buttons -->
     <div class="btn-group">
-
-        <!-- Button 1: AR Invitation -->
         <button class="btn btn-invite" onclick="openARInvitation()">
-            <span style="font-size:20px">📸</span>
-            <span>Open AR Invitation</span>
+            <span style="font-size:20px">📸</span><span>Open AR Invitation</span>
         </button>
-
-        <!-- Button 2: AR Navigation -->
         <button class="btn btn-nav" onclick="openARNavigation()">
-            <span style="font-size:20px">🧭</span>
-            <span>AR Navigate to Venue</span>
+            <span style="font-size:20px">🧭</span><span>AR Navigate to Venue</span>
         </button>
-
-        <!-- Button 3: AR Event Schedule -->
         <button class="btn btn-schedule" onclick="openARSchedule()">
-            <span style="font-size:20px">📋</span>
-            <span>AR Event Schedule</span>
+            <span style="font-size:20px">📋</span><span>AR Event Schedule</span>
         </button>
-
     </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     AR EVENT SCHEDULE — FULL SCREEN
-     Opens camera + Hiro marker detection.
-     All 7 events appear as gorgeous floating
-     3D holographic panels in AR space.
-     Spinning rings, hearts, sparkles surround
-     the schedule for a beautiful effect.
-══════════════════════════════════════════ -->
-<div id="ar-schedule">
+<!-- ════════════════════════════════
+     PAGE 2 — AR SCHEDULE
+     Full-screen. Camera + 3D cards.
+     A-Frame scene injected here on
+     first tap so canvas = full screen
+     and real camera feed shows through.
+════════════════════════════════ -->
+<div id="page-ar">
 
-    <!-- Status bar -->
-    <div id="ar-status-bar">
-        <div id="ar-status-text">📸 Point at Hiro marker to see schedule</div>
-        <button id="ar-close-btn" onclick="closeARSchedule()">✕</button>
+    <!-- Loading overlay while scripts load -->
+    <div id="ar-loading">
+        <div class="loading-ring" style="border-top-color:#FFB6C1;"></div>
+        <div id="ar-loading-text">Starting AR…</div>
     </div>
 
-    <!-- Hint box (hides when marker found) -->
+    <!-- HUD: floats above the AR scene -->
+    <div id="ar-hud">
+        <div id="ar-topbar">
+            <div id="ar-status-pill">📸 Point at Hiro marker</div>
+            <button id="ar-close-btn" onclick="closeARSchedule()">✕</button>
+        </div>
+    </div>
+
     <div id="ar-hint">
         <div id="ar-hint-title">✨ AR Schedule</div>
         <div id="ar-hint-body">
@@ -307,32 +258,21 @@
         </div>
     </div>
 
-    <!-- Event dots -->
     <div id="ar-dots"></div>
-
 
 </div>
 
-<!-- ══════════════════════════════════════════
-     SCRIPTS
-══════════════════════════════════════════ -->
 <script>
 
 /* ── PETALS ── */
 (function() {
     const colors = ['#FF6B9D','#FFB3C8','#FF8FAB','#FFC8D8','#FFD6E7'];
-    const wrap   = document.getElementById('petals');
+    const wrap = document.getElementById('petals');
     for (let i = 0; i < 28; i++) {
         const p = document.createElement('div');
         p.className = 'petal';
         const sz = 8 + Math.random() * 15;
-        p.style.cssText = [
-            `width:${sz}px`, `height:${sz}px`,
-            `left:${Math.random()*100}vw`, `top:-${sz}px`,
-            `background:${colors[i % colors.length]}`,
-            `animation-duration:${4 + Math.random()*5}s`,
-            `animation-delay:${Math.random()*7}s`
-        ].join(';');
+        p.style.cssText = [`width:${sz}px`,`height:${sz}px`,`left:${Math.random()*100}vw`,`top:-${sz}px`,`background:${colors[i%colors.length]}`,`animation-duration:${4+Math.random()*5}s`,`animation-delay:${Math.random()*7}s`].join(';');
         wrap.appendChild(p);
     }
 })();
@@ -344,59 +284,99 @@ window.addEventListener('load', () => {
 
 /* ── COUNTDOWN ── */
 const WEDDING_TS = new Date('2026-02-14T10:00:00+05:30').getTime();
-function pad(n) { return String(n).padStart(2, '0'); }
+function pad(n) { return String(n).padStart(2,'0'); }
 let cdTimer;
 function tickCountdown() {
     const diff = WEDDING_TS - Date.now();
     if (diff <= 0) { clearInterval(cdTimer); return; }
-    const s = Math.floor(diff / 1000);
-    document.getElementById('cd-d').textContent = pad(Math.floor(s / 86400));
-    document.getElementById('cd-h').textContent = pad(Math.floor((s % 86400) / 3600));
-    document.getElementById('cd-m').textContent = pad(Math.floor((s % 3600) / 60));
-    document.getElementById('cd-s').textContent = pad(s % 60);
+    const s = Math.floor(diff/1000);
+    document.getElementById('cd-d').textContent = pad(Math.floor(s/86400));
+    document.getElementById('cd-h').textContent = pad(Math.floor((s%86400)/3600));
+    document.getElementById('cd-m').textContent = pad(Math.floor((s%3600)/60));
+    document.getElementById('cd-s').textContent = pad(s%60);
 }
 tickCountdown();
 cdTimer = setInterval(tickCountdown, 1000);
 
-/* ── BUTTON 1: AR Invitation ── */
+/* ── BUTTON 1 ── */
 function openARInvitation() {
     alert('📸 AR Invitation\n\nConnect this button to your AR invitation overlay.');
 }
 
-/* ── BUTTON 2: AR Navigation ── */
+/* ── BUTTON 2 ── */
 function openARNavigation() {
-    window.open('https://www.google.com/maps/dir/?api=1&destination=12.9692,79.1559&travelmode=walking', '_blank');
+    window.open('https://www.google.com/maps/dir/?api=1&destination=12.9692,79.1559&travelmode=walking','_blank');
 }
 
 /* ════════════════════════════════════════════
    BUTTON 3 — AR Event Schedule
-   FIX: A-Frame + AR.js are loaded DYNAMICALLY
-   only when the user taps this button.
-   This ensures:
-   1. Camera feed renders (not black screen)
-   2. Canvas sizes to the visible container
-   3. WebGL context is transparent (real camera shows through)
+   
+   KEY INSIGHT: A-Frame NEEDS to be injected
+   directly into the body-level container AFTER
+   that container is visible on screen.
+   
+   Steps:
+   1. Hide landing, show #page-ar (full screen fixed div)
+   2. Load A-Frame + AR.js scripts dynamically
+   3. Inject <a-scene embedded> into #page-ar
+   4. A-Frame creates its canvas at 100% width/height
+      of the viewport → real camera shows through
+   5. Cards appear floating above Hiro marker in AR
 ════════════════════════════════════════════ */
-let arLoaded = false;
+let arScriptsLoaded = false;
 let arSceneInjected = false;
 
-// The full A-Frame scene HTML — injected into #ar-schedule when needed.
-// KEY FIXES in the scene:
-// - No look-at on children of animated <a-entity> — caused invisible cards
-// - Each card is a flat <a-entity> with rotation="0 0 0" facing camera directly
-// - renderer="alpha: true" ensures real camera video shows through WebGL canvas
-// - Cards use scale-based float animation instead of position, which is more stable
-const AR_SCENE_HTML = `
+function openARSchedule() {
+    // Page switch
+    document.getElementById('page-landing').classList.add('hidden');
+    document.getElementById('petals').style.display = 'none';
+    document.getElementById('page-ar').classList.add('active');
+
+    if (arSceneInjected) return;
+
+    if (arScriptsLoaded) {
+        injectARScene();
+    } else {
+        document.getElementById('ar-loading-text').textContent = 'Loading AR engine…';
+        loadScript('https://aframe.io/releases/1.4.2/aframe.min.js', function() {
+            document.getElementById('ar-loading-text').textContent = 'Starting camera…';
+            loadScript('https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js', function() {
+                arScriptsLoaded = true;
+                injectARScene();
+            });
+        });
+    }
+}
+
+function closeARSchedule() {
+    document.getElementById('page-ar').classList.remove('active');
+    document.getElementById('page-landing').classList.remove('hidden');
+    document.getElementById('petals').style.display = '';
+}
+
+function loadScript(src, cb) {
+    const s = document.createElement('script');
+    s.src = src; s.onload = cb;
+    document.head.appendChild(s);
+}
+
+function injectARScene() {
+    arSceneInjected = true;
+
+    // Build the A-Frame scene string.
+    // - embedded: tells A-Frame to size itself to its container, not the whole window
+    // - renderer alpha:true: makes WebGL canvas transparent so camera video shows through
+    // - arjs alpha:true: tells AR.js to use transparent camera compositing
+    const html = `
 <a-scene
     id="ar-scene"
     embedded
     arjs="sourceType: webcam; debugUIEnabled: false; alpha: true;"
     renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true;"
     vr-mode-ui="enabled: false"
-    style="position:absolute; inset:0; width:100%; height:100%; background: transparent;">
+    style="position:absolute;top:0;left:0;width:100%;height:100%;background:transparent;z-index:5000;">
 
     <a-assets></a-assets>
-
     <a-light type="ambient" intensity="3" color="#ffffff"></a-light>
     <a-light type="directional" position="1 2 1" intensity="1.5" color="#ffe4e1"></a-light>
 
@@ -404,106 +384,71 @@ const AR_SCENE_HTML = `
 
         <!-- TITLE -->
         <a-text value="Event Schedule"
-            position="0 3.2 0" align="center" color="#FFD700" width="5"
+            position="0 3.1 0" align="center" color="#FFD700" width="5"
             material="shader: flat"
-            animation="property: scale; from: 1 1 1; to: 1.08 1.08 1.08; dir: alternate; dur: 1600; loop: true">
+            animation="property: scale; from: 1 1 1; to: 1.08 1.08 1; dir: alternate; dur: 1600; loop: true">
         </a-text>
-        <a-text value="Saira & Rahul  14 Feb 2026"
-            position="0 2.75 0" align="center" color="#FFB6C1" width="3.8"
+        <a-text value="Saira &amp; Rahul  14 Feb 2026"
+            position="0 2.7 0" align="center" color="#FFB6C1" width="3.8"
             material="shader: flat">
         </a-text>
-        <a-plane position="0 2.52 0" width="3.2" height="0.025"
+        <a-plane position="0 2.48 0" width="3.2" height="0.022"
             color="#FF6B9D" material="shader: flat; opacity: 0.9; transparent: true">
         </a-plane>
 
-        <!-- ── ROW 1 ── -->
+        <!-- ROW 1: 3 cards staggered in Z for 3D depth -->
 
-        <!-- Card 1: Guest Arrival -->
-        <a-entity position="-2.2 2.2 -0.6">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#FF6B9D" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
-            <a-text value="09:00 AM" position="0 0.17 0.02"
-                align="center" color="#FF6B9D" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Guest Arrival" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <a-entity position="-1.8 2.1 -0.3">
+            <a-plane width="1.48" height="0.68" color="#1a0030" material="shader: flat; opacity: 0.92; transparent: true"></a-plane>
+            <a-plane width="1.56" height="0.76" position="0 0 -0.01" color="#FF6B9D" material="shader: flat; opacity: 0.4; transparent: true"></a-plane>
+            <a-text value="09:00 AM" position="0 0.18 0.02" align="center" color="#FF6B9D" width="2.4" material="shader: flat"></a-text>
+            <a-text value="Guest Arrival" position="0 -0.06 0.02" align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- Card 2: Ceremony -->
-        <a-entity position="0 2.4 0">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#FFD700" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
-            <a-text value="10:00 AM" position="0 0.17 0.02"
-                align="center" color="#FFD700" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Ceremony Begins" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <a-entity position="0 2.3 0.2">
+            <a-plane width="1.48" height="0.68" color="#1a0030" material="shader: flat; opacity: 0.92; transparent: true"></a-plane>
+            <a-plane width="1.56" height="0.76" position="0 0 -0.01" color="#FFD700" material="shader: flat; opacity: 0.4; transparent: true"></a-plane>
+            <a-text value="10:00 AM" position="0 0.18 0.02" align="center" color="#FFD700" width="2.4" material="shader: flat"></a-text>
+            <a-text value="Ceremony Begins" position="0 -0.06 0.02" align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- Card 3: Vows -->
-        <a-entity position="2.2 2.2 -0.6">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#FF6B9D" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
-            <a-text value="11:30 AM" position="0 0.17 0.02"
-                align="center" color="#FF6B9D" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Exchange of Vows" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <a-entity position="1.8 2.1 -0.3">
+            <a-plane width="1.48" height="0.68" color="#1a0030" material="shader: flat; opacity: 0.92; transparent: true"></a-plane>
+            <a-plane width="1.56" height="0.76" position="0 0 -0.01" color="#FF6B9D" material="shader: flat; opacity: 0.4; transparent: true"></a-plane>
+            <a-text value="11:30 AM" position="0 0.18 0.02" align="center" color="#FF6B9D" width="2.4" material="shader: flat"></a-text>
+            <a-text value="Exchange of Vows" position="0 -0.06 0.02" align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- ── ROW 2 ── -->
+        <!-- ROW 2 -->
 
-        <!-- Card 4: Lunch -->
-        <a-entity position="-2.2 1.3 -0.8">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#00FFD1" material="shader: flat; opacity: 0.30; transparent: true"></a-plane>
-            <a-text value="12:00 PM" position="0 0.17 0.02"
-                align="center" color="#00FFD1" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Reception & Lunch" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <a-entity position="-1.8 1.25 -0.5">
+            <a-plane width="1.48" height="0.68" color="#1a0030" material="shader: flat; opacity: 0.92; transparent: true"></a-plane>
+            <a-plane width="1.56" height="0.76" position="0 0 -0.01" color="#00FFD1" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
+            <a-text value="12:00 PM" position="0 0.18 0.02" align="center" color="#00FFD1" width="2.4" material="shader: flat"></a-text>
+            <a-text value="Reception &amp; Lunch" position="0 -0.06 0.02" align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- Card 5: Cake -->
-        <a-entity position="0 1.5 -0.2">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#FFB6C1" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
-            <a-text value="03:00 PM" position="0 0.17 0.02"
-                align="center" color="#FFB6C1" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Cake Cutting" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <a-entity position="0 1.45 0">
+            <a-plane width="1.48" height="0.68" color="#1a0030" material="shader: flat; opacity: 0.92; transparent: true"></a-plane>
+            <a-plane width="1.56" height="0.76" position="0 0 -0.01" color="#FFB6C1" material="shader: flat; opacity: 0.4; transparent: true"></a-plane>
+            <a-text value="03:00 PM" position="0 0.18 0.02" align="center" color="#FFB6C1" width="2.4" material="shader: flat"></a-text>
+            <a-text value="Cake Cutting" position="0 -0.06 0.02" align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- Card 6: Dancing -->
-        <a-entity position="2.2 1.3 -0.8">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#FF9500" material="shader: flat; opacity: 0.32; transparent: true"></a-plane>
-            <a-text value="04:00 PM" position="0 0.17 0.02"
-                align="center" color="#FF9500" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Dancing & Celebration" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.3" material="shader: flat"></a-text>
+        <a-entity position="1.8 1.25 -0.5">
+            <a-plane width="1.48" height="0.68" color="#1a0030" material="shader: flat; opacity: 0.92; transparent: true"></a-plane>
+            <a-plane width="1.56" height="0.76" position="0 0 -0.01" color="#FF9500" material="shader: flat; opacity: 0.38; transparent: true"></a-plane>
+            <a-text value="04:00 PM" position="0 0.18 0.02" align="center" color="#FF9500" width="2.4" material="shader: flat"></a-text>
+            <a-text value="Dancing &amp; Celebration" position="0 -0.06 0.02" align="center" color="#ffffff" width="2.3" material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- ── ROW 3: single centred card ── -->
+        <!-- ROW 3: single card -->
 
-        <!-- Card 7: Farewell -->
-        <a-entity position="0 0.5 -0.4">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#c084fc" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
-            <a-text value="07:00 PM" position="0 0.17 0.02"
-                align="center" color="#c084fc" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Farewell & Send-off" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <a-entity position="0 0.45 -0.2">
+            <a-plane width="1.48" height="0.68" color="#1a0030" material="shader: flat; opacity: 0.92; transparent: true"></a-plane>
+            <a-plane width="1.56" height="0.76" position="0 0 -0.01" color="#c084fc" material="shader: flat; opacity: 0.4; transparent: true"></a-plane>
+            <a-text value="07:00 PM" position="0 0.18 0.02" align="center" color="#c084fc" width="2.4" material="shader: flat"></a-text>
+            <a-text value="Farewell &amp; Send-off" position="0 -0.06 0.02" align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
         </a-entity>
 
         <!-- Spinning rings -->
@@ -515,19 +460,13 @@ const AR_SCENE_HTML = `
             color="#FFD700" material="shader: flat; opacity: 0.22; transparent: true"
             animation="property: rotation; from: 15 0 0; to: 15 -360 0; dur: 16000; loop: true; easing: linear">
         </a-torus>
-        <a-torus position="0 1.6 -0.2" radius="3.1" radius-tubular="0.008"
-            color="#00FFD1" material="shader: flat; opacity: 0.15; transparent: true"
-            animation="property: rotation; from: -10 0 20; to: -10 360 20; dur: 24000; loop: true; easing: linear">
-        </a-torus>
 
         <!-- Floating hearts -->
-        <a-text value="heart" position="-2.7 2.9 0" width="1.2"
-            color="#FF6B9D" material="shader: flat"
-            animation="property: position; from: -2.7 2.9 0; to: -2.7 3.3 0; dir: alternate; dur: 2600; loop: true">
+        <a-text value="heart" position="-2.5 3.0 0" width="1.2" color="#FF6B9D" material="shader: flat"
+            animation="property: position; from: -2.5 3.0 0; to: -2.5 3.4 0; dir: alternate; dur: 2600; loop: true">
         </a-text>
-        <a-text value="heart" position="2.7 2.7 0" width="1.0"
-            color="#FFB6C1" material="shader: flat"
-            animation="property: position; from: 2.7 2.7 0; to: 2.7 3.1 0; dir: alternate; dur: 3000; loop: true">
+        <a-text value="heart" position="2.5 2.8 0" width="1.0" color="#FFB6C1" material="shader: flat"
+            animation="property: position; from: 2.5 2.8 0; to: 2.5 3.2 0; dir: alternate; dur: 3000; loop: true">
         </a-text>
 
     </a-marker>
@@ -535,58 +474,35 @@ const AR_SCENE_HTML = `
     <a-entity camera></a-entity>
 </a-scene>`;
 
-function openARSchedule() {
-    const overlay = document.getElementById('ar-schedule');
-    overlay.classList.add('visible');
+    // Insert scene BEFORE the loading div so it's behind the HUD
+    const pageAR = document.getElementById('page-ar');
+    const arLoading = document.getElementById('ar-loading');
+    arLoading.insertAdjacentHTML('beforebegin', html);
 
-    if (arSceneInjected) return;
-    arSceneInjected = true;
+    // Hide loading once camera is ready (max 4s fallback)
+    const hideLoading = () => document.getElementById('ar-loading').classList.add('hidden');
+    setTimeout(hideLoading, 4000);
 
-    if (arLoaded) {
-        // A-Frame already loaded, just inject the scene
-        injectScene();
-    } else {
-        // Load A-Frame + AR.js dynamically, then inject scene
-        loadScript('https://aframe.io/releases/1.4.2/aframe.min.js', () => {
-            loadScript('https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js', () => {
-                arLoaded = true;
-                injectScene();
+    const waitScene = setInterval(() => {
+        const scene = document.getElementById('ar-scene');
+        if (!scene) return;
+        clearInterval(waitScene);
+        scene.addEventListener('camera-init', hideLoading);
+
+        const waitMarker = setInterval(() => {
+            const marker = document.getElementById('hiro-marker');
+            if (!marker) return;
+            clearInterval(waitMarker);
+            marker.addEventListener('markerFound', () => {
+                document.getElementById('ar-status-pill').textContent = '✅ Schedule visible! 7 events in AR';
+                document.getElementById('ar-hint').classList.add('hidden');
             });
-        });
-    }
-}
-
-function loadScript(src, onload) {
-    const s = document.createElement('script');
-    s.src = src;
-    s.onload = onload;
-    document.head.appendChild(s);
-}
-
-function injectScene() {
-    const overlay = document.getElementById('ar-schedule');
-    overlay.insertAdjacentHTML('beforeend', AR_SCENE_HTML);
-
-    // Wait for scene to be ready then attach marker listeners
-    const waitForScene = setInterval(() => {
-        const scene  = document.getElementById('ar-scene');
-        const marker = document.getElementById('hiro-marker');
-        if (!scene || !marker) return;
-        clearInterval(waitForScene);
-
-        marker.addEventListener('markerFound', () => {
-            document.getElementById('ar-status-text').textContent = '✅ Schedule visible! All 7 events in AR';
-            document.getElementById('ar-hint').classList.add('hidden');
-        });
-        marker.addEventListener('markerLost', () => {
-            document.getElementById('ar-status-text').textContent = '📸 Point at Hiro marker to see schedule';
-            document.getElementById('ar-hint').classList.remove('hidden');
-        });
-    }, 300);
-}
-
-function closeARSchedule() {
-    document.getElementById('ar-schedule').classList.remove('visible');
+            marker.addEventListener('markerLost', () => {
+                document.getElementById('ar-status-pill').textContent = '📸 Point at Hiro marker';
+                document.getElementById('ar-hint').classList.remove('hidden');
+            });
+        }, 300);
+    }, 200);
 }
 
 /* ── EVENT DOTS ── */
@@ -594,14 +510,14 @@ const EVENT_NAMES = ['Arrival','Ceremony','Vows','Lunch','Cake','Dancing','Farew
 const dotWrap = document.getElementById('ar-dots');
 EVENT_NAMES.forEach((name, i) => {
     const d = document.createElement('div');
-    d.className = 'ev-dot' + (i === 0 ? ' on' : '');
+    d.className = 'ev-dot' + (i===0?' on':'');
     d.title = name;
     dotWrap.appendChild(d);
 });
 let dotIdx = 0;
 setInterval(() => {
     document.querySelectorAll('.ev-dot').forEach(d => d.classList.remove('on'));
-    dotIdx = (dotIdx + 1) % EVENT_NAMES.length;
+    dotIdx = (dotIdx+1) % EVENT_NAMES.length;
     document.querySelectorAll('.ev-dot')[dotIdx].classList.add('on');
 }, 1100);
 
