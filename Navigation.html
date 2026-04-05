@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Navigation - Step 1</title>
+    <title>AR Navigation Fixed</title>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh_SqXafoV8q-EEXifAaCGqWOeRi50jNA"></script>
 </head>
 
 <body>
@@ -10,86 +12,44 @@
 
 <script>
 
-// 🔑 PUT YOUR API KEY HERE
-const apiKey = "AIzaSyCh_SqXafoV8q-EEXifAaCGqWOeRi50jNA";
-
-// 📍 Destination (you can change this)
-const destination = "Vellore Institute of Technology";
-
-// 📍 Get User Location
 navigator.geolocation.getCurrentPosition(function(position) {
 
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
+    const origin = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+    };
 
-    console.log("User Location:", lat, lng);
+    console.log("User Location:", origin);
 
-    // 🚀 Google Directions API URL
-    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${lat},${lng}&destination=${destination}&key=${apiKey}`;
+    const destination = "Vellore Institute of Technology";
 
-    fetch(url)
-    .then(response => response.json())
-    .then(data => {
+    const directionsService = new google.maps.DirectionsService();
 
-        console.log("FULL RESPONSE:", data);
+    directionsService.route(
+        {
+            origin: origin,
+            destination: destination,
+            travelMode: google.maps.TravelMode.WALKING
+        },
+        function(result, status) {
 
-        if (data.status === "OK") {
+            console.log("STATUS:", status);
 
-            const polyline = data.routes[0].overview_polyline.points;
+            if (status === "OK") {
 
-            console.log("Encoded Polyline:", polyline);
+                console.log("FULL RESPONSE:", result);
 
-            const decoded = decodePolyline(polyline);
+                const route = result.routes[0].overview_path;
 
-            console.log("Decoded Points:", decoded);
+                console.log("Decoded Points:", route);
 
-        } else {
-            console.log("❌ ERROR:", data.status);
+            } else {
+                console.log("❌ Error:", status);
+            }
         }
-
-    })
-    .catch(error => console.error("Fetch Error:", error));
+    );
 
 });
-
-// 🔥 POLYLINE DECODER FUNCTION
-function decodePolyline(encoded) {
-    let points = [];
-    let index = 0, len = encoded.length;
-    let lat = 0, lng = 0;
-
-    while (index < len) {
-        let b, shift = 0, result = 0;
-
-        do {
-            b = encoded.charCodeAt(index++) - 63;
-            result |= (b & 0x1f) << shift;
-            shift += 5;
-        } while (b >= 0x20);
-
-        let dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
-        lat += dlat;
-
-        shift = 0;
-        result = 0;
-
-        do {
-            b = encoded.charCodeAt(index++) - 63;
-            result |= (b & 0x1f) << shift;
-            shift += 5;
-        } while (b >= 0x20);
-
-        let dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
-        lng += dlng;
-
-        points.push({
-            lat: lat / 1e5,
-            lng: lng / 1e5
-        });
-    }
-
-    return points;
-}
 
 </script>
 
