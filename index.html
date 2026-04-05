@@ -9,34 +9,19 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
     <style>
-        /* 📅 ROUND SCHEDULE BUTTON */
-        #schedule-btn {
+        #overlay {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #FFD700, #FF8C00);
-            color: white;
-            font-size: 24px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            top: 0;
+            left: 0;
+            pointer-events: none;
             z-index: 999;
-            cursor: pointer;
-        }
-
-        #schedule-btn:hover {
-            transform: scale(1.1);
         }
     </style>
-
 </head>
 
 <body style="margin: 0; overflow: hidden;">
 
-<!-- 📅 BUTTON -->
-<button id="schedule-btn" onclick="goToSchedule()">📅</button>
+<canvas id="overlay"></canvas>
 
 <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
 
@@ -49,17 +34,18 @@
 
     <a-marker preset="hiro">
 
-        <!-- 💖 TITLE -->
+        <!-- 💖 GLOWY TITLE -->
         <a-text 
-            value="Rahul ❤️ Saira"
+            value="✨ Rahul ❤️ Saira ✨"
             position="0 0 -1.5"
             align="center"
             color="#FFD700"
             width="4"
-            font="kelsonsans"
-            material="shader: standard; emissive: #FFD700; emissiveIntensity: 1.5"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+            material="emissive: #FFD700; emissiveIntensity: 2"
             look-at="[camera]"
-            animation="property: scale; to: 1.05 1.05 1.05; dir: alternate; dur: 1500; loop: true">
+            animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; dur: 1500; loop: true">
         </a-text>
 
         <!-- 🎯 DETECTED NAME -->
@@ -70,7 +56,6 @@
             align="center"
             color="#FF69B4"
             width="2"
-            font="kelsonsans"
             look-at="[camera]">
         </a-text>
 
@@ -90,14 +75,33 @@
             rotation="-90 0 0">
         </a-entity>
 
-        <!-- 🌸 PETALS -->
+        <!-- 🌸 VERTICAL PETAL SHOWER -->
+
         <a-plane src="rose_petal.png"
             position="-0.5 2 0"
             width="0.25" height="0.25"
             material="transparent:true;side:double"
             look-at="[camera]"
-            animation="property: position; to: -0.5 -1 0; dur: 3000; loop: true"
+            animation="property: position; to: -0.5 -1 0; dur: 3000; loop: true; easing: linear"
             animation__rot="property: rotation; to: 360 360 360; dur: 2000; loop: true">
+        </a-plane>
+
+        <a-plane src="rose_petal.png"
+            position="0.5 2.3 0"
+            width="0.25" height="0.25"
+            material="transparent:true;side:double"
+            look-at="[camera]"
+            animation="property: position; to: 0.5 -1 0; dur: 3200; loop: true; easing: linear"
+            animation__rot="property: rotation; to: 360 360 360; dur: 2200; loop: true">
+        </a-plane>
+
+        <a-plane src="rose_petal.png"
+            position="0 2.8 0"
+            width="0.25" height="0.25"
+            material="transparent:true;side:double"
+            look-at="[camera]"
+            animation="property: position; to: 0 -1 0; dur: 3500; loop: true; easing: linear"
+            animation__rot="property: rotation; to: 360 360 360; dur: 2500; loop: true">
         </a-plane>
 
         <!-- 💬 MESSAGE -->
@@ -108,7 +112,6 @@
             align="center"
             color="#FFF5CC"
             width="3.5"
-            font="kelsonsans"
             look-at="[camera]">
         </a-text>
 
@@ -122,16 +125,13 @@
 let lastName = "";
 let processing = false;
 
-/* 📅 BUTTON FUNCTION */
-function goToSchedule() {
-    window.location.href = "Navigation.html"; // change if needed
-}
-
+// 🔊 Voice
 function speak(text) {
     const msg = new SpeechSynthesisUtterance(text);
     speechSynthesis.speak(msg);
 }
 
+// 🎵 MUSIC FIX
 window.addEventListener("click", () => {
     const music = document.querySelector("#music");
 
@@ -147,23 +147,28 @@ window.addEventListener("click", () => {
     }
 });
 
-/* OCR */
+// ✅ CLEAN NAME DETECTION
 function extractName(text) {
-    text = text.replace(/[^a-zA-Z ]/g, " ");
+
+    text = text.replace(/[^a-zA-Z ]/g, " ").trim();
+
     let words = text.split(/\s+/);
 
-    const ignore = ["hiro","marker","camera","welcome","wedding","invitation","rahul","saira","weds"];
+    const ignore = [
+        "hiro","marker","camera","welcome","wedding",
+        "invitation","rahul","saira","weds"
+    ];
 
-    let valid = words.filter(w =>
+    let filtered = words.filter(w =>
         w.length >= 3 &&
-        w.length <= 8 &&
-        /^[A-Za-z]+$/.test(w) &&
+        /^[A-Z][a-z]+$/.test(w) &&
         !ignore.includes(w.toLowerCase())
     );
 
-    return valid[0] || "";
+    return filtered[0] || "";
 }
 
+// 🔍 OCR LOOP
 async function scan() {
 
     if (processing) return;
@@ -198,17 +203,26 @@ async function scan() {
 
     const result = await Tesseract.recognize(img, 'eng');
 
-    let name = extractName(result.data.text);
+    const text = result.data.text;
+
+    let name = extractName(text);
 
     if (name && name !== lastName) {
+
         lastName = name;
 
-        let msg = `Dear ${name}, you are invited to our wedding 💍`;
+        let fullMsg = `Dear ${name}. With great joy in our hearts, we invite you to celebrate our special day. Your presence will make our celebration even more memorable.`;
 
-        document.querySelector("#personal-msg").setAttribute("value", msg);
-        document.querySelector("#detected-name").setAttribute("value", name);
+        document.querySelector("#personal-msg")
+            .setAttribute("value",
+`Dear ${name},
+With great joy in our hearts, we invite you to celebrate our special day 💍
+Your presence will make our celebration even more memorable 💐`);
 
-        speak(msg);
+        document.querySelector("#detected-name")
+            .setAttribute("value", name);
+
+        speak(fullMsg);
     }
 
     processing = false;
