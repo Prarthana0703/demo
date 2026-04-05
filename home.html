@@ -5,18 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Saira's Wedding 💍</title>
 
+    <!-- A-Frame + AR.js — for AR schedule overlay -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <link  href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Georgia', serif; background: #0D0014; color: #fff; overflow-x: hidden; }
+        html, body { font-family: 'Georgia', serif; background: #0D0014; color: #fff; overflow-x: hidden; }
 
+        /* ══ LOADING ══ */
         #loading-screen {
             position: fixed; inset: 0; z-index: 9999; background: #0D0014;
             display: flex; flex-direction: column;
@@ -25,13 +23,15 @@
         }
         #loading-screen.hidden { opacity: 0; pointer-events: none; }
         .loading-ring {
-            width: 60px; height: 60px;
-            border: 3px solid rgba(255,182,193,0.2); border-top-color: #FF6B9D;
-            border-radius: 50%; animation: spin 1s linear infinite;
+            width: 64px; height: 64px;
+            border: 3px solid rgba(255,182,193,0.2);
+            border-top-color: #FF6B9D; border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { color: rgba(255,182,193,0.7); font-size: 15px; letter-spacing: 2px; }
 
+        /* ══ PETALS ══ */
         .petals-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
         .petal { position: absolute; border-radius: 50%; opacity: 0.6; animation: fall linear infinite; }
         @keyframes fall {
@@ -39,213 +39,198 @@
             100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
         }
 
+        /* ══ LANDING PAGE ══ */
         #landing {
+            position: relative; z-index: 1;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            min-height: 100vh; padding: 24px 24px 80px;
+            min-height: 100vh; padding: 28px 20px;
             background: radial-gradient(ellipse at top, #1a0028 0%, #0D0014 70%);
         }
+
+        /* Invite card */
         .invite-card {
-            position: relative; z-index: 1;
+            position: relative; z-index: 2;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,182,193,0.3);
-            border-radius: 20px; padding: 40px 32px;
-            max-width: 380px; width: 100%;
-            text-align: center; backdrop-filter: blur(10px);
+            border-radius: 22px; padding: 36px 28px;
+            max-width: 370px; width: 100%;
+            text-align: center; backdrop-filter: blur(12px);
             animation: fadeUp 1s ease both;
         }
-        @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-        .eyebrow { color: rgba(255,182,193,0.7); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
-        .names   { color: #FFB6C1; font-size: 38px; font-weight: 700; line-height: 1.1; }
-        .amp     { color: rgba(255,182,193,0.5); font-size: 24px; margin: 8px 0; display: block; }
-        .divider { width: 60px; height: 1px; background: rgba(255,182,193,0.3); margin: 20px auto; }
-        .detail  { color: #fff; font-size: 14px; margin: 6px 0; }
-        .ring    { font-size: 52px; margin: 24px 0 0; display: block; animation: pulse 2s ease-in-out infinite; }
-        @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(32px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        .eyebrow { color: rgba(255,182,193,0.7); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }
+        .names   { color: #FFB6C1; font-size: 36px; font-weight: 700; line-height: 1.1; }
+        .amp     { color: rgba(255,182,193,0.45); font-size: 22px; margin: 6px 0; display: block; }
+        .divider { width: 56px; height: 1px; background: rgba(255,182,193,0.3); margin: 18px auto; }
+        .detail  { color: #fff; font-size: 14px; margin: 5px 0; }
+        .ring    { font-size: 50px; margin: 20px 0 0; display: block; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.09); } }
 
+        /* ══ COUNTDOWN ══ */
+        .countdown-wrap {
+            position: relative; z-index: 2;
+            width: 100%; max-width: 370px; margin-top: 16px;
+            background: rgba(255,182,193,0.06);
+            border: 1px solid rgba(255,182,193,0.2);
+            border-radius: 16px; padding: 14px 10px;
+            text-align: center;
+            animation: fadeUp 1.1s ease both;
+        }
+        .countdown-label {
+            color: rgba(255,182,193,0.55); font-size: 11px;
+            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;
+        }
+        .countdown-boxes { display: flex; justify-content: center; gap: 8px; }
+        .cd-box {
+            display: flex; flex-direction: column; align-items: center;
+            background: rgba(255,59,127,0.13);
+            border: 1px solid rgba(255,59,127,0.32);
+            border-radius: 10px; padding: 9px 12px; min-width: 56px;
+        }
+        .cd-num  { color: #FFB6C1; font-size: 26px; font-weight: 700; font-family: monospace; line-height: 1; }
+        .cd-unit { color: rgba(255,182,193,0.45); font-size: 9px; letter-spacing: 1px; margin-top: 4px; }
+
+        /* ══ BUTTONS ══ */
         .btn-group {
-            position: relative; z-index: 1;
-            width: 100%; max-width: 380px; margin-top: 20px;
-            display: flex; flex-direction: column; gap: 12px;
+            position: relative; z-index: 2;
+            width: 100%; max-width: 370px; margin-top: 16px;
+            display: flex; flex-direction: column; gap: 11px;
             animation: fadeUp 1.2s ease both;
         }
         .btn {
-            display: block; width: 100%; padding: 15px;
-            border-radius: 12px; border: none; cursor: pointer;
-            font-size: 15px; font-weight: 700; text-align: center;
-            transition: transform 0.15s, opacity 0.15s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 15px 20px;
+            border-radius: 14px; border: none; cursor: pointer;
+            font-size: 15px; font-weight: 700; font-family: 'Georgia', serif;
+            text-align: center; text-decoration: none;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
-        .btn:active { transform: scale(0.97); opacity: 0.9; }
-        .btn-primary   { background: #FF3B7F; color: #fff; }
-        .btn-secondary { background: rgba(255,59,127,0.12); color: #FF6B9D; border: 1px solid rgba(255,59,127,0.4); }
-        .btn-nav       { background: rgba(0,200,255,0.15); color: #00C8FF; border: 1px solid rgba(0,200,255,0.4); }
-        .btn-ar-sched  { background: rgba(255,215,0,0.15); color: #FFD700; border: 1px solid rgba(255,215,0,0.4); }
+        .btn:active { transform: scale(0.96); }
 
-        /* AR overlay — visibility trick, never display:none */
-        #ar-overlay {
-            position: fixed; inset: 0; z-index: 500; background: #000;
-            visibility: hidden; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        /* Button 1 — AR Invitation */
+        .btn-invite {
+            background: linear-gradient(135deg, #FF3B7F 0%, #c0255a 100%);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(255,59,127,0.35);
         }
-        #ar-overlay.visible { visibility: visible; opacity: 1; pointer-events: all; }
-        #ar-scene { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+        .btn-invite:active { box-shadow: 0 2px 8px rgba(255,59,127,0.2); }
 
-        .ar-hud {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 600; background: rgba(0,0,0,0.65);
-            border: 1px solid rgba(255,182,193,0.3);
-            border-radius: 30px; padding: 10px 24px;
-            color: rgba(255,182,193,0.9); font-size: 13px;
-            white-space: nowrap; pointer-events: none;
+        /* Button 2 — AR Navigation */
+        .btn-nav {
+            background: rgba(0,200,255,0.12);
+            color: #00C8FF;
+            border: 1px solid rgba(0,200,255,0.4);
+            box-shadow: 0 4px 16px rgba(0,200,255,0.12);
         }
-        .ar-close {
-            position: fixed; top: 20px; right: 20px; z-index: 700;
+        .btn-nav:active { box-shadow: none; }
+
+        /* Button 3 — AR Schedule */
+        .btn-schedule {
+            background: rgba(255,182,193,0.1);
+            color: #FFB6C1;
+            border: 1px solid rgba(255,182,193,0.35);
+            box-shadow: 0 4px 16px rgba(255,182,193,0.08);
+        }
+        .btn-schedule:active { box-shadow: none; }
+
+        /* ══ AR SCHEDULE FULLSCREEN OVERLAY ══ */
+        #ar-schedule {
+            position: fixed; inset: 0; z-index: 700;
+            background: #000;
+            /* Hidden but in DOM so A-Frame canvas sizes correctly */
+            visibility: hidden; opacity: 0;
+            transition: opacity 0.35s ease;
+            pointer-events: none;
+        }
+        #ar-schedule.visible {
+            visibility: visible; opacity: 1; pointer-events: all;
+        }
+
+        /* A-Frame fills entire screen */
+        #ar-scene {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Top status bar */
+        #ar-status-bar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 800;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 18px;
+            background: linear-gradient(to bottom, rgba(13,0,20,0.9) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        #ar-status-text {
+            color: rgba(255,182,193,0.95); font-size: 13px; font-weight: 700;
+            letter-spacing: 0.3px; pointer-events: none;
+            background: rgba(13,0,20,0.6); border: 1px solid rgba(255,182,193,0.25);
+            border-radius: 20px; padding: 8px 18px; backdrop-filter: blur(6px);
+        }
+        #ar-close-btn {
+            pointer-events: all;
             width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
-            color: #fff; font-size: 18px; cursor: pointer;
+            background: rgba(13,0,20,0.75); border: 1px solid rgba(255,182,193,0.3);
+            color: #FFB6C1; font-size: 17px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(6px); flex-shrink: 0;
         }
 
-        /* Mode tabs */
-        #ar-mode-bar {
-            position: fixed; bottom: 86px; left: 50%; transform: translateX(-50%);
-            z-index: 700; display: flex; gap: 8px;
-            background: rgba(0,0,0,0.72);
-            border: 1px solid rgba(255,182,193,0.2);
-            border-radius: 30px; padding: 6px 10px;
+        /* Marker hint — shown before marker detected */
+        #ar-hint {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            z-index: 800; width: 88%; max-width: 310px;
+            background: rgba(13,0,20,0.88);
+            border: 1px solid rgba(255,182,193,0.3);
+            border-radius: 18px; padding: 18px 22px;
+            text-align: center; backdrop-filter: blur(8px);
+            pointer-events: none;
+            transition: opacity 0.4s;
         }
-        .ar-mode-btn {
-            padding: 8px 18px; border-radius: 20px; border: none;
-            font-size: 13px; font-weight: 700; cursor: pointer;
-            background: transparent; color: rgba(255,182,193,0.55);
-            transition: all 0.2s;
-        }
-        .ar-mode-btn.active { background: #FF3B7F; color: #fff; }
+        #ar-hint.hidden { opacity: 0; }
+        #ar-hint-title { color: #FFB6C1; font-size: 15px; font-weight: 700; margin-bottom: 7px; }
+        #ar-hint-body  { color: rgba(255,182,193,0.75); font-size: 12px; line-height: 1.7; }
 
-        /* Name popup */
-        #name-popup {
-            display: none; position: fixed; bottom: 160px; left: 50%; transform: translateX(-50%);
-            z-index: 700; width: 90%; max-width: 360px;
-            background: rgba(13,0,20,0.95); border: 1px solid rgba(255,182,193,0.4);
-            border-radius: 16px; padding: 20px 24px; text-align: center;
+        /* Bottom event dot navigator */
+        #ar-dots {
+            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+            z-index: 800; display: flex; gap: 9px; align-items: center;
+            pointer-events: none;
         }
-        #name-popup.visible { display: block; animation: slideUp 0.4s ease; }
-        @keyframes slideUp {
-            from { opacity:0; transform: translate(-50%,20px); }
-            to   { opacity:1; transform: translate(-50%,0); }
+        .ev-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: rgba(255,182,193,0.25);
+            transition: all 0.4s ease;
         }
-        .popup-name { color: #FFB6C1; font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-        .popup-msg  { color: rgba(255,255,255,0.8); font-size: 13px; line-height: 1.6; }
-
-        #ar-nav-btn {
-            display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 800;
+        .ev-dot.on {
+            background: #FF6B9D;
+            transform: scale(1.6);
+            box-shadow: 0 0 8px rgba(255,107,157,0.9);
         }
-        #ar-nav-btn.visible { display: block; }
-        #ar-nav-btn button {
-            padding: 14px 32px; background: linear-gradient(135deg,#00C8FF,#0080CC);
-            color: #fff; font-size: 15px; font-weight: 700;
-            border: none; border-radius: 30px; cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0,200,255,0.4);
-        }
-
-        #music-hint {
-            position: fixed; top: 80px; right: 16px; z-index: 600;
-            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,182,193,0.2);
-            border-radius: 8px; padding: 8px 14px;
-            color: rgba(255,182,193,0.7); font-size: 12px; cursor: pointer;
-        }
-
-        /* AR Schedule info panel */
-        #ar-schedule-info {
-            display: none; position: fixed; top: 68px; left: 50%; transform: translateX(-50%);
-            z-index: 650; width: 92%; max-width: 360px;
-            background: rgba(13,0,20,0.88); border: 1px solid rgba(255,215,0,0.3);
-            border-radius: 16px; padding: 14px 18px; backdrop-filter: blur(6px);
-        }
-        #ar-schedule-info.visible { display: block; }
-        #ar-schedule-info h3 { color: #FFD700; font-size: 13px; margin-bottom: 10px; letter-spacing: 0.5px; }
-        .ar-srow { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
-        .ar-sdot { width: 6px; height: 6px; border-radius: 50%; background: #FFD700; flex-shrink: 0; }
-        .ar-stime  { color: #FFD700; font-family: monospace; font-size: 11px; min-width: 66px; }
-        .ar-sevent { color: #fff; font-size: 12px; }
-
-        /* 2D schedule */
-        #schedule-panel {
-            display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 800;
-            background: #100018; border-top: 1px solid rgba(255,182,193,0.2);
-            border-radius: 20px 20px 0 0; padding: 28px 24px;
-        }
-        #schedule-panel.visible { display: block; animation: slideUpPanel 0.3s ease; }
-        @keyframes slideUpPanel { from{transform:translateY(100%);} to{transform:translateY(0);} }
-        .schedule-title { color: #FFB6C1; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-        .schedule-row { display: flex; gap: 12px; margin-bottom: 11px; align-items: flex-start; }
-        .s-dot  { width: 8px; height: 8px; border-radius: 50%; background: #FF6B9D; margin-top: 4px; flex-shrink: 0; }
-        .s-time  { color: #FF6B9D; font-size: 13px; font-family: monospace; min-width: 80px; }
-        .s-event { color: #fff; font-size: 13px; }
-        .panel-close { display: block; margin-top: 20px; text-align: center; color: rgba(255,182,193,0.5); font-size: 14px; cursor: pointer; }
-
-        /* Nav screen */
-        #nav-screen { display: none; position: fixed; inset: 0; z-index: 600; background: #000; }
-        #nav-screen.visible { display: block; }
-        #nav-camera { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-        #nav-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        #nav-hud {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.85); padding: 12px 25px;
-            border-radius: 30px; border: 2px solid #00ff00;
-            color: white; font-size: 15px; z-index: 10;
-            text-align: center; min-width: 230px;
-        }
-        #nav-distance {
-            position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%);
-            color: #00ff00; font-size: 28px; font-weight: bold;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.8); z-index: 10;
-        }
-        #nav-mini-map {
-            position: absolute; bottom: 20px; right: 20px;
-            width: 150px; height: 150px;
-            border-radius: 50%; border: 3px solid white;
-            z-index: 10; overflow: hidden; background: #111;
-        }
-        #nav-close {
-            position: absolute; top: 20px; right: 20px; z-index: 20;
-            width: 42px; height: 42px; border-radius: 50%;
-            background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3);
-            color: #fff; font-size: 18px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .arrived-ui { border-color: #ffd700 !important; color: #ffd700 !important; }
-        #arrived-banner {
-            display: none; position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%,-50%);
-            background: rgba(0,0,0,0.9); border: 2px solid #ffd700;
-            border-radius: 20px; padding: 30px 40px; text-align: center; z-index: 30;
-        }
-        #arrived-banner.visible { display: block; }
-        #arrived-banner h2 { color: #ffd700; font-size: 24px; margin-bottom: 10px; }
-        #arrived-banner p  { color: #fff; font-size: 14px; }
-
-        /* Countdown */
-        #countdown-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
-            background: rgba(13,0,20,0.92);
-            border-top: 1px solid rgba(255,182,193,0.2);
-            padding: 8px 0 12px; text-align: center;
-        }
-        #countdown-label  { color: rgba(255,182,193,0.55); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 3px; }
-        #countdown-digits { color: #FFB6C1; font-size: 18px; font-family: monospace; font-weight: 700; letter-spacing: 3px; }
     </style>
 </head>
 <body>
 
+<!-- ══ LOADING ══ -->
 <div id="loading-screen">
     <div class="loading-ring"></div>
     <div class="loading-text">Loading your invitation…</div>
 </div>
 
+<!-- ══ PETALS ══ -->
 <div class="petals-bg" id="petals"></div>
 
-<!-- LANDING -->
+<!-- ══════════════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════════════ -->
 <div id="landing">
+
+    <!-- Invite card -->
     <div class="invite-card">
         <div class="eyebrow">You're invited to</div>
         <div class="names">Saira</div>
@@ -257,544 +242,523 @@
         <div class="detail">⏰ &nbsp;Ceremony at 10:00 AM</div>
         <span class="ring">💍</span>
     </div>
+
+    <!-- Live countdown -->
+    <div class="countdown-wrap">
+        <div class="countdown-label">Wedding begins in</div>
+        <div class="countdown-boxes">
+            <div class="cd-box">
+                <span class="cd-num" id="cd-d">--</span>
+                <span class="cd-unit">DAYS</span>
+            </div>
+            <div class="cd-box">
+                <span class="cd-num" id="cd-h">--</span>
+                <span class="cd-unit">HRS</span>
+            </div>
+            <div class="cd-box">
+                <span class="cd-num" id="cd-m">--</span>
+                <span class="cd-unit">MIN</span>
+            </div>
+            <div class="cd-box">
+                <span class="cd-num" id="cd-s">--</span>
+                <span class="cd-unit">SEC</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 action buttons -->
     <div class="btn-group">
-        <button class="btn btn-primary"  onclick="openAR('invite')">📸 &nbsp;Open AR Invitation</button>
-        <button class="btn btn-ar-sched" onclick="openAR('schedule')">✨ &nbsp;View AR Event Schedule</button>
-        <button class="btn btn-nav"      onclick="startNavigation()">🧭 &nbsp;AR Navigate to Venue</button>
-        <button class="btn btn-secondary" onclick="toggleSchedule()">📋 &nbsp;Event Schedule</button>
+
+        <!-- Button 1: AR Invitation -->
+        <button class="btn btn-invite" onclick="openARInvitation()">
+            <span style="font-size:20px">📸</span>
+            <span>Open AR Invitation</span>
+        </button>
+
+        <!-- Button 2: AR Navigation -->
+        <button class="btn btn-nav" onclick="openARNavigation()">
+            <span style="font-size:20px">🧭</span>
+            <span>AR Navigate to Venue</span>
+        </button>
+
+        <!-- Button 3: AR Event Schedule -->
+        <button class="btn btn-schedule" onclick="openARSchedule()">
+            <span style="font-size:20px">📋</span>
+            <span>AR Event Schedule</span>
+        </button>
+
     </div>
 </div>
 
-<!-- 2D SCHEDULE -->
-<div id="schedule-panel">
-    <div class="schedule-title">Event Schedule 💒</div>
-    <div class="schedule-row"><span class="s-dot"></span><span class="s-time">09:00 AM</span><span class="s-event">Guest arrival &amp; seating</span></div>
-    <div class="schedule-row"><span class="s-dot"></span><span class="s-time">10:00 AM</span><span class="s-event">Wedding ceremony begins</span></div>
-    <div class="schedule-row"><span class="s-dot"></span><span class="s-time">11:30 AM</span><span class="s-event">Exchange of vows</span></div>
-    <div class="schedule-row"><span class="s-dot"></span><span class="s-time">12:00 PM</span><span class="s-event">Reception &amp; lunch</span></div>
-    <div class="schedule-row"><span class="s-dot"></span><span class="s-time">03:00 PM</span><span class="s-event">Cake cutting</span></div>
-    <div class="schedule-row"><span class="s-dot"></span><span class="s-time">04:00 PM</span><span class="s-event">Dancing &amp; celebration</span></div>
-    <div class="schedule-row"><span class="s-dot"></span><span class="s-time">07:00 PM</span><span class="s-event">Farewell &amp; send-off</span></div>
-    <span class="panel-close" onclick="toggleSchedule()">✕ Close</span>
-</div>
+<!-- ══════════════════════════════════════════
+     AR EVENT SCHEDULE — FULL SCREEN
+     Opens camera + Hiro marker detection.
+     All 7 events appear as gorgeous floating
+     3D holographic panels in AR space.
+     Spinning rings, hearts, sparkles surround
+     the schedule for a beautiful effect.
+══════════════════════════════════════════ -->
+<div id="ar-schedule">
 
-<!-- AR OVERLAY -->
-<div id="ar-overlay">
-    <div class="ar-hud" id="ar-status">👆 Point camera at the Hiro marker</div>
-    <button class="ar-close" onclick="closeAR()">✕</button>
-    <div id="music-hint" onclick="playMusic()">🎵 Tap for music</div>
-
-    <div id="ar-mode-bar">
-        <button class="ar-mode-btn active" id="tab-invite"   onclick="setARMode('invite')">💍 Invite</button>
-        <button class="ar-mode-btn"        id="tab-schedule" onclick="setARMode('schedule')">📅 Schedule</button>
+    <!-- Status bar -->
+    <div id="ar-status-bar">
+        <div id="ar-status-text">📸 Point at Hiro marker to see schedule</div>
+        <button id="ar-close-btn" onclick="closeARSchedule()">✕</button>
     </div>
 
-    <div id="name-popup">
-        <div class="popup-name" id="popup-name-text"></div>
-        <div class="popup-msg"  id="popup-msg-text"></div>
+    <!-- Hint box (hides when marker found) -->
+    <div id="ar-hint">
+        <div id="ar-hint-title">✨ AR Schedule</div>
+        <div id="ar-hint-body">
+            Point your phone camera at the<br>
+            <strong style="color:#FFB6C1">Hiro AR marker</strong><br>
+            to see all 7 events floating<br>
+            in 3D augmented reality
+        </div>
     </div>
 
-    <!-- Schedule info overlay (shown when in schedule mode) -->
-    <div id="ar-schedule-info">
-        <h3>📅 Point Hiro marker at camera — events appear in 3D</h3>
-        <div class="ar-srow"><span class="ar-sdot"></span><span class="ar-stime">09:00 AM</span><span class="ar-sevent">Guest arrival &amp; seating</span></div>
-        <div class="ar-srow"><span class="ar-sdot"></span><span class="ar-stime">10:00 AM</span><span class="ar-sevent">Wedding ceremony begins</span></div>
-        <div class="ar-srow"><span class="ar-sdot"></span><span class="ar-stime">11:30 AM</span><span class="ar-sevent">Exchange of vows 💍</span></div>
-        <div class="ar-srow"><span class="ar-sdot"></span><span class="ar-stime">12:00 PM</span><span class="ar-sevent">Reception &amp; lunch</span></div>
-        <div class="ar-srow"><span class="ar-sdot"></span><span class="ar-stime">03:00 PM</span><span class="ar-sevent">Cake cutting 🎂</span></div>
-        <div class="ar-srow"><span class="ar-sdot"></span><span class="ar-stime">04:00 PM</span><span class="ar-sevent">Dancing &amp; celebration 🕺</span></div>
-        <div class="ar-srow"><span class="ar-sdot"></span><span class="ar-stime">07:00 PM</span><span class="ar-sevent">Farewell &amp; send-off 🌙</span></div>
-    </div>
+    <!-- Event dots -->
+    <div id="ar-dots"></div>
 
-    <div id="ar-nav-btn">
-        <button onclick="closeAR(); startNavigation();">🧭 Navigate to Venue</button>
-    </div>
+    <!-- ══ A-FRAME SCENE ══
+         Always in DOM (never display:none) so
+         A-Frame initialises at the correct canvas
+         size. Hidden with visibility/opacity only.
+    ══ -->
+    <a-scene
+        id="ar-scene"
+        embedded
+        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        renderer="logarithmicDepthBuffer: true; alpha: true; antialias: true;"
+        vr-mode-ui="enabled: false">
 
-    <!-- A-Frame: always in DOM, never display:none -->
-    <a-scene id="ar-scene" embedded arjs="sourceType: webcam; debugUIEnabled: false;"
-        renderer="logarithmicDepthBuffer: true;" vr-mode-ui="enabled: false">
-
-        <a-entity id="music-entity"></a-entity>
-        <a-light type="ambient" intensity="1.5"></a-light>
-        <a-light type="directional" position="1 3 1" intensity="1"></a-light>
+        <!-- Lights -->
+        <a-light type="ambient"     intensity="2.2" color="#ffffff"></a-light>
+        <a-light type="directional" position="2 5 3" intensity="1.4" color="#ffe4e1"></a-light>
+        <a-light type="point"       position="0 3 1" intensity="2.0" color="#FF6B9D" distance="8"></a-light>
+        <a-light type="point"       position="0 0 1" intensity="1.2" color="#FFD700" distance="6"></a-light>
 
         <a-marker preset="hiro" id="hiro-marker">
 
-            <!-- ══ INVITE GROUP ══ -->
-            <a-entity id="invite-group">
-                <a-text value="Rahul ❤️ Saira" position="0 0 -1.5" align="center"
-                    color="#FFD700" width="4" font="kelsonsans"
-                    material="shader:flat;color:#FFD700" look-at="[camera]"
-                    animation="property: scale; to: 1.05 1.05 1.05; dir: alternate; dur: 1500; loop: true">
-                </a-text>
-                <a-text id="detected-name" value="" position="0 0.5 2.2" align="center"
-                    color="#FF69B4" width="2" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                </a-text>
-                <a-entity gltf-model="wedding_gate-v1.glb" position="0 -1.2 0.5" scale="1.5 1.5 2" rotation="-90 0 0"></a-entity>
-                <a-entity gltf-model="couple.glb" position="0 -0.25 0.2" scale="0.6 0.6 0.6" rotation="-90 0 0"></a-entity>
-                <a-plane src="rose_petal.png" position="-0.5 2 0"   width="0.25" height="0.25" material="shader:flat;transparent:true;side:double" look-at="[camera]" animation="property:position;to:-0.5 -1 0;dur:3000;loop:true" animation__rot="property:rotation;to:360 360 360;dur:2000;loop:true"></a-plane>
-                <a-plane src="rose_petal.png" position="0.5 2.3 0"  width="0.25" height="0.25" material="shader:flat;transparent:true;side:double" look-at="[camera]" animation="property:position;to:0.5 -1 0;dur:3200;loop:true" animation__rot="property:rotation;to:360 360 360;dur:2200;loop:true"></a-plane>
-                <a-plane src="rose_petal.png" position="0 2.8 0"    width="0.25" height="0.25" material="shader:flat;transparent:true;side:double" look-at="[camera]" animation="property:position;to:0 -1 0;dur:3500;loop:true" animation__rot="property:rotation;to:360 360 360;dur:2500;loop:true"></a-plane>
-                <a-plane src="rose_petal.png" position="-0.8 3.2 0" width="0.22" height="0.22" material="shader:flat;transparent:true;side:double" look-at="[camera]" animation="property:position;to:-0.8 -1 0;dur:3000;loop:true" animation__rot="property:rotation;to:360 360 360;dur:2000;loop:true"></a-plane>
-                <a-plane src="rose_petal.png" position="0.8 3.5 0"  width="0.22" height="0.22" material="shader:flat;transparent:true;side:double" look-at="[camera]" animation="property:position;to:0.8 -1 0;dur:3200;loop:true" animation__rot="property:rotation;to:360 360 360;dur:2200;loop:true"></a-plane>
-                <a-plane src="rose_petal.png" position="-0.2 3.8 0" width="0.2"  height="0.2"  material="shader:flat;transparent:true;side:double" look-at="[camera]" animation="property:position;to:-0.2 -1 0;dur:2800;loop:true" animation__rot="property:rotation;to:360 360 360;dur:1800;loop:true"></a-plane>
-                <a-plane src="rose_petal.png" position="0.3 4 0"    width="0.2"  height="0.2"  material="shader:flat;transparent:true;side:double" look-at="[camera]" animation="property:position;to:0.3 -1 0;dur:3000;loop:true" animation__rot="property:rotation;to:360 360 360;dur:2000;loop:true"></a-plane>
-                <a-text id="personal-msg" value="Scanning for your name…" position="0 -1.3 2.2" align="center"
-                    color="#FFF5CC" width="3.5" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                </a-text>
+            <!-- ════════════════════════════
+                 TITLE SECTION
+            ════════════════════════════ -->
+
+            <!-- Golden "Event Schedule" title — pulses -->
+            <a-text
+                value="✨ Event Schedule ✨"
+                position="0 3.5 0"
+                align="center"
+                color="#FFD700"
+                width="5.5"
+                font="kelsonsans"
+                material="shader: flat"
+                look-at="[camera]"
+                animation="property: scale; from: 1 1 1; to: 1.07 1.07 1.07; dir: alternate; dur: 1600; loop: true; easing: easeInOutSine">
+            </a-text>
+
+            <!-- Subtitle couple names -->
+            <a-text
+                value="Saira ❤️ Rahul  ·  14 Feb 2026"
+                position="0 3.0 0"
+                align="center"
+                color="#FFB6C1"
+                width="4.2"
+                font="kelsonsans"
+                material="shader: flat"
+                look-at="[camera]">
+            </a-text>
+
+            <!-- Decorative separator line -->
+            <a-plane
+                position="0 2.72 0.01"
+                width="3.5" height="0.02"
+                color="#FF6B9D"
+                material="shader: flat; opacity: 0.8; transparent: true"
+                look-at="[camera]">
+            </a-plane>
+
+            <!-- ════════════════════════════
+                 ROW 1 — 3 cards across top
+            ════════════════════════════ -->
+
+            <!-- EVENT 1: Guest Arrival — left -->
+            <a-entity
+                position="-1.7 2.05 0.05"
+                animation="property: position; from: -1.7 2.05 0.05; to: -1.7 2.18 0.05; dir: alternate; dur: 2400; loop: true; easing: easeInOutSine">
+                <!-- dark background -->
+                <a-plane width="1.5" height="0.62"
+                    color="#120020" material="shader: flat; opacity: 0.92; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <!-- coloured glow border -->
+                <a-plane width="1.58" height="0.70" position="0 0 -0.008"
+                    color="#FF6B9D" material="shader: flat; opacity: 0.22; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <!-- time -->
+                <a-text value="09:00 AM"
+                    position="0 0.16 0.02" align="center"
+                    color="#FF6B9D" width="2.4" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+                <!-- event -->
+                <a-text value="🎊 Guest Arrival"
+                    position="0 -0.04 0.02" align="center"
+                    color="#FFF8EE" width="2.7" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
             </a-entity>
 
-            <!-- ══ SCHEDULE GROUP ══ -->
-            <a-entity id="schedule-group" visible="false">
-
-                <!-- Header banner -->
-                <a-plane position="0 3.5 0" width="3.4" height="0.6"
-                    material="shader:flat;color:#1a0030;opacity:0.92;transparent:true" look-at="[camera]">
-                </a-plane>
-                <a-text value="💒 Wedding Day Schedule" position="0 3.5 0.02"
-                    align="center" color="#FFD700" width="3.8" font="kelsonsans"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-
-                <!-- Timeline spine -->
-                <a-box position="-0.9 1.35 0" width="0.05" height="3.6" depth="0.05"
-                    material="shader:flat;color:#FF6B9D;opacity:0.5;transparent:true">
-                </a-box>
-
-                <!-- Event rows: dot + spinning cube + card + text -->
-
-                <!-- 09:00 -->
-                <a-entity position="0 2.9 0">
-                    <a-sphere position="-0.9 0 0" radius="0.1" material="shader:flat;color:#FF6B9D"></a-sphere>
-                    <a-box position="-0.9 0 0" width="0.2" height="0.2" depth="0.2" rotation="45 45 0"
-                        material="shader:flat;color:#FF6B9D"
-                        animation="property:rotation;to:405 45 0;loop:true;dur:3000;easing:linear">
-                    </a-box>
-                    <a-plane position="0.35 0 0.01" width="2.5" height="0.48"
-                        material="shader:flat;color:#200035;opacity:0.9;transparent:true" look-at="[camera]">
-                    </a-plane>
-                    <a-text value="09:00 AM" position="0.35 0.1 0.02" align="center"
-                        color="#FF6B9D" width="1.8" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                    <a-text value="Guest arrival &amp; seating" position="0.35 -0.08 0.02" align="center"
-                        color="#FFD6E7" width="2.6" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                </a-entity>
-
-                <!-- 10:00 -->
-                <a-entity position="0 2.2 0">
-                    <a-sphere position="-0.9 0 0" radius="0.1" material="shader:flat;color:#FFD700"></a-sphere>
-                    <a-box position="-0.9 0 0" width="0.2" height="0.2" depth="0.2" rotation="45 45 0"
-                        material="shader:flat;color:#FFD700"
-                        animation="property:rotation;to:405 45 0;loop:true;dur:2800;easing:linear">
-                    </a-box>
-                    <a-plane position="0.35 0 0.01" width="2.5" height="0.48"
-                        material="shader:flat;color:#200035;opacity:0.9;transparent:true" look-at="[camera]">
-                    </a-plane>
-                    <a-text value="10:00 AM" position="0.35 0.1 0.02" align="center"
-                        color="#FFD700" width="1.8" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                    <a-text value="Wedding ceremony begins" position="0.35 -0.08 0.02" align="center"
-                        color="#FFF5CC" width="2.6" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                </a-entity>
-
-                <!-- 11:30 -->
-                <a-entity position="0 1.5 0">
-                    <a-sphere position="-0.9 0 0" radius="0.1" material="shader:flat;color:#FF69B4"></a-sphere>
-                    <a-box position="-0.9 0 0" width="0.2" height="0.2" depth="0.2" rotation="45 45 0"
-                        material="shader:flat;color:#FF69B4"
-                        animation="property:rotation;to:405 45 0;loop:true;dur:3200;easing:linear">
-                    </a-box>
-                    <a-plane position="0.35 0 0.01" width="2.5" height="0.48"
-                        material="shader:flat;color:#200035;opacity:0.9;transparent:true" look-at="[camera]">
-                    </a-plane>
-                    <a-text value="11:30 AM" position="0.35 0.1 0.02" align="center"
-                        color="#FF69B4" width="1.8" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                    <a-text value="Exchange of vows 💍" position="0.35 -0.08 0.02" align="center"
-                        color="#FFD6E7" width="2.6" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                </a-entity>
-
-                <!-- 12:00 -->
-                <a-entity position="0 0.8 0">
-                    <a-sphere position="-0.9 0 0" radius="0.1" material="shader:flat;color:#00FFD1"></a-sphere>
-                    <a-box position="-0.9 0 0" width="0.2" height="0.2" depth="0.2" rotation="45 45 0"
-                        material="shader:flat;color:#00FFD1"
-                        animation="property:rotation;to:405 45 0;loop:true;dur:2600;easing:linear">
-                    </a-box>
-                    <a-plane position="0.35 0 0.01" width="2.5" height="0.48"
-                        material="shader:flat;color:#200035;opacity:0.9;transparent:true" look-at="[camera]">
-                    </a-plane>
-                    <a-text value="12:00 PM" position="0.35 0.1 0.02" align="center"
-                        color="#00FFD1" width="1.8" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                    <a-text value="Reception &amp; lunch" position="0.35 -0.08 0.02" align="center"
-                        color="#CCF9F3" width="2.6" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                </a-entity>
-
-                <!-- 03:00 -->
-                <a-entity position="0 0.1 0">
-                    <a-sphere position="-0.9 0 0" radius="0.1" material="shader:flat;color:#FFA500"></a-sphere>
-                    <a-box position="-0.9 0 0" width="0.2" height="0.2" depth="0.2" rotation="45 45 0"
-                        material="shader:flat;color:#FFA500"
-                        animation="property:rotation;to:405 45 0;loop:true;dur:3400;easing:linear">
-                    </a-box>
-                    <a-plane position="0.35 0 0.01" width="2.5" height="0.48"
-                        material="shader:flat;color:#200035;opacity:0.9;transparent:true" look-at="[camera]">
-                    </a-plane>
-                    <a-text value="03:00 PM" position="0.35 0.1 0.02" align="center"
-                        color="#FFA500" width="1.8" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                    <a-text value="Cake cutting 🎂" position="0.35 -0.08 0.02" align="center"
-                        color="#FFE5B4" width="2.6" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                </a-entity>
-
-                <!-- 04:00 -->
-                <a-entity position="0 -0.6 0">
-                    <a-sphere position="-0.9 0 0" radius="0.1" material="shader:flat;color:#FF6B9D"></a-sphere>
-                    <a-box position="-0.9 0 0" width="0.2" height="0.2" depth="0.2" rotation="45 45 0"
-                        material="shader:flat;color:#FF6B9D"
-                        animation="property:rotation;to:405 45 0;loop:true;dur:3000;easing:linear">
-                    </a-box>
-                    <a-plane position="0.35 0 0.01" width="2.5" height="0.48"
-                        material="shader:flat;color:#200035;opacity:0.9;transparent:true" look-at="[camera]">
-                    </a-plane>
-                    <a-text value="04:00 PM" position="0.35 0.1 0.02" align="center"
-                        color="#FF6B9D" width="1.8" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                    <a-text value="Dancing &amp; celebration 🕺" position="0.35 -0.08 0.02" align="center"
-                        color="#FFD6E7" width="2.6" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                </a-entity>
-
-                <!-- 07:00 -->
-                <a-entity position="0 -1.3 0">
-                    <a-sphere position="-0.9 0 0" radius="0.1" material="shader:flat;color:#C8A0FF"></a-sphere>
-                    <a-box position="-0.9 0 0" width="0.2" height="0.2" depth="0.2" rotation="45 45 0"
-                        material="shader:flat;color:#C8A0FF"
-                        animation="property:rotation;to:405 45 0;loop:true;dur:2900;easing:linear">
-                    </a-box>
-                    <a-plane position="0.35 0 0.01" width="2.5" height="0.48"
-                        material="shader:flat;color:#200035;opacity:0.9;transparent:true" look-at="[camera]">
-                    </a-plane>
-                    <a-text value="07:00 PM" position="0.35 0.1 0.02" align="center"
-                        color="#C8A0FF" width="1.8" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                    <a-text value="Farewell &amp; send-off 🌙" position="0.35 -0.08 0.02" align="center"
-                        color="#EEE0FF" width="2.6" font="kelsonsans" material="shader:flat" look-at="[camera]">
-                    </a-text>
-                </a-entity>
-
-                <!-- Floating countdown ring at top -->
-                <a-torus position="0 4.6 0" radius="0.55" radius-tubular="0.035"
-                    material="shader:flat;color:#FFD700;opacity:0.55;transparent:true"
-                    look-at="[camera]"
-                    animation="property:rotation;to:360 0 0;loop:true;dur:6000;easing:linear">
-                </a-torus>
-                <a-text id="ar-countdown-text" value="💍 Loading…"
-                    position="0 4.6 0.02" align="center"
-                    color="#FFD700" width="2.8" font="kelsonsans"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-
+            <!-- EVENT 2: Ceremony — centre -->
+            <a-entity
+                position="0 2.18 0.05"
+                animation="property: position; from: 0 2.18 0.05; to: 0 2.32 0.05; dir: alternate; dur: 2800; loop: true; easing: easeInOutSine">
+                <a-plane width="1.5" height="0.62"
+                    color="#120020" material="shader: flat; opacity: 0.92; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-plane width="1.58" height="0.70" position="0 0 -0.008"
+                    color="#FFD700" material="shader: flat; opacity: 0.26; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-text value="10:00 AM"
+                    position="0 0.16 0.02" align="center"
+                    color="#FFD700" width="2.4" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+                <a-text value="💒 Ceremony Begins"
+                    position="0 -0.04 0.02" align="center"
+                    color="#FFF8EE" width="2.7" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
             </a-entity>
-            <!-- end schedule-group -->
+
+            <!-- EVENT 3: Vows — right -->
+            <a-entity
+                position="1.7 2.05 0.05"
+                animation="property: position; from: 1.7 2.05 0.05; to: 1.7 2.18 0.05; dir: alternate; dur: 2100; loop: true; easing: easeInOutSine">
+                <a-plane width="1.5" height="0.62"
+                    color="#120020" material="shader: flat; opacity: 0.92; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-plane width="1.58" height="0.70" position="0 0 -0.008"
+                    color="#FF6B9D" material="shader: flat; opacity: 0.22; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-text value="11:30 AM"
+                    position="0 0.16 0.02" align="center"
+                    color="#FF6B9D" width="2.4" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+                <a-text value="💍 Exchange of Vows"
+                    position="0 -0.04 0.02" align="center"
+                    color="#FFF8EE" width="2.7" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+            </a-entity>
+
+            <!-- ════════════════════════════
+                 ROW 2 — 3 cards middle
+            ════════════════════════════ -->
+
+            <!-- EVENT 4: Lunch — left -->
+            <a-entity
+                position="-1.7 1.18 0.05"
+                animation="property: position; from: -1.7 1.18 0.05; to: -1.7 1.31 0.05; dir: alternate; dur: 2600; loop: true; easing: easeInOutSine">
+                <a-plane width="1.5" height="0.62"
+                    color="#120020" material="shader: flat; opacity: 0.92; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-plane width="1.58" height="0.70" position="0 0 -0.008"
+                    color="#00FFD1" material="shader: flat; opacity: 0.18; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-text value="12:00 PM"
+                    position="0 0.16 0.02" align="center"
+                    color="#00FFD1" width="2.4" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+                <a-text value="🍽️ Reception &amp; Lunch"
+                    position="0 -0.04 0.02" align="center"
+                    color="#FFF8EE" width="2.7" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+            </a-entity>
+
+            <!-- EVENT 5: Cake — centre -->
+            <a-entity
+                position="0 1.30 0.05"
+                animation="property: position; from: 0 1.30 0.05; to: 0 1.44 0.05; dir: alternate; dur: 3200; loop: true; easing: easeInOutSine">
+                <a-plane width="1.5" height="0.62"
+                    color="#120020" material="shader: flat; opacity: 0.92; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-plane width="1.58" height="0.70" position="0 0 -0.008"
+                    color="#FFB6C1" material="shader: flat; opacity: 0.22; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-text value="03:00 PM"
+                    position="0 0.16 0.02" align="center"
+                    color="#FFB6C1" width="2.4" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+                <a-text value="🎂 Cake Cutting"
+                    position="0 -0.04 0.02" align="center"
+                    color="#FFF8EE" width="2.7" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+            </a-entity>
+
+            <!-- EVENT 6: Dancing — right -->
+            <a-entity
+                position="1.7 1.18 0.05"
+                animation="property: position; from: 1.7 1.18 0.05; to: 1.7 1.31 0.05; dir: alternate; dur: 2300; loop: true; easing: easeInOutSine">
+                <a-plane width="1.5" height="0.62"
+                    color="#120020" material="shader: flat; opacity: 0.92; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-plane width="1.58" height="0.70" position="0 0 -0.008"
+                    color="#FF9500" material="shader: flat; opacity: 0.20; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-text value="04:00 PM"
+                    position="0 0.16 0.02" align="center"
+                    color="#FF9500" width="2.4" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+                <a-text value="🎶 Dancing &amp; Celebration"
+                    position="0 -0.04 0.02" align="center"
+                    color="#FFF8EE" width="2.6" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+            </a-entity>
+
+            <!-- ════════════════════════════
+                 ROW 3 — 1 card centred bottom
+            ════════════════════════════ -->
+
+            <!-- EVENT 7: Farewell — centre -->
+            <a-entity
+                position="0 0.38 0.05"
+                animation="property: position; from: 0 0.38 0.05; to: 0 0.52 0.05; dir: alternate; dur: 2700; loop: true; easing: easeInOutSine">
+                <a-plane width="1.5" height="0.62"
+                    color="#120020" material="shader: flat; opacity: 0.92; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-plane width="1.58" height="0.70" position="0 0 -0.008"
+                    color="#c084fc" material="shader: flat; opacity: 0.22; transparent: true"
+                    look-at="[camera]"></a-plane>
+                <a-text value="07:00 PM"
+                    position="0 0.16 0.02" align="center"
+                    color="#c084fc" width="2.4" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+                <a-text value="👋 Farewell &amp; Send-off"
+                    position="0 -0.04 0.02" align="center"
+                    color="#FFF8EE" width="2.7" font="kelsonsans"
+                    material="shader: flat" look-at="[camera]"></a-text>
+            </a-entity>
+
+            <!-- ════════════════════════════
+                 DECORATIVE 3D ELEMENTS
+                 3 spinning torus rings +
+                 floating hearts & sparkles
+            ════════════════════════════ -->
+
+            <!-- Inner ring — pink, fast -->
+            <a-torus position="0 1.7 -0.3"
+                radius="2.0" radius-tubular="0.016"
+                color="#FF6B9D"
+                material="shader: flat; opacity: 0.30; transparent: true"
+                animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 9000; loop: true; easing: linear">
+            </a-torus>
+
+            <!-- Mid ring — gold, slower, tilted -->
+            <a-torus position="0 1.7 -0.3"
+                radius="2.55" radius-tubular="0.010"
+                color="#FFD700"
+                material="shader: flat; opacity: 0.18; transparent: true"
+                animation="property: rotation; from: 10 0 0; to: 10 -360 0; dur: 15000; loop: true; easing: linear">
+            </a-torus>
+
+            <!-- Outer ring — teal, slow -->
+            <a-torus position="0 1.7 -0.3"
+                radius="3.0" radius-tubular="0.007"
+                color="#00FFD1"
+                material="shader: flat; opacity: 0.12; transparent: true"
+                animation="property: rotation; from: -10 0 20; to: -10 360 20; dur: 22000; loop: true; easing: linear">
+            </a-torus>
+
+            <!-- Floating hearts -->
+            <a-text value="❤️" position="-2.7 2.9 0" width="1.3"
+                material="shader:flat" look-at="[camera]"
+                animation="property: position; from: -2.7 2.9 0; to: -2.7 3.4 0; dir: alternate; dur: 2600; loop: true; easing: easeInOutSine">
+            </a-text>
+            <a-text value="💕" position="2.7 2.7 0" width="1.1"
+                material="shader:flat" look-at="[camera]"
+                animation="property: position; from: 2.7 2.7 0; to: 2.7 3.2 0; dir: alternate; dur: 3100; loop: true; easing: easeInOutSine">
+            </a-text>
+            <a-text value="💖" position="-2.5 0.8 0" width="1.0"
+                material="shader:flat" look-at="[camera]"
+                animation="property: position; from: -2.5 0.8 0; to: -2.5 1.25 0; dir: alternate; dur: 2200; loop: true; easing: easeInOutSine">
+            </a-text>
+            <a-text value="💗" position="2.6 0.7 0" width="1.0"
+                material="shader:flat" look-at="[camera]"
+                animation="property: position; from: 2.6 0.7 0; to: 2.6 1.15 0; dir: alternate; dur: 2900; loop: true; easing: easeInOutSine">
+            </a-text>
+
+            <!-- Sparkles -->
+            <a-text value="✨" position="-2.6 1.85 0" width="0.9"
+                material="shader:flat" look-at="[camera]"
+                animation="property: scale; from: 1 1 1; to: 1.4 1.4 1.4; dir: alternate; dur: 1400; loop: true">
+            </a-text>
+            <a-text value="✨" position="2.65 1.95 0" width="0.9"
+                material="shader:flat" look-at="[camera]"
+                animation="property: scale; from: 1 1 1; to: 1.4 1.4 1.4; dir: alternate; dur: 1700; loop: true">
+            </a-text>
+            <a-text value="🌟" position="0 -0.35 0" width="0.8"
+                material="shader:flat" look-at="[camera]"
+                animation="property: position; from: 0 -0.35 0; to: 0 -0.10 0; dir: alternate; dur: 2400; loop: true; easing: easeInOutSine">
+            </a-text>
+            <a-text value="🌸" position="-1.7 -0.25 0" width="0.85"
+                material="shader:flat" look-at="[camera]"
+                animation="property: position; from: -1.7 -0.25 0; to: -1.7 0.0 0; dir: alternate; dur: 2000; loop: true; easing: easeInOutSine">
+            </a-text>
+            <a-text value="🌸" position="1.7 -0.25 0" width="0.85"
+                material="shader:flat" look-at="[camera]"
+                animation="property: position; from: 1.7 -0.25 0; to: 1.7 0.0 0; dir: alternate; dur: 2300; loop: true; easing: easeInOutSine">
+            </a-text>
 
         </a-marker>
+
         <a-entity camera></a-entity>
     </a-scene>
 </div>
 
-<!-- NAV SCREEN -->
-<div id="nav-screen">
-    <video id="nav-camera" autoplay playsinline muted></video>
-    <canvas id="nav-canvas"></canvas>
-    <div id="nav-hud">🎯 Target: VIT Vellore — SJT</div>
-    <div id="nav-distance">Acquiring GPS…</div>
-    <div id="nav-mini-map"></div>
-    <button id="nav-close" onclick="stopNavigation()">✕</button>
-    <div id="arrived-banner">
-        <h2>🎉 You've Arrived!</h2>
-        <p>Welcome to VIT Vellore<br>The celebration awaits you 💍</p>
-    </div>
-</div>
-
-<!-- COUNTDOWN -->
-<div id="countdown-bar">
-    <div id="countdown-label">Wedding Countdown</div>
-    <div id="countdown-digits">--d --h --m --s</div>
-</div>
-
+<!-- ══════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════ -->
 <script>
-const MAPBOX_TOKEN = "pk.eyJ1IjoiaGVtYW50aDg1MDMiLCJhIjoiY21rNzV5c2w2MHlqeTNncjI5bjkyeWJwaiJ9.NnunzAB_24Ntn83H5hRcyQ";
-const DESTINATION  = [79.163884, 12.971034];
-const DEST_NAME    = "VIT Vellore — SJT";
-const WEDDING_DATE = new Date("2026-02-14T10:00:00+05:30");
 
-/* PETALS */
-(function(){
-    const colors=['#FF6B9D','#FFB3C8','#FF8FAB','#FFC8D8','#FFD6E7'];
-    const c=document.getElementById('petals');
-    for(let i=0;i<25;i++){
-        const p=document.createElement('div'); p.className='petal';
-        const s=8+Math.random()*14;
-        p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;top:-${s}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${4+Math.random()*5}s;animation-delay:${Math.random()*6}s;`;
-        c.appendChild(p);
+/* ── PETALS ── */
+(function() {
+    const colors = ['#FF6B9D','#FFB3C8','#FF8FAB','#FFC8D8','#FFD6E7'];
+    const wrap   = document.getElementById('petals');
+    for (let i = 0; i < 28; i++) {
+        const p = document.createElement('div');
+        p.className = 'petal';
+        const sz = 8 + Math.random() * 15;
+        p.style.cssText = [
+            `width:${sz}px`, `height:${sz}px`,
+            `left:${Math.random()*100}vw`, `top:-${sz}px`,
+            `background:${colors[i % colors.length]}`,
+            `animation-duration:${4 + Math.random()*5}s`,
+            `animation-delay:${Math.random()*7}s`
+        ].join(';');
+        wrap.appendChild(p);
     }
 })();
 
-window.addEventListener('load',()=>{
-    setTimeout(()=>document.getElementById('loading-screen').classList.add('hidden'),800);
-    startCountdown();
+/* ── HIDE LOADING ── */
+window.addEventListener('load', () => {
+    setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 900);
 });
 
-/* COUNTDOWN */
-function startCountdown(){
-    function tick(){
-        const diff=WEDDING_DATE-Date.now();
-        if(diff<=0){document.getElementById('countdown-digits').textContent='🎉 Today is the day!';return;}
-        const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),
-              m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
-        document.getElementById('countdown-digits').textContent=
-            `${d}d  ${String(h).padStart(2,'0')}h  ${String(m).padStart(2,'0')}m  ${String(s).padStart(2,'0')}s`;
-        const arTxt=document.getElementById('ar-countdown-text');
-        if(arTxt) arTxt.setAttribute('value',`${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`);
-        setTimeout(tick,1000);
+/* ════════════════════════════════════════════
+   COUNTDOWN — 14 Feb 2026 10:00 AM IST
+   Updates every second in real time.
+════════════════════════════════════════════ */
+const WEDDING_TS = new Date('2026-02-14T10:00:00+05:30').getTime();
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function tickCountdown() {
+    const now  = Date.now();
+    const diff = WEDDING_TS - now;
+
+    if (diff <= 0) {
+        document.getElementById('cd-d').textContent = '00';
+        document.getElementById('cd-h').textContent = '00';
+        document.getElementById('cd-m').textContent = '00';
+        document.getElementById('cd-s').textContent = '00';
+        clearInterval(cdTimer);
+        return;
     }
-    tick();
+
+    const totalSecs = Math.floor(diff / 1000);
+    const d = Math.floor(totalSecs / 86400);
+    const h = Math.floor((totalSecs % 86400) / 3600);
+    const m = Math.floor((totalSecs % 3600) / 60);
+    const s = totalSecs % 60;
+
+    document.getElementById('cd-d').textContent = pad(d);
+    document.getElementById('cd-h').textContent = pad(h);
+    document.getElementById('cd-m').textContent = pad(m);
+    document.getElementById('cd-s').textContent = pad(s);
 }
 
-/* SCHEDULE 2D */
-function toggleSchedule(){ document.getElementById('schedule-panel').classList.toggle('visible'); }
+tickCountdown(); // run immediately — no blank state
+const cdTimer = setInterval(tickCountdown, 1000);
 
-/* AR MODE */
-let currentARMode='invite', arReady=false;
+/* ════════════════════════════════════════════
+   BUTTON 1 — AR Invitation
+   Connect this to your AR invitation overlay
+   or InvitationScreen in the React Native app.
+════════════════════════════════════════════ */
+function openARInvitation() {
+    // TODO: Replace this with your actual AR invitation code
+    alert('📸 AR Invitation\n\nConnect this button to your InvitationScreen\nor your existing AR invitation overlay.');
+}
 
-function openAR(mode){
-    mode=mode||'invite';
-    document.getElementById('ar-overlay').classList.add('visible');
-    setARMode(mode);
-    if(!arReady){
-        arReady=true;
-        const scene=document.getElementById('ar-scene');
-        scene.addEventListener('loaded',()=>{
-            const marker=document.getElementById('hiro-marker');
-            marker.addEventListener('markerFound',()=>{
-                document.getElementById('ar-status').textContent=
-                    currentARMode==='schedule'?'✅ 3D schedule loaded!':'✅ Marker detected! Welcome!';
-                document.getElementById('ar-nav-btn').classList.add('visible');
-                if(currentARMode==='invite') playMusic();
+/* ════════════════════════════════════════════
+   BUTTON 2 — AR Navigation
+   Connect this to your NavigationScreen.
+════════════════════════════════════════════ */
+function openARNavigation() {
+    // TODO: Replace this with your actual navigation code
+    alert('🧭 AR Navigation\n\nConnect this button to your NavigationScreen\nwith GPS arrows and Mapbox route.');
+}
+
+/* ════════════════════════════════════════════
+   BUTTON 3 — AR Event Schedule
+   Opens fullscreen AR. All 7 events appear as
+   glowing 3D holographic panels floating in
+   augmented reality when Hiro marker detected.
+════════════════════════════════════════════ */
+let arSceneReady = false;
+
+function openARSchedule() {
+    // Show the AR overlay
+    document.getElementById('ar-schedule').classList.add('visible');
+
+    // Attach A-Frame marker listeners only once
+    if (!arSceneReady) {
+        arSceneReady = true;
+
+        const scene = document.getElementById('ar-scene');
+
+        const attachListeners = () => {
+            const marker = document.getElementById('hiro-marker');
+            if (!marker) return;
+
+            marker.addEventListener('markerFound', () => {
+                document.getElementById('ar-status-text').textContent =
+                    '✅ Schedule visible! All 7 events in AR';
+                document.getElementById('ar-hint').classList.add('hidden');
             });
-            marker.addEventListener('markerLost',()=>{
-                document.getElementById('ar-status').textContent='👆 Point camera at the Hiro marker';
+
+            marker.addEventListener('markerLost', () => {
+                document.getElementById('ar-status-text').textContent =
+                    '📸 Point at Hiro marker to see schedule';
+                document.getElementById('ar-hint').classList.remove('hidden');
             });
-        });
-    }
-}
+        };
 
-function closeAR(){ document.getElementById('ar-overlay').classList.remove('visible'); }
-
-function setARMode(mode){
-    currentARMode=mode;
-    document.getElementById('tab-invite').classList.toggle('active',  mode==='invite');
-    document.getElementById('tab-schedule').classList.toggle('active',mode==='schedule');
-
-    const ig=document.getElementById('invite-group');
-    const sg=document.getElementById('schedule-group');
-    const si=document.getElementById('ar-schedule-info');
-
-    if(mode==='schedule'){
-        if(ig) ig.setAttribute('visible','false');
-        if(sg) sg.setAttribute('visible','true');
-        si.classList.add('visible');
-        document.getElementById('ar-status').textContent='👆 Point Hiro marker at camera for 3D schedule';
-    } else {
-        if(ig) ig.setAttribute('visible','true');
-        if(sg) sg.setAttribute('visible','false');
-        si.classList.remove('visible');
-        document.getElementById('ar-status').textContent='👆 Point camera at the Hiro marker';
-    }
-}
-
-/* MUSIC */
-let musicStarted=false;
-function playMusic(){
-    if(musicStarted) return; musicStarted=true;
-    document.getElementById('music-entity').setAttribute('sound',{
-        src:'url(wedding-music.mp3)',autoplay:true,loop:true,volume:0.7
-    });
-    document.getElementById('music-hint').textContent='🎵 Music playing';
-}
-
-/* OCR */
-let lastName='', ocrRunning=false;
-const OCR_IGNORE=["hiro","marker","camera","welcome","wedding","invitation","rahul","saira","partner","weds","the","and","for","you","your"];
-
-function extractName(text){
-    text=text.replace(/[^a-zA-Z ]/g,' ');
-    return text.split(/\s+/).find(w=>w.length>=3&&w.length<=12&&/^[A-Za-z]+$/.test(w)&&!OCR_IGNORE.includes(w.toLowerCase()))||'';
-}
-
-async function runOCR(){
-    if(ocrRunning){setTimeout(runOCR,2000);return;}
-    const overlay=document.getElementById('ar-overlay');
-    if(!overlay.classList.contains('visible')||currentARMode!=='invite'){setTimeout(runOCR,2000);return;}
-    ocrRunning=true;
-    try{
-        const video=document.querySelector('#ar-scene video')||document.querySelector('video');
-        if(!video||video.readyState<2||!video.videoWidth) throw new Error('no video');
-        const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
-        const w=video.videoWidth,h=video.videoHeight,cW=w*0.5,cH=h*0.3;
-        canvas.width=cW; canvas.height=cH;
-        ctx.drawImage(video,(w-cW)/2,(h-cH)/2,cW,cH,0,0,cW,cH);
-        const img=ctx.getImageData(0,0,cW,cH);
-        for(let i=0;i<img.data.length;i+=4){
-            const v=(0.299*img.data[i]+0.587*img.data[i+1]+0.114*img.data[i+2])>128?255:0;
-            img.data[i]=img.data[i+1]=img.data[i+2]=v;
+        // A-Frame may already be loaded or still loading
+        if (scene.hasLoaded) {
+            attachListeners();
+        } else {
+            scene.addEventListener('loaded', attachListeners);
         }
-        ctx.putImageData(img,0,0);
-        const result=await Tesseract.recognize(canvas,'eng',{
-            tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
-        });
-        const name=extractName(result.data.text);
-        if(name&&name!==lastName){
-            lastName=name;
-            document.getElementById('detected-name').setAttribute('value',name);
-            document.getElementById('personal-msg').setAttribute('value',`Dear ${name},\nWelcome to our wedding 💍`);
-            document.getElementById('popup-name-text').textContent=`Dear ${name} 👋`;
-            document.getElementById('popup-msg-text').textContent='Welcome to our wedding celebration 💐';
-            document.getElementById('name-popup').classList.add('visible');
-            if('speechSynthesis' in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(`Dear ${name}, welcome to our wedding`));}
-        }
-    }catch(e){}
-    ocrRunning=false;
-    setTimeout(runOCR,2000);
-}
-runOCR();
-
-/* NAVIGATION */
-let navScene3,navCamera3,navRenderer,arrowMesh,navMap,userMarker;
-let targetBearing=0,deviceHeading=0,smoothHeading=0;
-let navRunning=false,hasArrived=false,navStream=null;
-
-async function startNavigation(){
-    if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
-        try{const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){alert('Compass permission required.');return;}}catch(e){}
-    }
-    document.getElementById('nav-screen').classList.add('visible');
-    try{
-        navStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-        document.getElementById('nav-camera').srcObject=navStream;
-    }catch(e){alert('Camera access needed — use HTTPS.');return;}
-    initNavThree(); initNavMap();
-    navigator.geolocation.watchPosition(handleGPS,()=>document.getElementById('nav-distance').textContent='GPS unavailable',{enableHighAccuracy:true,maximumAge:1000});
-    window.addEventListener('deviceorientation',handleOrientation,true);
-    navRunning=true; animateNav();
-}
-
-function stopNavigation(){
-    navRunning=false;
-    document.getElementById('nav-screen').classList.remove('visible');
-    window.removeEventListener('deviceorientation',handleOrientation,true);
-    if(navStream){navStream.getTracks().forEach(t=>t.stop());navStream=null;}
-}
-
-function initNavThree(){
-    navScene3=new THREE.Scene();
-    navCamera3=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
-    navRenderer=new THREE.WebGLRenderer({canvas:document.getElementById('nav-canvas'),alpha:true,antialias:true});
-    navRenderer.setSize(window.innerWidth,window.innerHeight);
-    const shape=new THREE.Shape();
-    shape.moveTo(0,0.8);shape.lineTo(0.4,0);shape.lineTo(0.15,0);shape.lineTo(0.15,-0.6);
-    shape.lineTo(-0.15,-0.6);shape.lineTo(-0.15,0);shape.lineTo(-0.4,0);shape.closePath();
-    arrowMesh=new THREE.Mesh(
-        new THREE.ExtrudeGeometry(shape,{depth:0.15,bevelEnabled:false}),
-        new THREE.MeshPhongMaterial({color:0x00ff00,emissive:0x003300})
-    );
-    arrowMesh.position.set(0,-1.2,-5); arrowMesh.rotation.x=-Math.PI/2;
-    navScene3.add(arrowMesh);
-    navScene3.add(new THREE.AmbientLight(0xffffff,0.8));
-    navScene3.add(new THREE.DirectionalLight(0xffffff,0.6));
-}
-
-function initNavMap(){
-    mapboxgl.accessToken=MAPBOX_TOKEN;
-    navMap=new mapboxgl.Map({container:'nav-mini-map',style:'mapbox://styles/mapbox/navigation-night-v1',center:DESTINATION,zoom:16,pitch:45,interactive:false});
-    navMap.on('load',()=>{
-        new mapboxgl.Marker({color:'#ff0000'}).setLngLat(DESTINATION).addTo(navMap);
-        userMarker=new mapboxgl.Marker({color:'#00ff00'}).setLngLat([0,0]).addTo(navMap);
-    });
-}
-
-async function handleGPS(pos){
-    const lat=pos.coords.latitude,lng=pos.coords.longitude;
-    const dist=getDistance(lat,lng,DESTINATION[1],DESTINATION[0]);
-    if(userMarker) userMarker.setLngLat([lng,lat]);
-    if(navMap) navMap.easeTo({center:[lng,lat],bearing:deviceHeading,duration:1000});
-    document.getElementById('nav-distance').textContent=Math.round(dist)+' m away';
-    if(dist<=10){
-        hasArrived=true;
-        document.getElementById('nav-hud').textContent='🎉 ARRIVED!';
-        document.getElementById('nav-hud').classList.add('arrived-ui');
-        document.getElementById('nav-distance').style.color='#ffd700';
-        arrowMesh.material.color.setHex(0xffd700);
-        document.getElementById('arrived-banner').classList.add('visible');
-        if(navigator.vibrate) navigator.vibrate([200,100,200]);
-    } else {
-        hasArrived=false;
-        document.getElementById('nav-hud').textContent='🎯 '+DEST_NAME;
-        document.getElementById('nav-hud').classList.remove('arrived-ui');
-        document.getElementById('nav-distance').style.color='#00ff00';
-        if(arrowMesh) arrowMesh.material.color.setHex(0x00ff00);
-        document.getElementById('arrived-banner').classList.remove('visible');
-        try{
-            const data=await(await fetch(`https://api.mapbox.com/directions/v5/mapbox/walking/${lng},${lat};${DESTINATION[0]},${DESTINATION[1]}?geometries=geojson&access_token=${MAPBOX_TOKEN}`)).json();
-            if(data.routes&&data.routes[0]){
-                const next=data.routes[0].geometry.coordinates[1]||DESTINATION;
-                targetBearing=getBearing(lat,lng,next[1],next[0]);
-            }
-        }catch(e){}
     }
 }
 
-function handleOrientation(e){
-    const raw=e.webkitCompassHeading||(360-(e.alpha||0));
-    smoothHeading=smoothHeading+(raw-smoothHeading)*0.05;
-    deviceHeading=(smoothHeading+360)%360;
+function closeARSchedule() {
+    document.getElementById('ar-schedule').classList.remove('visible');
 }
 
-function animateNav(){
-    if(!navRunning) return;
-    requestAnimationFrame(animateNav);
-    if(arrowMesh){
-        let diff=THREE.MathUtils.degToRad(targetBearing-deviceHeading)-arrowMesh.rotation.z;
-        while(diff<-Math.PI) diff+=Math.PI*2;
-        while(diff>Math.PI)  diff-=Math.PI*2;
-        arrowMesh.rotation.z+=diff*0.1;
-        if(hasArrived) arrowMesh.position.y=-1.2+Math.sin(Date.now()*0.005)*0.1;
-    }
-    navRenderer.render(navScene3,navCamera3);
-}
-
-function getDistance(lat1,lon1,lat2,lon2){
-    const R=6371e3,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
-    const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-function getBearing(lat1,lon1,lat2,lon2){
-    const dLon=(lon2-lon1)*Math.PI/180;
-    const y=Math.sin(dLon)*Math.cos(lat2*Math.PI/180);
-    const x=Math.cos(lat1*Math.PI/180)*Math.sin(lat2*Math.PI/180)-Math.sin(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.cos(dLon);
-    return(Math.atan2(y,x)*180/Math.PI+360)%360;
-}
-
-window.addEventListener('resize',()=>{
-    if(navRenderer){navRenderer.setSize(window.innerWidth,window.innerHeight);navCamera3.aspect=window.innerWidth/window.innerHeight;navCamera3.updateProjectionMatrix();}
+/* ── EVENT DOTS — cycle to represent 7 events ── */
+const EVENT_NAMES = ['Arrival','Ceremony','Vows','Lunch','Cake','Dancing','Farewell'];
+const dotWrap = document.getElementById('ar-dots');
+EVENT_NAMES.forEach((name, i) => {
+    const d = document.createElement('div');
+    d.className = 'ev-dot' + (i === 0 ? ' on' : '');
+    d.title = name;
+    dotWrap.appendChild(d);
 });
+
+let dotIdx = 0;
+setInterval(() => {
+    document.querySelectorAll('.ev-dot').forEach(d => d.classList.remove('on'));
+    dotIdx = (dotIdx + 1) % EVENT_NAMES.length;
+    document.querySelectorAll('.ev-dot')[dotIdx].classList.add('on');
+}, 1100);
+
 </script>
 </body>
 </html>
