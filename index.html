@@ -8,9 +8,35 @@
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
+    <style>
+        /* 📅 ROUND SCHEDULE BUTTON */
+        #schedule-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFD700, #FF8C00);
+            color: white;
+            font-size: 24px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            z-index: 999;
+            cursor: pointer;
+        }
+
+        #schedule-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+
 </head>
 
 <body style="margin: 0; overflow: hidden;">
+
+<!-- 📅 BUTTON -->
+<button id="schedule-btn" onclick="goToSchedule()">📅</button>
 
 <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
 
@@ -23,7 +49,7 @@
 
     <a-marker preset="hiro">
 
-        <!-- 💖 FIXED CLEAN TITLE -->
+        <!-- 💖 TITLE -->
         <a-text 
             value="Rahul ❤️ Saira"
             position="0 0 -1.5"
@@ -64,7 +90,7 @@
             rotation="-90 0 0">
         </a-entity>
 
-        <!-- 🌸 ORIGINAL PETALS -->
+        <!-- 🌸 PETALS -->
         <a-plane src="rose_petal.png"
             position="-0.5 2 0"
             width="0.25" height="0.25"
@@ -72,61 +98,6 @@
             look-at="[camera]"
             animation="property: position; to: -0.5 -1 0; dur: 3000; loop: true"
             animation__rot="property: rotation; to: 360 360 360; dur: 2000; loop: true">
-        </a-plane>
-
-        <a-plane src="rose_petal.png"
-            position="0.5 2.3 0"
-            width="0.25" height="0.25"
-            material="transparent:true;side:double"
-            look-at="[camera]"
-            animation="property: position; to: 0.5 -1 0; dur: 3200; loop: true"
-            animation__rot="property: rotation; to: 360 360 360; dur: 2200; loop: true">
-        </a-plane>
-
-        <a-plane src="rose_petal.png"
-            position="0 2.8 0"
-            width="0.25" height="0.25"
-            material="transparent:true;side:double"
-            look-at="[camera]"
-            animation="property: position; to: 0 -1 0; dur: 3500; loop: true"
-            animation__rot="property: rotation; to: 360 360 360; dur: 2500; loop: true">
-        </a-plane>
-
-        <!-- 🌸 EXTRA PETALS -->
-        <a-plane src="rose_petal.png"
-            position="-0.8 3.2 0"
-            width="0.22" height="0.22"
-            material="transparent:true;side:double"
-            look-at="[camera]"
-            animation="property: position; to:-0.8 -1 0; dur:3000; loop:true"
-            animation__rot="property: rotation; to:360 360 360; dur:2000; loop:true">
-        </a-plane>
-
-        <a-plane src="rose_petal.png"
-            position="0.8 3.5 0"
-            width="0.22" height="0.22"
-            material="transparent:true;side:double"
-            look-at="[camera]"
-            animation="property: position; to:0.8 -1 0; dur:3200; loop:true"
-            animation__rot="property: rotation; to:360 360 360; dur:2200; loop:true">
-        </a-plane>
-
-        <a-plane src="rose_petal.png"
-            position="-0.2 3.8 0"
-            width="0.2" height="0.2"
-            material="transparent:true;side:double"
-            look-at="[camera]"
-            animation="property: position; to:-0.2 -1 0; dur:2800; loop:true"
-            animation__rot="property: rotation; to:360 360 360; dur:1800; loop:true">
-        </a-plane>
-
-        <a-plane src="rose_petal.png"
-            position="0.3 4 0"
-            width="0.2" height="0.2"
-            material="transparent:true;side:double"
-            look-at="[camera]"
-            animation="property: position; to:0.3 -1 0; dur:3000; loop:true"
-            animation__rot="property: rotation; to:360 360 360; dur:2000; loop:true">
         </a-plane>
 
         <!-- 💬 MESSAGE -->
@@ -151,6 +122,11 @@
 let lastName = "";
 let processing = false;
 
+/* 📅 BUTTON FUNCTION */
+function goToSchedule() {
+    window.location.href = "Navigation.html"; // change if needed
+}
+
 function speak(text) {
     const msg = new SpeechSynthesisUtterance(text);
     speechSynthesis.speak(msg);
@@ -171,17 +147,12 @@ window.addEventListener("click", () => {
     }
 });
 
-// ✅ BETTER OCR NAME FILTER
+/* OCR */
 function extractName(text) {
-
     text = text.replace(/[^a-zA-Z ]/g, " ");
-
     let words = text.split(/\s+/);
 
-    const ignore = [
-        "hiro","marker","camera","welcome","wedding",
-        "invitation","rahul","saira","weds"
-    ];
+    const ignore = ["hiro","marker","camera","welcome","wedding","invitation","rahul","saira","weds"];
 
     let valid = words.filter(w =>
         w.length >= 3 &&
@@ -225,30 +196,19 @@ async function scan() {
 
     const img = canvas.toDataURL("image/png");
 
-    const result = await Tesseract.recognize(img, 'eng', {
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-    });
+    const result = await Tesseract.recognize(img, 'eng');
 
-    const text = result.data.text;
-
-    let name = extractName(text);
+    let name = extractName(result.data.text);
 
     if (name && name !== lastName) {
-
         lastName = name;
 
-        let fullMsg = `Dear ${name}. With great joy in our hearts, we invite you to celebrate our special day. Your presence will make our celebration even more memorable.`;
+        let msg = `Dear ${name}, you are invited to our wedding 💍`;
 
-        document.querySelector("#personal-msg")
-            .setAttribute("value",
-`Dear ${name},
-With great joy in our hearts, we invite you to celebrate our special day 💍
-Your presence will make our celebration even more memorable 💐`);
+        document.querySelector("#personal-msg").setAttribute("value", msg);
+        document.querySelector("#detected-name").setAttribute("value", name);
 
-        document.querySelector("#detected-name")
-            .setAttribute("value", name);
-
-        speak(fullMsg);
+        speak(msg);
     }
 
     processing = false;
