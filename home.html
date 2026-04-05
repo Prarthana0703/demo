@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Saira's Wedding 💍</title>
+
+    <!-- AR.js + A-Frame for marker-based 3D scene -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+    <!-- Three.js for AR navigation arrow -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Mapbox for mini-map + walking directions -->
+    <link  href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <!-- Tesseract OCR for guest name detection -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
+    <style>
+        /* ── RESET & BASE ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Georgia', serif; background: #0D0014; color: #fff; overflow-x: hidden; }
+
+        /* ── LOADING ── */
+        #loading-screen {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0D0014;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 20px;
+            transition: opacity 0.8s ease;
+        }
+        #loading-screen.hidden { opacity: 0; pointer-events: none; }
+        .loading-ring {
+            width: 60px; height: 60px;
+            border: 3px solid rgba(255,182,193,0.2);
+            border-top-color: #FF6B9D;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: rgba(255,182,193,0.7); font-size: 15px; letter-spacing: 2px; }
+
+        /* ── PETALS ── */
+        .petals-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .petal { position: absolute; border-radius: 50%; opacity: 0.6; animation: fall linear infinite; }
+        @keyframes fall {
+            0%   { transform: translateY(-40px) rotate(0deg);   opacity: 0.7; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ── LANDING ── */
+        #landing {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            min-height: 100vh; padding: 24px;
+            background: radial-gradient(ellipse at top, #1a0028 0%, #0D0014 70%);
+        }
+        .invite-card {
+            position: relative; z-index: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,182,193,0.3);
+            border-radius: 20px; padding: 40px 32px;
+            max-width: 380px; width: 100%;
+            text-align: center; backdrop-filter: blur(10px);
+            animation: fadeUp 1s ease both;
+        }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+        .eyebrow  { color: rgba(255,182,193,0.7); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
+        .names    { color: #FFB6C1; font-size: 38px; font-weight: 700; line-height: 1.1; }
+        .amp      { color: rgba(255,182,193,0.5); font-size: 24px; margin: 8px 0; display: block; }
+        .divider  { width: 60px; height: 1px; background: rgba(255,182,193,0.3); margin: 20px auto; }
+        .detail   { color: #fff; font-size: 14px; margin: 6px 0; }
+        .ring     { font-size: 52px; margin: 24px 0 0; display: block; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+        /* ── BUTTONS ── */
+        .btn-group {
+            position: relative; z-index: 1;
+            width: 100%; max-width: 380px; margin-top: 20px;
+            display: flex; flex-direction: column; gap: 12px;
+            animation: fadeUp 1.2s ease both;
+        }
+        .btn {
+            display: block; width: 100%; padding: 15px;
+            border-radius: 12px; border: none; cursor: pointer;
+            font-size: 15px; font-weight: 700; text-align: center;
+            text-decoration: none; transition: transform 0.15s, opacity 0.15s;
+        }
+        .btn:active { transform: scale(0.97); opacity: 0.9; }
+        .btn-primary   { background: #FF3B7F; color: #fff; }
+        .btn-secondary { background: rgba(255,59,127,0.12); color: #FF6B9D; border: 1px solid rgba(255,59,127,0.4); }
+        .btn-teal      { background: rgba(0,255,209,0.12); color: #00FFD1; border: 1px solid rgba(0,255,209,0.4); }
+        .btn-nav       { background: rgba(0,200,255,0.15); color: #00C8FF; border: 1px solid rgba(0,200,255,0.4); }
+
+        /* ── AR INVITATION OVERLAY ── */
+        #ar-overlay {
+            display: none; position: fixed; inset: 0; z-index: 500;
+            background: #000; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        #ar-overlay.visible { display: flex; }
+        #ar-overlay a-scene  { width: 100vw; height: 100vh; }
+        .ar-hud {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 600; background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,182,193,0.3);
+            border-radius: 30px; padding: 10px 24px;
+            color: rgba(255,182,193,0.9); font-size: 13px;
+            white-space: nowrap; pointer-events: none;
+        }
+        .ar-close {
+            position: fixed; top: 20px; right: 20px; z-index: 700;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #name-popup {
+            display: none; position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%);
+            z-index: 700; width: 90%; max-width: 360px;
+            background: rgba(13,0,20,0.95); border: 1px solid rgba(255,182,193,0.4);
+            border-radius: 16px; padding: 20px 24px; text-align: center;
+            animation: slideUp 0.4s ease;
+        }
+        @keyframes slideUp {
+            from { opacity:0; transform: translate(-50%, 20px); }
+            to   { opacity:1; transform: translate(-50%, 0); }
+        }
+        #name-popup.visible { display: block; }
+        .popup-name { color: #FFB6C1; font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+        .popup-msg  { color: rgba(255,255,255,0.8); font-size: 13px; line-height: 1.6; }
+
+        /* Navigate button inside AR overlay */
+        #ar-nav-btn {
+            display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 800;
+        }
+        #ar-nav-btn.visible { display: block; }
+        #ar-nav-btn button {
+            padding: 14px 32px; background: linear-gradient(135deg,#00C8FF,#0080CC);
+            color: #fff; font-size: 15px; font-weight: 700;
+            border: none; border-radius: 30px; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,200,255,0.4);
+        }
+
+        #music-hint {
+            position: fixed; top: 80px; right: 16px; z-index: 600;
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,182,193,0.2);
+            border-radius: 8px; padding: 8px 14px;
+            color: rgba(255,182,193,0.7); font-size: 12px; cursor: pointer;
+        }
+
+        /* ── SCHEDULE PANEL ── */
+        #schedule-panel {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 800;
+            background: #100018; border-top: 1px solid rgba(255,182,193,0.2);
+            border-radius: 20px 20px 0 0; padding: 28px 24px;
+            animation: slideUpPanel 0.3s ease;
+        }
+        @keyframes slideUpPanel { from { transform:translateY(100%); } to { transform:translateY(0); } }
+        #schedule-panel.visible { display: block; }
+        .schedule-title { color: #FFB6C1; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .schedule-row { display: flex; gap: 16px; margin-bottom: 12px; }
+        .s-time  { color: #FF6B9D; font-size: 13px; font-family: monospace; min-width: 80px; }
+        .s-event { color: #fff; font-size: 13px; }
+        .panel-close { display: block; margin-top: 20px; text-align: center; color: rgba(255,182,193,0.5); font-size: 14px; cursor: pointer; }
+
+        /* ── AR NAVIGATION SCREEN ── */
+        #nav-screen {
+            display: none; position: fixed; inset: 0; z-index: 600;
+            background: #000;
+        }
+        #nav-screen.visible { display: block; }
+
+        #nav-camera   { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+        #nav-canvas   { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+        #nav-hud {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.85); padding: 12px 25px;
+            border-radius: 30px; border: 2px solid #00ff00;
+            color: white; font-size: 15px; z-index: 10;
+            text-align: center; min-width: 230px;
+            box-shadow: 0 0 15px rgba(0,255,0,0.15); font-family: 'Segoe UI', sans-serif;
+        }
+        #nav-distance {
+            position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%);
+            color: #00ff00; font-size: 28px; font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8); z-index: 10;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        #nav-mini-map {
+            position: absolute; bottom: 20px; right: 20px;
+            width: 150px; height: 150px;
+            border-radius: 50%; border: 3px solid white;
+            z-index: 10; overflow: hidden; background: #111;
+        }
+        #nav-close {
+            position: absolute; top: 20px; right: 20px; z-index: 20;
+            width: 42px; height: 42px; border-radius: 50%;
+            background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3);
+            color: #fff; font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .arrived-ui { border-color: #ffd700 !important; color: #ffd700 !important; }
+
+        /* ── ARRIVED BANNER ── */
+        #arrived-banner {
+            display: none; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9); border: 2px solid #ffd700;
+            border-radius: 20px; padding: 30px 40px;
+            text-align: center; z-index: 30;
+            font-family: 'Georgia', serif;
+        }
+        #arrived-banner.visible { display: block; }
+        #arrived-banner h2 { color: #ffd700; font-size: 24px; margin-bottom: 10px; }
+        #arrived-banner p  { color: #fff; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     LOADING SCREEN
+═══════════════════════════════════════════ -->
+<div id="loading-screen">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Loading your invitation…</div>
+</div>
+
+<!-- PETALS -->
+<div class="petals-bg" id="petals"></div>
+
+<!-- ═══════════════════════════════════════════
+     LANDING — INVITATION CARD
+═══════════════════════════════════════════ -->
+<div id="landing">
+    <div class="invite-card">
+        <div class="eyebrow">You're invited to</div>
+        <!-- ⚠️ REPLACE: bride name -->
+        <div class="names">Saira</div>
+        <span class="amp">&amp;</span>
+        <!-- ⚠️ REPLACE: groom name -->
+        <div class="names">Rahul</div>
+        <div class="divider"></div>
+        <!-- ⚠️ REPLACE: actual date -->
+        <div class="detail">📅 &nbsp;Saturday, 14 February 2026</div>
+        <!-- ⚠️ REPLACE: actual venue name -->
+        <div class="detail">📍 &nbsp;VIT Vellore, Tamil Nadu</div>
+        <div class="detail">⏰ &nbsp;Ceremony at 10:00 AM</div>
+        <span class="ring">💍</span>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn btn-primary" onclick="openAR()">
+            📸 &nbsp;Open AR Invitation
+        </button>
+        <button class="btn btn-nav" onclick="startNavigation()">
+            🧭 &nbsp;AR Navigate to Venue
+        </button>
+        <button class="btn btn-secondary" onclick="toggleSchedule()">
+            📋 &nbsp;Event Schedule
+        </button>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCHEDULE PANEL
+═══════════════════════════════════════════ -->
+<div id="schedule-panel">
+    <div class="schedule-title">Event Schedule 💒</div>
+    <div class="schedule-row"><span class="s-time">09:00 AM</span><span class="s-event">Guest arrival &amp; seating</span></div>
+    <div class="schedule-row"><span class="s-time">10:00 AM</span><span class="s-event">Wedding ceremony begins</span></div>
+    <div class="schedule-row"><span class="s-time">11:30 AM</span><span class="s-event">Exchange of vows</span></div>
+    <div class="schedule-row"><span class="s-time">12:00 PM</span><span class="s-event">Reception &amp; lunch</span></div>
+    <div class="schedule-row"><span class="s-time">03:00 PM</span><span class="s-event">Cake cutting</span></div>
+    <div class="schedule-row"><span class="s-time">04:00 PM</span><span class="s-event">Dancing &amp; celebration</span></div>
+    <div class="schedule-row"><span class="s-time">07:00 PM</span><span class="s-event">Farewell &amp; send-off</span></div>
+    <span class="panel-close" onclick="toggleSchedule()">✕ Close</span>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     AR INVITATION OVERLAY
+═══════════════════════════════════════════ -->
+<div id="ar-overlay">
+    <div class="ar-hud" id="ar-status">👆 Point camera at the Hiro marker</div>
+    <button class="ar-close" onclick="closeAR()">✕</button>
+    <div id="music-hint" onclick="playMusic()">🎵 Tap for music</div>
+
+    <div id="name-popup">
+        <div class="popup-name" id="popup-name-text"></div>
+        <div class="popup-msg"  id="popup-msg-text"></div>
+    </div>
+
+    <!-- Button to switch from AR invitation → AR navigation -->
+    <div id="ar-nav-btn">
+        <button onclick="closeAR(); startNavigation();">🧭 Navigate to Venue</button>
+    </div>
+
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" id="ar-scene" style="display:none;">
+        <a-entity id="music-entity"></a-entity>
+        <a-light type="ambient"     intensity="1.3"></a-light>
+        <a-light type="directional" position="1 3 1"></a-light>
+
+        <a-marker preset="hiro" id="hiro-marker">
+            <!-- ⚠️ REPLACE: bride & groom names in text value -->
+            <a-text value="Prarthana ❤️ Arjun" position="0 0 -1.5" align="center"
+                color="#FFD700" width="4" font="kelsonsans"
+                material="shader: standard; emissive: #FFD700; emissiveIntensity: 1.5"
+                look-at="[camera]"
+                animation="property: scale; to: 1.05 1.05 1.05; dir: alternate; dur: 1500; loop: true">
+            </a-text>
+
+            <a-text id="detected-name" value="" position="0 0 2.2" align="center"
+                color="#FF69B4" width="2" font="kelsonsans" look-at="[camera]">
+            </a-text>
+
+            <a-entity gltf-model="wedding_gate-v1.glb" position="0 -1.2 0.5"  scale="1.5 1.5 2"   rotation="-90 0 0"></a-entity>
+            <a-entity gltf-model="couple.glb"          position="0 -0.25 0.2"  scale="0.6 0.6 0.6" rotation="-90 0 0"></a-entity>
+
+            <!-- Rose petals -->
+            <a-plane src="rose_petal.png" position="-0.5 2 0"   width="0.25" height="0.25" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: -0.5 -1 0; dur: 3000; loop: true" animation__rot="property: rotation; to: 360 360 360; dur: 2000; loop: true"></a-plane>
+            <a-plane src="rose_petal.png" position="0.5 2.3 0"  width="0.25" height="0.25" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: 0.5 -1 0; dur: 3200; loop: true" animation__rot="property: rotation; to: 360 360 360; dur: 2200; loop: true"></a-plane>
+            <a-plane src="rose_petal.png" position="0 2.8 0"    width="0.25" height="0.25" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: 0 -1 0; dur: 3500; loop: true" animation__rot="property: rotation; to: 360 360 360; dur: 2500; loop: true"></a-plane>
+            <a-plane src="rose_petal.png" position="-0.8 3.2 0" width="0.22" height="0.22" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to:-0.8 -1 0; dur:3000; loop:true" animation__rot="property: rotation; to:360 360 360; dur:2000; loop:true"></a-plane>
+            <a-plane src="rose_petal.png" position="0.8 3.5 0"  width="0.22" height="0.22" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to:0.8 -1 0; dur:3200; loop:true" animation__rot="property: rotation; to:360 360 360; dur:2200; loop:true"></a-plane>
+            <a-plane src="rose_petal.png" position="-0.2 3.8 0" width="0.2"  height="0.2"  material="transparent:true;side:double" look-at="[camera]" animation="property: position; to:-0.2 -1 0; dur:2800; loop:true" animation__rot="property: rotation; to:360 360 360; dur:1800; loop:true"></a-plane>
+            <a-plane src="rose_petal.png" position="0.3 4 0"    width="0.2"  height="0.2"  material="transparent:true;side:double" look-at="[camera]" animation="property: position; to:0.3 -1 0; dur:3000; loop:true" animation__rot="property: rotation; to:360 360 360; dur:2000; loop:true"></a-plane>
+
+            <a-text id="personal-msg" value="Scanning for your name…"
+                position="0 -1.3 2.2" align="center"
+                color="#FFF5CC" width="3.5" font="kelsonsans" look-at="[camera]">
+            </a-text>
+        </a-marker>
+
+        <a-entity camera></a-entity>
+    </a-scene>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     AR NAVIGATION SCREEN
+═══════════════════════════════════════════ -->
+<div id="nav-screen">
+    <video id="nav-camera" autoplay playsinline muted></video>
+    <canvas id="nav-canvas"></canvas>
+
+    <div id="nav-hud">🎯 Target: VIT Vellore — SJT</div>
+    <div id="nav-distance">Acquiring GPS…</div>
+    <div id="nav-mini-map"></div>
+
+    <button id="nav-close" onclick="stopNavigation()">✕</button>
+
+    <div id="arrived-banner">
+        <h2>🎉 You've Arrived!</h2>
+        <!-- ⚠️ REPLACE: venue name -->
+        <p>Welcome to VIT Vellore<br>The celebration awaits you 💍</p>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════
+   CONFIG — CHANGE THESE 4 VALUES
+   ════════════════════════════════════════════ */
+// ⚠️ REPLACE: your Mapbox public token from https://account.mapbox.com
+const MAPBOX_TOKEN = "pk.eyJ1IjoiaGVtYW50aDg1MDMiLCJhIjoiY21rNzV5c2w2MHlqeTNncjI5bjkyeWJwaiJ9.NnunzAB_24Ntn83H5hRcyQ";
+// ⚠️ REPLACE: your venue [longitude, latitude] — find on Google Maps
+const DESTINATION  = [79.163884, 12.971034];
+// ⚠️ REPLACE: short venue name shown in nav HUD
+const DEST_NAME    = "VIT Vellore — SJT";
+
+/* ════════════════════════════════════════════
+   PETAL ANIMATION
+   ════════════════════════════════════════════ */
+(function spawnPetals() {
+    const colors = ['#FF6B9D','#FFB3C8','#FF8FAB','#FFC8D8','#FFD6E7'];
+    const container = document.getElementById('petals');
+    for (let i = 0; i < 25; i++) {
+        const p = document.createElement('div');
+        p.className = 'petal';
+        const size = 8 + Math.random() * 14;
+        p.style.cssText = `
+            width:${size}px; height:${size}px;
+            left:${Math.random()*100}vw; top:-${size}px;
+            background:${colors[Math.floor(Math.random()*colors.length)]};
+            animation-duration:${4 + Math.random()*5}s;
+            animation-delay:${Math.random()*6}s;
+        `;
+        container.appendChild(p);
+    }
+})();
+
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('loading-screen').classList.add('hidden');
+    }, 800);
+});
+
+/* ════════════════════════════════════════════
+   SCHEDULE
+   ════════════════════════════════════════════ */
+function toggleSchedule() {
+    document.getElementById('schedule-panel').classList.toggle('visible');
+}
+
+/* ════════════════════════════════════════════
+   AR INVITATION
+   ════════════════════════════════════════════ */
+let arSceneInit = false;
+function openAR() {
+    const overlay = document.getElementById('ar-overlay');
+    overlay.classList.add('visible');
+    if (!arSceneInit) {
+        document.getElementById('ar-scene').style.display = 'block';
+        arSceneInit = true;
+        startOCR();
+    }
+}
+function closeAR() {
+    document.getElementById('ar-overlay').classList.remove('visible');
+}
+
+let musicStarted = false;
+function playMusic() {
+    if (musicStarted) return;
+    const ent = document.getElementById('music-entity');
+    ent.setAttribute('sound', { src: 'url(wedding-music.mp3)', autoplay: true, loop: true, volume: 0.7 });
+    musicStarted = true;
+    document.getElementById('music-hint').textContent = '🎵 Music playing';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const marker = document.getElementById('hiro-marker');
+        if (!marker) return;
+        marker.addEventListener('markerFound', () => {
+            document.getElementById('ar-status').textContent = '✅ Marker detected! Welcome!';
+            document.getElementById('ar-nav-btn').classList.add('visible');
+            playMusic();
+        });
+        marker.addEventListener('markerLost', () => {
+            document.getElementById('ar-status').textContent = '👆 Point camera at the Hiro marker';
+        });
+    }, 3000);
+});
+
+/* ────── OCR Guest Name Detection ────── */
+let lastName = '', ocrRunning = false;
+
+function extractName(text) {
+    text = text.replace(/[^a-zA-Z ]/g, ' ');
+    const words = text.split(/\s+/);
+    const ignore = ['hiro','marker','camera','welcome','wedding',
+                    'invitation','prarthana','arjun','partner','weds','scan','name'];
+    return words.find(w =>
+        w.length >= 3 && w.length <= 12 &&
+        /^[A-Za-z]+$/.test(w) &&
+        !ignore.includes(w.toLowerCase())
+    ) || '';
+}
+
+function startOCR() {
+    if (ocrRunning) return;
+    ocrRunning = true;
+    requestAnimationFrame(scanLoop);
+}
+
+async function scanLoop() {
+    const video = document.querySelector('#ar-scene video');
+    if (!video || video.readyState !== 4) { setTimeout(() => requestAnimationFrame(scanLoop), 500); return; }
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const w = video.videoWidth, h = video.videoHeight;
+    canvas.width = w * 0.5; canvas.height = h * 0.3;
+    ctx.drawImage(video, (w - canvas.width)/2, (h - canvas.height)/2, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+    try {
+        const result = await Tesseract.recognize(canvas.toDataURL('image/png'), 'eng', {
+            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
+        });
+        const name = extractName(result.data.text);
+        if (name && name !== lastName) { lastName = name; showPersonalMessage(name); }
+    } catch(e) {}
+    setTimeout(() => requestAnimationFrame(scanLoop), 3000);
+}
+
+function showPersonalMessage(name) {
+    const msg = `With great joy in our hearts, we invite you to celebrate our special day 💍\nYour presence will make our celebration even more memorable 💐`;
+    const detectedEl = document.getElementById('detected-name');
+    const msgEl      = document.getElementById('personal-msg');
+    if (detectedEl) detectedEl.setAttribute('value', name);
+    if (msgEl)      msgEl.setAttribute('value', `Dear ${name},\n${msg}`);
+    document.getElementById('popup-name-text').textContent = `Dear ${name} 👋`;
+    document.getElementById('popup-msg-text').textContent  = msg;
+    document.getElementById('name-popup').classList.add('visible');
+    if ('speechSynthesis' in window) {
+        speechSynthesis.speak(new SpeechSynthesisUtterance(
+            `Dear ${name}, with great joy in our hearts, we invite you to celebrate our special day.`
+        ));
+    }
+}
+
+/* ════════════════════════════════════════════
+   AR NAVIGATION — Three.js + Mapbox + GPS
+   ════════════════════════════════════════════ */
+let navScene, navCamera, navRenderer, arrowMesh;
+let navMap, userMarker;
+let targetBearing = 0, deviceHeading = 0, smoothHeading = 0, lastRawHeading = 0;
+let navRunning = false, hasArrived = false;
+let navStream = null;
+
+async function startNavigation() {
+    // iOS compass permission
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+            const resp = await DeviceOrientationEvent.requestPermission();
+            if (resp !== 'granted') { alert('Compass permission required for AR navigation.'); return; }
+        } catch(e) { console.error(e); }
+    }
+
+    document.getElementById('nav-screen').classList.add('visible');
+
+    // Start camera
+    try {
+        navStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        document.getElementById('nav-camera').srcObject = navStream;
+    } catch(e) { alert('Camera access needed. Please use HTTPS.'); return; }
+
+    initNavThree();
+    initNavMap();
+    navigator.geolocation.watchPosition(handleGPS, gpsError, { enableHighAccuracy: true, maximumAge: 1000 });
+    window.addEventListener('deviceorientation', handleOrientation, true);
+    navRunning = true;
+    animateNav();
+}
+
+function stopNavigation() {
+    navRunning = false;
+    document.getElementById('nav-screen').classList.remove('visible');
+    window.removeEventListener('deviceorientation', handleOrientation, true);
+    if (navStream) { navStream.getTracks().forEach(t => t.stop()); navStream = null; }
+}
+
+function initNavThree() {
+    navScene    = new THREE.Scene();
+    navCamera   = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    navRenderer = new THREE.WebGLRenderer({
+        canvas: document.getElementById('nav-canvas'),
+        alpha: true, antialias: true
+    });
+    navRenderer.setSize(window.innerWidth, window.innerHeight);
+
+    // Build arrow shape
+    const shape = new THREE.Shape();
+    shape.moveTo(0, 0.8);  shape.lineTo(0.4, 0);
+    shape.lineTo(0.15, 0); shape.lineTo(0.15, -0.6);
+    shape.lineTo(-0.15, -0.6); shape.lineTo(-0.15, 0);
+    shape.lineTo(-0.4, 0); shape.closePath();
+
+    arrowMesh = new THREE.Mesh(
+        new THREE.ExtrudeGeometry(shape, { depth: 0.15, bevelEnabled: false }),
+        new THREE.MeshPhongMaterial({ color: 0x00ff00, emissive: 0x003300 })
+    );
+    arrowMesh.position.set(0, -1.2, -5);
+    arrowMesh.rotation.x = -Math.PI / 2;
+    navScene.add(arrowMesh);
+    navScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    navScene.add(new THREE.DirectionalLight(0xffffff, 0.6));
+}
+
+function initNavMap() {
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+    navMap = new mapboxgl.Map({
+        container: 'nav-mini-map',
+        style: 'mapbox://styles/mapbox/navigation-night-v1',
+        center: DESTINATION, zoom: 16, pitch: 45, interactive: false
+    });
+    navMap.on('load', () => {
+        new mapboxgl.Marker({ color: '#ff0000' }).setLngLat(DESTINATION).addTo(navMap);
+        userMarker = new mapboxgl.Marker({ color: '#00ff00' }).setLngLat([0, 0]).addTo(navMap);
+    });
+}
+
+async function handleGPS(pos) {
+    const lat  = pos.coords.latitude;
+    const lng  = pos.coords.longitude;
+    const dist = getDistance(lat, lng, DESTINATION[1], DESTINATION[0]);
+
+    if (userMarker) userMarker.setLngLat([lng, lat]);
+    if (navMap)     navMap.easeTo({ center: [lng, lat], bearing: deviceHeading, duration: 1000 });
+
+    const hud      = document.getElementById('nav-hud');
+    const distEl   = document.getElementById('nav-distance');
+    distEl.textContent = Math.round(dist) + ' m away';
+
+    if (dist <= 10) {
+        hasArrived = true;
+        hud.textContent = '🎉 ARRIVED!';
+        hud.classList.add('arrived-ui');
+        distEl.style.color = '#ffd700';
+        arrowMesh.material.color.setHex(0xffd700);
+        document.getElementById('arrived-banner').classList.add('visible');
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    } else {
+        hasArrived = false;
+        hud.textContent = '🎯 ' + DEST_NAME;
+        hud.classList.remove('arrived-ui');
+        distEl.style.color = '#00ff00';
+        arrowMesh.material.color.setHex(0x00ff00);
+        document.getElementById('arrived-banner').classList.remove('visible');
+
+        // Fetch walking route for next waypoint bearing
+        try {
+            const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${lng},${lat};${DESTINATION[0]},${DESTINATION[1]}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+            const res  = await fetch(url);
+            const data = await res.json();
+            if (data.routes && data.routes.length > 0) {
+                const coords  = data.routes[0].geometry.coordinates;
+                const nextPt  = coords.length > 1 ? coords[1] : DESTINATION;
+                targetBearing = getBearing(lat, lng, nextPt[1], nextPt[0]);
+            }
+        } catch(e) { /* silently ignore if offline */ }
+    }
+}
+
+function gpsError(err) {
+    document.getElementById('nav-distance').textContent = 'GPS unavailable';
+}
+
+function handleOrientation(e) {
+    let raw  = e.webkitCompassHeading || (360 - (e.alpha || 0));
+    let diff = raw - lastRawHeading;
+    if (diff >  180) lastRawHeading += 360;
+    if (diff < -180) lastRawHeading -= 360;
+    smoothHeading  = smoothHeading + (raw - smoothHeading) * 0.05;
+    deviceHeading  = (smoothHeading + 360) % 360;
+    lastRawHeading = raw;
+}
+
+function animateNav() {
+    requestAnimationFrame(animateNav);
+    if (!navRunning) return;
+
+    // Smoothly rotate arrow toward target
+    let diff = THREE.MathUtils.degToRad(targetBearing - deviceHeading) - arrowMesh.rotation.z;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    while (diff >  Math.PI) diff -= Math.PI * 2;
+    arrowMesh.rotation.z += diff * 0.1;
+
+    // Bob animation on arrival
+    if (hasArrived) {
+        arrowMesh.position.y = -1.2 + Math.sin(Date.now() * 0.005) * 0.1;
+    }
+
+    navRenderer.render(navScene, navCamera);
+}
+
+/* ════════════════════════════════════════════
+   GEO MATH UTILITIES
+   ════════════════════════════════════════════ */
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R    = 6371e3;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a    = Math.sin(dLat/2)**2
+               + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180)
+               * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function getBearing(lat1, lon1, lat2, lon2) {
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const y    = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+    const x    = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180)
+               - Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+
+/* ════════════════════════════════════════════
+   WINDOW RESIZE
+   ════════════════════════════════════════════ */
+window.addEventListener('resize', () => {
+    if (navRenderer) {
+        navRenderer.setSize(window.innerWidth, window.innerHeight);
+        navCamera.aspect = window.innerWidth / window.innerHeight;
+        navCamera.updateProjectionMatrix();
+    }
+});
+</script>
+</body>
+</html>
