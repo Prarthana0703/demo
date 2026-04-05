@@ -448,60 +448,115 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ────── OCR Guest Name Detection ────── */
-let lastName = '', ocrRunning = false;
+/* ────── FIXED OCR (WORKING + STABLE) ────── */
+let lastName = "";
+let processing = false;
 
 function extractName(text) {
-    text = text.replace(/[^a-zA-Z ]/g, ' ');
-    const words = text.split(/\s+/);
-    const ignore = ['hiro','marker','camera','welcome','wedding',
-                    'invitation','prarthana','arjun','partner','weds','scan','name'];
-    return words.find(w =>
-        w.length >= 3 && w.length <= 12 &&
+    text = text.replace(/[^a-zA-Z ]/g, " ");
+    let words = text.split(/\s+/);
+
+    const ignore = [
+        "hiro","marker","camera","welcome","wedding",
+        "invitation","rahul","saira","partner","weds"
+    ];
+
+    let valid = words.filter(w =>
+        w.length >= 3 &&
+        w.length <= 8 &&
         /^[A-Za-z]+$/.test(w) &&
         !ignore.includes(w.toLowerCase())
-    ) || '';
+    );
+
+    return valid[0] || "";
 }
 
 function startOCR() {
-    if (ocrRunning) return;
-    ocrRunning = true;
-    requestAnimationFrame(scanLoop);
+    scan(); // ✅ start directly
 }
 
-async function scanLoop() {
-    const video = document.querySelector('#ar-scene video');
-    if (!video || video.readyState !== 4) { setTimeout(() => requestAnimationFrame(scanLoop), 500); return; }
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const w = video.videoWidth, h = video.videoHeight;
-    canvas.width = w * 0.5; canvas.height = h * 0.3;
-    ctx.drawImage(video, (w - canvas.width)/2, (h - canvas.height)/2, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-    try {
-        const result = await Tesseract.recognize(canvas.toDataURL('image/png'), 'eng', {
-            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
-        });
-        const name = extractName(result.data.text);
-        if (name && name !== lastName) { lastName = name; showPersonalMessage(name); }
-    } catch(e) {}
-    setTimeout(() => requestAnimationFrame(scanLoop), 3000);
-}
+async function scan() {
 
-function showPersonalMessage(name) {
-    const msg = `With great joy in our hearts, we invite you to celebrate our special day 💍\nYour presence will make our celebration even more memorable 💐`;
-    const detectedEl = document.getElementById('detected-name');
-    const msgEl      = document.getElementById('personal-msg');
-    if (detectedEl) detectedEl.setAttribute('value', name);
-    if (msgEl)      msgEl.setAttribute('value', `Dear ${name},\n${msg}`);
-    document.getElementById('popup-name-text').textContent = `Dear ${name} 👋`;
-    document.getElementById('popup-msg-text').textContent  = msg;
-    document.getElementById('name-popup').classList.add('visible');
-    if ('speechSynthesis' in window) {
-        speechSynthesis.speak(new SpeechSynthesisUtterance(
-            `Dear ${name}, with great joy in our hearts, we invite you to celebrate our special day.`
-        ));
+    // ❌ STOP if marker not visible
+    if (!markerVisible) {
+        requestAnimationFrame(scan);
+        return;
     }
-}
 
+    if (processing) return;
+    processing = true;
+
+    const video = document.querySelector("video");
+
+    if (!video || video.readyState !== 4 || !video.videoWidth) {
+        processing = false;
+        requestAnimationFrame(scan);
+        return;
+    }
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const w = video.videoWidth;
+    const h = video.videoHeight;
+
+    const cropW = w * 0.5;
+    const cropH = h * 0.3;
+
+    const startX = (w - cropW) / 2;
+    const startY = (h - cropH) / 2;
+
+    canvas.width = cropW;
+    canvas.height = cropH;
+
+    ctx.drawImage(video, startX, startY, cropW, cropH, 0, 0, cropW, cropH);
+
+    try {
+        const result = await Tesseract.recognize(
+            canvas.toDataURL("image/png"),
+            "eng",
+            {
+                tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+            }
+        );
+
+        let name = extractName(result.data.text);
+
+        if (name && name !== lastName) {
+
+            lastName = name;
+
+            document.getElementById("detected-name")
+                .setAttribute("value", name);
+
+            document.getElementById("personal-msg")
+                .setAttribute("value",
+`Dear ${name},
+Welcome to our wedding 💍`);
+
+            document.getElementById("popup-name-text").textContent = `Dear ${name} 👋`;
+            document.getElementById("popup-msg-text").textContent =
+                "Welcome to our wedding celebration 💐";
+
+            document.getElementById("name-popup").classList.add("visible");
+
+            if ("speechSynthesis" in window) {
+                speechSynthesis.cancel(); // ✅ avoid overlap
+                speechSynthesis.speak(
+                    new SpeechSynthesisUtterance(`Dear ${name}, welcome to our wedding`)
+                );
+            }
+        }
+
+    } catch (e) {
+        console.log("OCR error:", e);
+    }
+
+    processing = false;
+
+    // ⏱️ SMALL DELAY → better performance
+    setTimeout(() => requestAnimationFrame(scan), 800);
+}
 /* ════════════════════════════════════════════
    AR NAVIGATION — Three.js + Mapbox + GPS
    ════════════════════════════════════════════ */
