@@ -171,7 +171,7 @@ window.addEventListener("click", () => {
     }
 });
 
-// OCR
+// OCR FILTER
 function extractName(text) {
     text = text.replace(/[^a-zA-Z ]/g, " ");
     let words = text.split(/\s+/);
@@ -183,7 +183,7 @@ function extractName(text) {
 
     let valid = words.filter(w =>
         w.length >= 3 &&
-        w.length <= 8 &&
+        w.length <= 10 &&
         /^[A-Za-z]+$/.test(w) &&
         !ignore.includes(w.toLowerCase())
     );
@@ -200,7 +200,7 @@ async function scan() {
 
     if (!video || video.readyState !== 4) {
         processing = false;
-        requestAnimationFrame(scan);
+        setTimeout(scan, 1500);
         return;
     }
 
@@ -210,40 +210,59 @@ async function scan() {
     const w = video.videoWidth;
     const h = video.videoHeight;
 
-    const cropW = w * 0.5;
-    const cropH = h * 0.3;
+    // 🔥 Use FULL frame (better accuracy)
+    canvas.width = w;
+    canvas.height = h;
 
-    const startX = (w - cropW) / 2;
-    const startY = (h - cropH) / 2;
+    ctx.drawImage(video, 0, 0, w, h);
 
-    canvas.width = cropW;
-    canvas.height = cropH;
+    // 🔥 Convert to grayscale (VERY IMPORTANT)
+    let imgData = ctx.getImageData(0, 0, w, h);
+    let data = imgData.data;
 
-    ctx.drawImage(video, startX, startY, cropW, cropH, 0, 0, cropW, cropH);
+    for (let i = 0; i < data.length; i += 4) {
+        let gray = (data[i] + data[i+1] + data[i+2]) / 3;
+        data[i] = data[i+1] = data[i+2] = gray;
+    }
 
-    const img = canvas.toDataURL("image/png");
+    ctx.putImageData(imgData, 0, 0);
 
-    const result = await Tesseract.recognize(img, 'eng');
+    try {
+        const result = await Tesseract.recognize(canvas, 'eng', {
+            logger: m => console.log(m)
+        });
 
-    let name = extractName(result.data.text);
+        let text = result.data.text;
+        console.log("OCR TEXT:", text);
 
-    if (name && name !== lastName) {
-        lastName = name;
+        let name = extractName(text);
 
-        let msg = `Dear ${name}, you are invited to our wedding 💍`;
+        if (name && name !== lastName) {
+            lastName = name;
 
-        document.querySelector("#personal-msg").setAttribute("value", msg);
-        document.querySelector("#detected-name").setAttribute("value", name);
+            let msg = `Dear ${name}, you are invited to our wedding 💍`;
 
-        speak(msg);
+            document.querySelector("#personal-msg")
+                .setAttribute("value", msg);
+
+            document.querySelector("#detected-name")
+                .setAttribute("value", name);
+
+            speak(msg);
+        }
+
+    } catch (err) {
+        console.error("OCR Error:", err);
     }
 
     processing = false;
-    requestAnimationFrame(scan);
+
+    // 🔥 Run every 3 seconds (NOT every frame)
+    setTimeout(scan, 3000);
 }
 
-scan();
+// start OCR after 2 sec (camera ready)
+setTimeout(scan, 2000);
 </script>
-
 </body>
 </html>
