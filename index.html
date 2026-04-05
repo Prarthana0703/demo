@@ -1,86 +1,107 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Premium AR Wedding Invite 💍</title>
+    <title>AR Wedding Scene</title>
 
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 </head>
 
-<body style="margin: 0; overflow: hidden;">
+<body style="margin:0; overflow:hidden;">
 
 <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
 
-    <!-- 🎵 MUSIC -->
-    <a-entity id="music"></a-entity>
+    <!-- 🎵 MUSIC ENTITY -->
+    <a-entity id="music" sound="autoplay:false"></a-entity>
 
-    <!-- 💡 LIGHT -->
-    <a-light type="ambient" intensity="1.4" color="#FFDAB9"></a-light>
-    <a-light type="point" position="0 3 2" intensity="1.5" color="#FFD700"></a-light>
+    <!-- LIGHT -->
+    <a-light type="ambient" intensity="1.2"></a-light>
+    <a-light type="directional" position="1 3 1"></a-light>
 
     <a-marker preset="hiro">
 
-        <!-- 💖 PREMIUM TITLE -->
-        <a-text 
-            value="✨ Rahul ❤️ Saira ✨"
-            position="0 0 -1.5"
+        <!-- 💖 TITLE -->
+        <a-text value="Rahul ❤️ Saira"
+            position="0 1.8 0"
             align="center"
             color="#FFD700"
-            width="4"
-            shader="msdf"
-            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-            material="emissive:#FFD700; emissiveIntensity:3"
-            look-at="[camera]"
-            animation="property: scale; to:1.2 1.2 1.2; dir:alternate; dur:1200; loop:true">
+            scale="1.5 1.5 1.5"
+            look-at="[camera]">
+        </a-text>
+
+        <!-- 💍 WEDS -->
+        <a-text value="Weds"
+            position="0 1.5 0"
+            align="center"
+            color="white"
+            scale="1.2 1.2 1.2"
+            look-at="[camera]">
         </a-text>
 
         <!-- 💐 GATE -->
         <a-entity 
             gltf-model="wedding_gate-v1.glb"
-            position="0 -1.2 0.5"
-            scale="1.5 1.5 2"
+            position="0 -0.8 0"
+            scale="1.5 1.5 1.5"
             rotation="-90 0 0">
         </a-entity>
 
-        <!-- 💑 COUPLE -->
+        <!-- 💍 COUPLE -->
         <a-entity 
             gltf-model="couple.glb"
-            position="0 -0.25 0.2"
-            scale="0.6 0.6 0.6"
+            position="0 0 0.2"
+            scale="0.5 0.5 0.5"
             rotation="-90 0 0">
         </a-entity>
 
-        <!-- 🌸 PETALS (CINEMATIC FALL) -->
-        <a-plane src="rose_petal.png"
-            position="-0.6 3 0"
-            width="0.25" height="0.25"
+        <!-- 🌸 PETALS (RICH SHOWER) -->
+        <a-plane src="rose_petal.png" position="-0.5 3 0" width="0.25" height="0.25"
             material="transparent:true;side:double"
             look-at="[camera]"
-            animation__fall="property: position; to:-0.6 -1 0; dur:3500; loop:true"
-            animation__sway="property: position; dir:alternate; to:-0.3 1 0; dur:2000; loop:true"
-            animation__rot="property: rotation; to:360 360 360; dur:2500; loop:true">
-        </a-plane>
-
-        <a-plane src="rose_petal.png"
-            position="0.5 3.5 0"
-            width="0.25" height="0.25"
-            material="transparent:true;side:double"
-            look-at="[camera]"
-            animation__fall="property: position; to:0.5 -1 0; dur:4000; loop:true"
-            animation__sway="property: position; dir:alternate; to:0.2 1 0; dur:2200; loop:true"
+            animation__fall="property: position; to:-0.5 -1 0; dur:4000; loop:true"
             animation__rot="property: rotation; to:360 360 360; dur:3000; loop:true">
         </a-plane>
 
-        <!-- 💬 MESSAGE -->
-        <a-text 
-            id="personal-msg"
-            value="Scanning name..."
-            position="0 -1.3 2.2"
+        <a-plane src="rose_petal.png" position="0.5 3.5 0" width="0.25" height="0.25"
+            material="transparent:true;side:double"
+            look-at="[camera]"
+            animation__fall="property: position; to:0.5 -1 0; dur:4500; loop:true"
+            animation__rot="property: rotation; to:360 360 360; dur:3500; loop:true">
+        </a-plane>
+
+        <a-plane src="rose_petal.png" position="0 4 0" width="0.22" height="0.22"
+            material="transparent:true;side:double"
+            look-at="[camera]"
+            animation__fall="property: position; to:0 -1 0; dur:3500; loop:true"
+            animation__rot="property: rotation; to:360 360 360; dur:2400; loop:true">
+        </a-plane>
+
+        <!-- ✨ SPARKLES (NEW) -->
+        <a-sphere radius="0.03" color="#FFD700" position="-0.3 1.5 0.2"
+            animation="property: opacity; from:0; to:1; dur:1000; loop:true; dir:alternate"
+            animation__float="property: position; to:-0.3 1.8 0.2; dur:2000; loop:true; dir:alternate">
+        </a-sphere>
+
+        <a-sphere radius="0.02" color="#FFFACD" position="0.3 1.3 0.2"
+            animation="property: opacity; from:0; to:1; dur:800; loop:true; dir:alternate"
+            animation__float="property: position; to:0.3 1.6 0.2; dur:1800; loop:true; dir:alternate">
+        </a-sphere>
+
+        <a-sphere radius="0.025" color="#FFD700" position="0 1.7 0.2"
+            animation="property: opacity; from:0; to:1; dur:1200; loop:true; dir:alternate"
+            animation__float="property: position; to:0 2 0.2; dur:2200; loop:true; dir:alternate">
+        </a-sphere>
+
+        <!-- 💬 PERSONAL MESSAGE -->
+        <a-text id="personal-msg"
+            value="Welcome 💐"
+            position="0 -0.1 0.3"
             align="center"
-            color="#FFF5CC"
-            width="3.5"
+            color="gold"
+            width="3"
+            scale="0.8 0.8 0.8"
             look-at="[camera]">
         </a-text>
 
@@ -90,11 +111,14 @@
 
 </a-scene>
 
+<!-- 🎤 SCRIPT -->
 <script>
+
 let lastName = "";
 let processing = false;
+let hasSpoken = false;
 
-// 🎵 MUSIC FIX
+// 🎵 MUSIC
 window.addEventListener("click", () => {
     const music = document.querySelector("#music");
 
@@ -108,22 +132,25 @@ window.addEventListener("click", () => {
 
 // 🔊 VOICE
 function speak(text) {
+    if (hasSpoken) return;
+    hasSpoken = true;
+
     const msg = new SpeechSynthesisUtterance(text);
     msg.rate = 0.9;
+    msg.pitch = 1;
     speechSynthesis.speak(msg);
 }
 
-// ✅ STRONG NAME FILTER (FIXED OCR ISSUE)
+// ✅ NAME FILTER
 function extractName(text) {
 
     text = text.replace(/[^a-zA-Z ]/g, " ");
-
     let words = text.split(/\s+/);
 
     let valid = words.filter(w =>
         w.length >= 3 &&
         w.length <= 10 &&
-        /^[A-Za-z]+$/.test(w)
+        /^[A-Z][a-z]+$/.test(w)
     );
 
     return valid[0] || "";
@@ -164,15 +191,15 @@ async function scan() {
 
         lastName = name;
 
-        let msgText = `Dear ${name}, With great joy in our hearts, we invite you to celebrate our special day.`;
+        let fullMsg = `Dear ${name}. With great joy in our hearts, we invite you to celebrate our special day. Your presence will make our celebration even more memorable.`;
 
         document.querySelector("#personal-msg")
             .setAttribute("value",
 `Dear ${name},
-We invite you to celebrate our special day 💍
-Your presence will make it memorable 💐`);
+With great joy in our hearts, we invite you 💍
+Your presence will make our celebration even more memorable 💐`);
 
-        speak(msgText);
+        speak(fullMsg);
     }
 
     processing = false;
@@ -180,6 +207,7 @@ Your presence will make it memorable 💐`);
 }
 
 scan();
+
 </script>
 
 </body>
