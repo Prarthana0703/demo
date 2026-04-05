@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Directions API Test</title>
+</head>
+
+<body>
+
+<h2>Check Console for Route Data</h2>
+
+<script>
+const API_KEY = "AIzaSyCh_SqXafoV8q-EEXifAaCGqWOeRi50jNA";
+
+// 🎯 Destination (example: VIT Vellore)
+const DEST_LAT = 12.9692;
+const DEST_LNG = 79.1559;
+
+// 📍 Get user location
+navigator.geolocation.getCurrentPosition(async (pos) => {
+
+    const userLat = pos.coords.latitude;
+    const userLng = pos.coords.longitude;
+
+    console.log("User Location:", userLat, userLng);
+
+    // 🗺️ Directions API URL (with proxy)
+    const url = `https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/directions/json?origin=${userLat},${userLng}&destination=${DEST_LAT},${DEST_LNG}&key=${API_KEY}`;
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        console.log("FULL RESPONSE:", data);
+
+        // ✅ Extract polyline
+        const polyline = data.routes[0].overview_polyline.points;
+
+        console.log("Polyline:", polyline);
+
+    } catch (err) {
+        console.error("Error:", err);
+    }
+
+});
+</script>
+
+</body>
+</html>
