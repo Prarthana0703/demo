@@ -1,44 +1,101 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Navigation</title>
+    <title>AR Navigation + Mini Map</title>
 
     <!-- Google Maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh_SqXafoV8q-EEXifAaCGqWOeRi50jNA"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
 
-    <!-- AFRAME + AR.js -->
+    <!-- AFRAME -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+    <!-- AR.js -->
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+
+    <style>
+        #map {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 200px;
+            height: 200px;
+            z-index: 10;
+            border: 2px solid white;
+        }
+
+        #startBtn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 20;
+            padding: 12px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 
 <body style="margin:0; overflow:hidden;">
 
-<h3 style="position:absolute; z-index:1; background:white;">
-    Move your phone → AR route will appear
-</h3>
+<button id="startBtn" onclick="requestPermissions()">Start AR Navigation</button>
+
+<!-- MINI MAP -->
+<div id="map"></div>
 
 <!-- AR SCENE -->
-<a-scene embedded arjs="sourceType: webcam;">
-
-    <!-- Camera -->
+<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
     <a-camera gps-camera rotation-reader></a-camera>
-
 </a-scene>
 
 <script>
 
-navigator.geolocation.getCurrentPosition(function(position) {
+let map;
+
+// 🚀 STEP 1: PERMISSION HANDLER
+function requestPermissions() {
+
+    // camera
+    navigator.mediaDevices.getUserMedia({ video: true });
+
+    // location
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            startNavigation(pos);
+        },
+        () => {
+            alert("❌ Please allow location");
+        }
+    );
+}
+
+// 🚀 STEP 2: MAIN NAVIGATION
+function startNavigation(position) {
 
     const origin = {
         lat: position.coords.latitude,
         lng: position.coords.longitude
     };
 
-    console.log("User Location:", origin);
-
     const destination = "Vellore Institute of Technology";
 
+    // 🗺️ INIT MAP
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: origin,
+        zoom: 15
+    });
+
+    // 📍 USER MARKER
+    new google.maps.Marker({
+        position: origin,
+        map: map,
+        label: "You"
+    });
+
     const directionsService = new google.maps.DirectionsService();
+    const directionsRenderer = new google.maps.DirectionsRenderer({
+        suppressMarkers: false
+    });
+
+    directionsRenderer.setMap(map);
 
     directionsService.route(
         {
@@ -48,51 +105,45 @@ navigator.geolocation.getCurrentPosition(function(position) {
         },
         function(result, status) {
 
-            console.log("STATUS:", status);
-
             if (status === "OK") {
 
-                console.log("FULL RESPONSE:", result);
+                directionsRenderer.setDirections(result);
 
                 const route = result.routes[0].overview_path;
 
-                console.log("Decoded Points:", route);
-
-                // 🚀 SHOW IN AR
                 showAR(route);
 
             } else {
-                console.log("❌ Error:", status);
+                alert("Error: " + status);
             }
         }
     );
+}
 
-});
-
-
-// 🚀 FUNCTION TO SHOW AR OBJECTS
+// 🚀 STEP 3: AR OBJECTS
 function showAR(points) {
 
     const scene = document.querySelector("a-scene");
 
-    points.forEach((point, index) => {
+    points.slice(0, 5).forEach((point) => {
 
-        const entity = document.createElement("a-box");
+        const entity = document.createElement("a-cone");
 
         entity.setAttribute("gps-entity-place", `
             latitude: ${point.lat()};
             longitude: ${point.lng()};
         `);
 
-        entity.setAttribute("color", "red");
-        entity.setAttribute("scale", "5 5 5");
+        entity.setAttribute("color", "yellow");
+        entity.setAttribute("scale", "20 20 20");
+        entity.setAttribute("position", "0 10 0");
 
-        // rotating animation (cool effect)
         entity.setAttribute("animation", `
-            property: rotation;
-            to: 0 360 0;
+            property: position;
+            to: 0 20 0;
+            direction: alternate;
             loop: true;
-            dur: 3000
+            dur: 1500
         `);
 
         scene.appendChild(entity);
