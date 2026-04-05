@@ -138,12 +138,29 @@
         /* ══ AR SCHEDULE FULLSCREEN OVERLAY ══ */
         #ar-schedule {
             position: fixed; inset: 0; z-index: 700;
-            background: #000;
+            background: transparent;
             display: none;
         }
-        #ar-schedule.visible {
-            display: block;
+        #ar-schedule.visible { display: block; }
+
+        /* Camera video MUST be visible behind the WebGL canvas */
+        #ar-schedule video {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            object-fit: cover !important;
+            z-index: 701 !important;
         }
+        /* WebGL canvas sits on top of video, must have transparent bg */
+        #ar-schedule canvas {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            background: transparent !important;
+            z-index: 702 !important;
+        }
+        /* HUD elements above canvas */
+        #ar-status-bar, #ar-hint, #ar-dots { z-index: 800 !important; }
 
         /* Top status bar */
         #ar-status-bar {
@@ -387,145 +404,122 @@ const AR_SCENE_HTML = `
 <a-scene
     id="ar-scene"
     embedded
-    arjs="sourceType: webcam; debugUIEnabled: false;"
+    arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
     renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true;"
+    webkit-playsinline
+    playsinline
     vr-mode-ui="enabled: false"
-    style="position:absolute;inset:0;width:100%;height:100%;">
-
-    <a-assets></a-assets>
+    style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:702;">
 
     <a-light type="ambient" intensity="3" color="#ffffff"></a-light>
-    <a-light type="directional" position="1 2 1" intensity="1.5" color="#ffe4e1"></a-light>
+    <a-light type="directional" position="0 5 5" intensity="2" color="#ffffff"></a-light>
 
-    <a-marker preset="hiro" id="hiro-marker">
+    <a-marker preset="hiro" id="hiro-marker" smooth="true" smoothCount="5" smoothTolerance="0.01">
 
-        <!-- TITLE -->
+        <!-- ── TITLE ── -->
         <a-text value="Event Schedule"
-            position="0 3.2 0" align="center" color="#FFD700" width="5"
+            position="0 4.0 0" rotation="-90 0 0"
+            align="center" color="#FFD700" width="6"
             material="shader: flat"
-            animation="property: scale; from: 1 1 1; to: 1.08 1.08 1.08; dir: alternate; dur: 1600; loop: true">
+            animation="property: scale; from: 1 1 1; to: 1.06 1.06 1.06; dir: alternate; dur: 1600; loop: true">
         </a-text>
+
         <a-text value="Saira & Rahul  14 Feb 2026"
-            position="0 2.75 0" align="center" color="#FFB6C1" width="3.8"
+            position="0 3.5 0" rotation="-90 0 0"
+            align="center" color="#FFB6C1" width="4.5"
             material="shader: flat">
         </a-text>
-        <a-plane position="0 2.52 0" width="3.2" height="0.025"
-            color="#FF6B9D" material="shader: flat; opacity: 0.9; transparent: true">
-        </a-plane>
 
-        <!-- ── ROW 1 ── -->
+        <!-- ── 7 CARDS stacked vertically, single column, easy to read ── -->
 
-        <!-- Card 1: Guest Arrival -->
-        <a-entity position="-1.7 2.0 0">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#FF6B9D" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
-            <a-text value="09:00 AM" position="0 0.17 0.02"
-                align="center" color="#FF6B9D" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Guest Arrival" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <!-- Card 1 -->
+        <a-entity position="0 3.0 0" rotation="-90 0 0">
+            <a-plane width="3.2" height="0.55" color="#1a0030"
+                material="shader: flat; opacity: 0.93; transparent: true"></a-plane>
+            <a-plane width="3.28" height="0.63" position="0 0 -0.005"
+                color="#FF6B9D" material="shader: flat; opacity: 0.4; transparent: true"></a-plane>
+            <a-text value="09:00 AM  |  Guest Arrival & Seating"
+                position="0 0 0.02" align="center" color="#FF6B9D" width="3.8"
+                material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- Card 2: Ceremony -->
-        <a-entity position="0 2.0 0">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#FFD700" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
-            <a-text value="10:00 AM" position="0 0.17 0.02"
-                align="center" color="#FFD700" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Ceremony Begins" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <!-- Card 2 -->
+        <a-entity position="0 2.3 0" rotation="-90 0 0">
+            <a-plane width="3.2" height="0.55" color="#1a0030"
+                material="shader: flat; opacity: 0.93; transparent: true"></a-plane>
+            <a-plane width="3.28" height="0.63" position="0 0 -0.005"
+                color="#FFD700" material="shader: flat; opacity: 0.4; transparent: true"></a-plane>
+            <a-text value="10:00 AM  |  Ceremony Begins"
+                position="0 0 0.02" align="center" color="#FFD700" width="3.8"
+                material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- Card 3: Vows -->
-        <a-entity position="1.7 2.0 0">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#FF6B9D" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
-            <a-text value="11:30 AM" position="0 0.17 0.02"
-                align="center" color="#FF6B9D" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Exchange of Vows" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <!-- Card 3 -->
+        <a-entity position="0 1.6 0" rotation="-90 0 0">
+            <a-plane width="3.2" height="0.55" color="#1a0030"
+                material="shader: flat; opacity: 0.93; transparent: true"></a-plane>
+            <a-plane width="3.28" height="0.63" position="0 0 -0.005"
+                color="#FF6B9D" material="shader: flat; opacity: 0.4; transparent: true"></a-plane>
+            <a-text value="11:30 AM  |  Exchange of Vows"
+                position="0 0 0.02" align="center" color="#FFB6C1" width="3.8"
+                material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- ── ROW 2 ── -->
-
-        <!-- Card 4: Lunch -->
-        <a-entity position="-1.7 1.1 0">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#00FFD1" material="shader: flat; opacity: 0.30; transparent: true"></a-plane>
-            <a-text value="12:00 PM" position="0 0.17 0.02"
-                align="center" color="#00FFD1" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Reception & Lunch" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <!-- Card 4 -->
+        <a-entity position="0 0.9 0" rotation="-90 0 0">
+            <a-plane width="3.2" height="0.55" color="#1a0030"
+                material="shader: flat; opacity: 0.93; transparent: true"></a-plane>
+            <a-plane width="3.28" height="0.63" position="0 0 -0.005"
+                color="#00FFD1" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
+            <a-text value="12:00 PM  |  Reception & Lunch"
+                position="0 0 0.02" align="center" color="#00FFD1" width="3.8"
+                material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- Card 5: Cake -->
-        <a-entity position="0 1.1 0">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#FFB6C1" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
-            <a-text value="03:00 PM" position="0 0.17 0.02"
-                align="center" color="#FFB6C1" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Cake Cutting" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <!-- Card 5 -->
+        <a-entity position="0 0.2 0" rotation="-90 0 0">
+            <a-plane width="3.2" height="0.55" color="#1a0030"
+                material="shader: flat; opacity: 0.93; transparent: true"></a-plane>
+            <a-plane width="3.28" height="0.63" position="0 0 -0.005"
+                color="#FFB6C1" material="shader: flat; opacity: 0.4; transparent: true"></a-plane>
+            <a-text value="03:00 PM  |  Cake Cutting"
+                position="0 0 0.02" align="center" color="#FFB6C1" width="3.8"
+                material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- Card 6: Dancing -->
-        <a-entity position="1.7 1.1 0">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#FF9500" material="shader: flat; opacity: 0.32; transparent: true"></a-plane>
-            <a-text value="04:00 PM" position="0 0.17 0.02"
-                align="center" color="#FF9500" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Dancing & Celebration" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.3" material="shader: flat"></a-text>
+        <!-- Card 6 -->
+        <a-entity position="0 -0.5 0" rotation="-90 0 0">
+            <a-plane width="3.2" height="0.55" color="#1a0030"
+                material="shader: flat; opacity: 0.93; transparent: true"></a-plane>
+            <a-plane width="3.28" height="0.63" position="0 0 -0.005"
+                color="#FF9500" material="shader: flat; opacity: 0.38; transparent: true"></a-plane>
+            <a-text value="04:00 PM  |  Dancing & Celebration"
+                position="0 0 0.02" align="center" color="#FF9500" width="3.8"
+                material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- ── ROW 3: single centred card ── -->
-
-        <!-- Card 7: Farewell -->
-        <a-entity position="0 0.22 0">
-            <a-plane width="1.48" height="0.65" color="#1a0030"
-                material="shader: flat; opacity: 0.95; transparent: true"></a-plane>
-            <a-plane width="1.56" height="0.73" position="0 0 -0.01"
-                color="#c084fc" material="shader: flat; opacity: 0.35; transparent: true"></a-plane>
-            <a-text value="07:00 PM" position="0 0.17 0.02"
-                align="center" color="#c084fc" width="2.4" material="shader: flat"></a-text>
-            <a-text value="Farewell & Send-off" position="0 -0.05 0.02"
-                align="center" color="#ffffff" width="2.4" material="shader: flat"></a-text>
+        <!-- Card 7 -->
+        <a-entity position="0 -1.2 0" rotation="-90 0 0">
+            <a-plane width="3.2" height="0.55" color="#1a0030"
+                material="shader: flat; opacity: 0.93; transparent: true"></a-plane>
+            <a-plane width="3.28" height="0.63" position="0 0 -0.005"
+                color="#c084fc" material="shader: flat; opacity: 0.4; transparent: true"></a-plane>
+            <a-text value="07:00 PM  |  Farewell & Send-off"
+                position="0 0 0.02" align="center" color="#c084fc" width="3.8"
+                material="shader: flat"></a-text>
         </a-entity>
 
-        <!-- Spinning rings -->
-        <a-torus position="0 1.6 -0.2" radius="2.1" radius-tubular="0.018"
-            color="#FF6B9D" material="shader: flat; opacity: 0.35; transparent: true"
-            animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 9000; loop: true; easing: linear">
+        <!-- Spinning ring decoration -->
+        <a-torus position="0 0.9 0" rotation="-90 0 0"
+            radius="2.2" radius-tubular="0.02"
+            color="#FF6B9D" material="shader: flat; opacity: 0.3; transparent: true"
+            animation="property: rotation; from: -90 0 0; to: -90 360 0; dur: 10000; loop: true; easing: linear">
         </a-torus>
-        <a-torus position="0 1.6 -0.2" radius="2.6" radius-tubular="0.012"
-            color="#FFD700" material="shader: flat; opacity: 0.22; transparent: true"
-            animation="property: rotation; from: 15 0 0; to: 15 -360 0; dur: 16000; loop: true; easing: linear">
+        <a-torus position="0 0.9 0" rotation="-90 0 0"
+            radius="2.6" radius-tubular="0.012"
+            color="#FFD700" material="shader: flat; opacity: 0.18; transparent: true"
+            animation="property: rotation; from: -90 0 0; to: -90 -360 0; dur: 17000; loop: true; easing: linear">
         </a-torus>
-        <a-torus position="0 1.6 -0.2" radius="3.1" radius-tubular="0.008"
-            color="#00FFD1" material="shader: flat; opacity: 0.15; transparent: true"
-            animation="property: rotation; from: -10 0 20; to: -10 360 20; dur: 24000; loop: true; easing: linear">
-        </a-torus>
-
-        <!-- Floating hearts -->
-        <a-text value="heart" position="-2.7 2.9 0" width="1.2"
-            color="#FF6B9D" material="shader: flat"
-            animation="property: position; from: -2.7 2.9 0; to: -2.7 3.3 0; dir: alternate; dur: 2600; loop: true">
-        </a-text>
-        <a-text value="heart" position="2.7 2.7 0" width="1.0"
-            color="#FFB6C1" material="shader: flat"
-            animation="property: position; from: 2.7 2.7 0; to: 2.7 3.1 0; dir: alternate; dur: 3000; loop: true">
-        </a-text>
 
     </a-marker>
 
