@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Directions API Test</title>
+    <title>AR Navigation Test</title>
 </head>
 
 <body>
@@ -9,36 +9,39 @@
 <h2>Check Console for Route Data</h2>
 
 <script>
-const API_KEY = "AIzaSyCh_SqXafoV8q-EEXifAaCGqWOeRi50jNA";
-
-// 🎯 Destination (example: VIT Vellore)
-const DEST_LAT = 12.9692;
-const DEST_LNG = 79.1559;
-
-// 📍 Get user location
 navigator.geolocation.getCurrentPosition(async (pos) => {
 
-    const userLat = pos.coords.latitude;
-    const userLng = pos.coords.longitude;
+    let userLat = pos.coords.latitude;
+    let userLng = pos.coords.longitude;
 
     console.log("User Location:", userLat, userLng);
 
-    // 🗺️ Directions API URL (with proxy)
-    const url = `https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/directions/json?origin=${userLat},${userLng}&destination=${DEST_LAT},${DEST_LNG}&key=${API_KEY}`;
+    // 👉 CHANGE THIS DESTINATION (near your location)
+    let destination = "12.9725,79.1650";
+
+    let apiKey = "YOUR_API_KEY_HERE"; // 🔥 PUT YOUR API KEY
+
+    let url = `https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/directions/json?origin=${userLat},${userLng}&destination=${destination}&key=${apiKey}`;
 
     try {
-        const res = await fetch(url);
-        const data = await res.json();
+        let response = await fetch(url);
+        let data = await response.json();
 
-        console.log("FULL RESPONSE:", data);
+        // 🔍 PRINT FULL RESPONSE
+        console.log("FULL RESPONSE:");
+        console.log(JSON.stringify(data, null, 2));
 
-        // ✅ Extract polyline
-        const polyline = data.routes[0].overview_polyline.points;
+        // ✅ SAFE CHECK
+        if (data.routes && data.routes.length > 0) {
+            let polyline = data.routes[0].overview_polyline.points;
+            console.log("Polyline:", polyline);
+        } else {
+            console.log("❌ No routes found OR API issue");
+            console.log("STATUS:", data.status);
+        }
 
-        console.log("Polyline:", polyline);
-
-    } catch (err) {
-        console.error("Error:", err);
+    } catch (error) {
+        console.error("Error:", error);
     }
 
 });
