@@ -276,133 +276,267 @@
             vr-mode-ui="enabled: false"
             style="width:100%;height:100%;position:absolute;top:0;left:0;">
 
-            <a-light type="ambient" intensity="2.5"></a-light>
-            <a-light type="directional" position="0 5 2" intensity="1.2"></a-light>
+            <a-light type="ambient" intensity="2.8"></a-light>
+            <a-light type="directional" position="0 5 2" intensity="1.4"></a-light>
+            <a-light type="point" position="0 3 1" intensity="0.8" color="#FFD700"></a-light>
 
             <a-marker preset="hiro" id="hiro-marker">
 
-                <a-plane position="0 3.8 0" width="4.0" height="0.72"
-                    material="shader:flat; color:#1a0030; opacity:0.93; transparent:true"
+                <!-- ══════════════════════════════════════════ -->
+                <!-- 1️⃣  GOLDEN HEADER — glowing + animated    -->
+                <!-- ══════════════════════════════════════════ -->
+
+                <!-- Outer glow ring behind header -->
+                <a-torus position="0 4.0 -0.15" radius="2.55" radius-tubular="0.045"
+                    material="shader:flat; color:#FFD700; opacity:0.18; transparent:true"
+                    look-at="[camera]"
+                    animation="property:rotation; from:0 0 0; to:0 360 0; loop:true; dur:8000; easing:linear"></a-torus>
+
+                <!-- Header backing card -->
+                <a-plane position="0 4.0 -0.12" width="4.4" height="0.92"
+                    material="shader:flat; color:#120020; opacity:0.97; transparent:true"
+                    look-at="[camera]"
+                    animation="property:scale; from:1 1 1; to:1.018 1.018 1; dir:alternate; dur:2200; loop:true; easing:easeInOutSine"></a-plane>
+
+                <!-- Gold top border line -->
+                <a-plane position="0 4.48 -0.11" width="4.4" height="0.04"
+                    material="shader:flat; color:#FFD700; opacity:0.85; transparent:true"
                     look-at="[camera]"></a-plane>
-                <a-text value="Saira and Rahul"
-                    position="0 3.88 0.02" align="center" color="#FFD700" width="4.8"
+                <!-- Gold bottom border line -->
+                <a-plane position="0 3.54 -0.11" width="4.4" height="0.04"
+                    material="shader:flat; color:#FFD700; opacity:0.85; transparent:true"
+                    look-at="[camera]"></a-plane>
+
+                <!-- Couple names — pulsing gold -->
+                <a-text value="✦ Saira & Rahul ✦"
+                    position="0 4.13 -0.08" align="center" color="#FFD700" width="5.2"
                     material="shader:flat" look-at="[camera]"
-                    animation="property:scale; to:1.05 1.05 1.05; dir:alternate; dur:1500; loop:true"></a-text>
-                <a-text value="Wedding Day - 14 Feb 2026"
-                    position="0 3.55 0.02" align="center" color="#FFB6C1" width="3.6"
+                    animation="property:scale; from:1 1 1; to:1.06 1.06 1; dir:alternate; dur:1400; loop:true; easing:easeInOutSine"></a-text>
+
+                <!-- Wedding date — soft pink -->
+                <a-text value="Wedding Day  ·  14 February 2026"
+                    position="0 3.78 -0.08" align="center" color="#FFB6C1" width="4.0"
                     material="shader:flat" look-at="[camera]"></a-text>
 
-                <a-torus position="0 3.72 0" radius="2.5" radius-tubular="0.04"
-                    material="shader:flat; color:#FFD700; opacity:0.28; transparent:true"
-                    look-at="[camera]"
-                    animation="property:rotation; from:0 0 0; to:0 360 0; loop:true; dur:9000; easing:linear"></a-torus>
+                <!-- ══════════════════════════════════════════════════════ -->
+                <!-- 2️⃣  TIMELINE SPINE — glowing vertical bar with depth  -->
+                <!-- ══════════════════════════════════════════════════════ -->
 
-                <a-box position="-1.55 1.3 0" width="0.06" height="5.4" depth="0.06"
-                    material="shader:flat; color:#FF6B9D; opacity:0.38; transparent:true"></a-box>
+                <!-- Shadow/depth spine (slightly behind) -->
+                <a-box position="-1.55 1.05 -0.18" width="0.04" height="5.8" depth="0.04"
+                    material="shader:flat; color:#FF3B7F; opacity:0.12; transparent:true"></a-box>
+                <!-- Main glowing spine -->
+                <a-box position="-1.55 1.05 -0.1" width="0.06" height="5.8" depth="0.06"
+                    material="shader:flat; color:#FF6B9D; opacity:0.55; transparent:true"
+                    animation="property:material.opacity; from:0.35; to:0.75; dir:alternate; dur:2500; loop:true"></a-box>
 
-                <a-entity position="0 3.05 0">
-                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#FFD700"
-                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:1000; loop:true"></a-sphere>
-                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
-                        material="shader:flat; color:#2a0045; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
-                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
-                        material="shader:flat; color:#FFD700; transparent:true" look-at="[camera]"></a-plane>
-                    <a-text value="08:00 AM" position="0.25 0.19 0.02" align="center" color="#FFD700" width="3.4"
+                <!-- ══════════════════════════════════════════════════════════════════════ -->
+                <!-- 3️⃣  EVENT CARDS — Z-depth + slight tilt + staggered float animation  -->
+                <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+                <!-- CARD 1: Haldi — Golden yellow -->
+                <a-entity position="0 3.05 -0.20" rotation="0 8 0"
+                    animation="property:position; from:0 2.85 -0.20; to:0 3.05 -0.20; dur:600; easing:easeOutBack">
+                    <a-sphere position="-1.55 0 0.1" radius="0.14" material="shader:flat; color:#FFD700"
+                        animation="property:scale; from:1 1 1; to:1.45 1.45 1.45; dir:alternate; dur:1000; loop:true"></a-sphere>
+                    <!-- Dot glow -->
+                    <a-sphere position="-1.55 0 0.06" radius="0.22" material="shader:flat; color:#FFD700; opacity:0.18; transparent:true"
+                        animation="property:scale; from:1 1 1; to:1.5 1.5 1.5; dir:alternate; dur:1000; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.15" height="0.82"
+                        material="shader:flat; color:#2a1800; opacity:0.96; transparent:true" look-at="[camera]"></a-plane>
+                    <!-- Left accent bar -->
+                    <a-plane position="-1.2 0 0.02" width="0.13" height="0.82"
+                        material="shader:flat; color:#FFD700; opacity:0.9; transparent:true" look-at="[camera]"></a-plane>
+                    <!-- Top border -->
+                    <a-plane position="0.25 0.42 0.01" width="3.15" height="0.03"
+                        material="shader:flat; color:#FFD700; opacity:0.6; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="08:00 AM" position="0.25 0.21 0.03" align="center" color="#FFD700" width="3.4"
                         material="shader:flat" look-at="[camera]"></a-text>
-                    <a-text value="Haldi Ceremony" position="0.25 -0.07 0.02" align="center" color="#FFF5CC" width="3.8"
+                    <a-text value="🌼 Haldi Ceremony" position="0.25 -0.08 0.03" align="center" color="#FFF5CC" width="4.0"
                         material="shader:flat" look-at="[camera]"></a-text>
                 </a-entity>
 
-                <a-entity position="0 2.25 0">
-                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#FF69B4"
-                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:1100; loop:true"></a-sphere>
-                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
-                        material="shader:flat; color:#2a0045; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
-                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
-                        material="shader:flat; color:#FF69B4; transparent:true" look-at="[camera]"></a-plane>
-                    <a-text value="02:00 PM" position="0.25 0.19 0.02" align="center" color="#FF69B4" width="3.4"
+                <!-- CARD 2: Mehendi — Hot pink -->
+                <a-entity position="0 2.25 -0.15" rotation="0 -6 0"
+                    animation="property:position; from:0 2.05 -0.15; to:0 2.25 -0.15; dur:700; delay:80; easing:easeOutBack">
+                    <a-sphere position="-1.55 0 0.1" radius="0.14" material="shader:flat; color:#FF69B4"
+                        animation="property:scale; from:1 1 1; to:1.45 1.45 1.45; dir:alternate; dur:1100; loop:true"></a-sphere>
+                    <a-sphere position="-1.55 0 0.06" radius="0.22" material="shader:flat; color:#FF69B4; opacity:0.18; transparent:true"
+                        animation="property:scale; from:1 1 1; to:1.5 1.5 1.5; dir:alternate; dur:1100; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.15" height="0.82"
+                        material="shader:flat; color:#2a0028; opacity:0.96; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.02" width="0.13" height="0.82"
+                        material="shader:flat; color:#FF69B4; opacity:0.9; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="0.25 0.42 0.01" width="3.15" height="0.03"
+                        material="shader:flat; color:#FF69B4; opacity:0.6; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="02:00 PM" position="0.25 0.21 0.03" align="center" color="#FF69B4" width="3.4"
                         material="shader:flat" look-at="[camera]"></a-text>
-                    <a-text value="Mehendi and Music" position="0.25 -0.07 0.02" align="center" color="#FFD6E7" width="3.8"
-                        material="shader:flat" look-at="[camera]"></a-text>
-                </a-entity>
-
-                <a-entity position="0 1.45 0">
-                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#FFA500"
-                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:950; loop:true"></a-sphere>
-                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
-                        material="shader:flat; color:#2a0045; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
-                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
-                        material="shader:flat; color:#FFA500; transparent:true" look-at="[camera]"></a-plane>
-                    <a-text value="07:00 PM" position="0.25 0.19 0.02" align="center" color="#FFA500" width="3.4"
-                        material="shader:flat" look-at="[camera]"></a-text>
-                    <a-text value="Sangeet Night" position="0.25 -0.07 0.02" align="center" color="#FFE5B4" width="3.8"
+                    <a-text value="🌿 Mehendi & Music" position="0.25 -0.08 0.03" align="center" color="#FFD6E7" width="4.0"
                         material="shader:flat" look-at="[camera]"></a-text>
                 </a-entity>
 
-                <a-entity position="0 0.65 0">
-                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#00FFD1"
-                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:1200; loop:true"></a-sphere>
-                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
-                        material="shader:flat; color:#002a2a; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
-                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
-                        material="shader:flat; color:#00FFD1; transparent:true" look-at="[camera]"></a-plane>
-                    <a-text value="09:00 AM" position="0.25 0.19 0.02" align="center" color="#00FFD1" width="3.4"
+                <!-- CARD 3: Sangeet — Amber orange -->
+                <a-entity position="0 1.45 -0.22" rotation="0 7 0"
+                    animation="property:position; from:0 1.25 -0.22; to:0 1.45 -0.22; dur:700; delay:160; easing:easeOutBack">
+                    <a-sphere position="-1.55 0 0.1" radius="0.14" material="shader:flat; color:#FFA500"
+                        animation="property:scale; from:1 1 1; to:1.45 1.45 1.45; dir:alternate; dur:950; loop:true"></a-sphere>
+                    <a-sphere position="-1.55 0 0.06" radius="0.22" material="shader:flat; color:#FFA500; opacity:0.18; transparent:true"
+                        animation="property:scale; from:1 1 1; to:1.5 1.5 1.5; dir:alternate; dur:950; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.15" height="0.82"
+                        material="shader:flat; color:#281400; opacity:0.96; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.02" width="0.13" height="0.82"
+                        material="shader:flat; color:#FFA500; opacity:0.9; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="0.25 0.42 0.01" width="3.15" height="0.03"
+                        material="shader:flat; color:#FFA500; opacity:0.6; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="07:00 PM" position="0.25 0.21 0.03" align="center" color="#FFA500" width="3.4"
                         material="shader:flat" look-at="[camera]"></a-text>
-                    <a-text value="Varmala Ceremony" position="0.25 -0.07 0.02" align="center" color="#CCF9F3" width="3.8"
+                    <a-text value="🎶 Sangeet Night" position="0.25 -0.08 0.03" align="center" color="#FFE5B4" width="4.0"
                         material="shader:flat" look-at="[camera]"></a-text>
                 </a-entity>
 
-                <a-entity position="0 -0.18 0">
-                    <a-sphere position="-1.55 0 0" radius="0.20" material="shader:flat; color:#FF3B7F"
-                        animation="property:scale; to:1.5 1.5 1.5; dir:alternate; dur:700; loop:true"></a-sphere>
-                    <a-plane position="0.25 0 0" width="3.1" height="0.95"
-                        material="shader:flat; color:#380020; opacity:0.96; transparent:true" look-at="[camera]"></a-plane>
-                    <a-plane position="-1.2 0 0.01" width="0.16" height="0.95"
-                        material="shader:flat; color:#FF3B7F; transparent:true" look-at="[camera]"></a-plane>
-                    <a-text value="10:00 AM - MAIN EVENT" position="0.25 0.25 0.02" align="center"
-                        color="#FF3B7F" width="3.8" material="shader:flat" look-at="[camera]"
+                <!-- CARD 4: Varmala — Teal -->
+                <a-entity position="0 0.65 -0.18" rotation="0 -7 0"
+                    animation="property:position; from:0 0.45 -0.18; to:0 0.65 -0.18; dur:700; delay:240; easing:easeOutBack">
+                    <a-sphere position="-1.55 0 0.1" radius="0.14" material="shader:flat; color:#00FFD1"
+                        animation="property:scale; from:1 1 1; to:1.45 1.45 1.45; dir:alternate; dur:1200; loop:true"></a-sphere>
+                    <a-sphere position="-1.55 0 0.06" radius="0.22" material="shader:flat; color:#00FFD1; opacity:0.18; transparent:true"
+                        animation="property:scale; from:1 1 1; to:1.5 1.5 1.5; dir:alternate; dur:1200; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.15" height="0.82"
+                        material="shader:flat; color:#002220; opacity:0.96; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.02" width="0.13" height="0.82"
+                        material="shader:flat; color:#00FFD1; opacity:0.9; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="0.25 0.42 0.01" width="3.15" height="0.03"
+                        material="shader:flat; color:#00FFD1; opacity:0.6; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="09:00 AM" position="0.25 0.21 0.03" align="center" color="#00FFD1" width="3.4"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                    <a-text value="💐 Varmala Ceremony" position="0.25 -0.08 0.03" align="center" color="#CCF9F3" width="4.0"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                </a-entity>
+
+                <!-- CARD 5: MAIN — Wedding — LARGER, glowing, pulsing -->
+                <a-entity position="0 -0.18 -0.25" rotation="0 0 0"
+                    animation="property:position; from:0 -0.38 -0.25; to:0 -0.18 -0.25; dur:800; delay:320; easing:easeOutBack">
+                    <!-- Extra glow layer behind main card -->
+                    <a-plane position="0.25 0 -0.06" width="3.55" height="1.18"
+                        material="shader:flat; color:#FF3B7F; opacity:0.12; transparent:true"
+                        look-at="[camera]"
+                        animation="property:material.opacity; from:0.08; to:0.22; dir:alternate; dur:700; loop:true"></a-plane>
+                    <!-- Star dot with double glow -->
+                    <a-sphere position="-1.55 0 0.15" radius="0.24" material="shader:flat; color:#FF3B7F"
+                        animation="property:scale; from:1 1 1; to:1.55 1.55 1.55; dir:alternate; dur:650; loop:true"></a-sphere>
+                    <a-sphere position="-1.55 0 0.08" radius="0.38" material="shader:flat; color:#FF3B7F; opacity:0.22; transparent:true"
+                        animation="property:scale; from:1 1 1; to:1.6 1.6 1.6; dir:alternate; dur:650; loop:true"></a-sphere>
+                    <!-- Main card body -->
+                    <a-plane position="0.25 0 0" width="3.35" height="1.06"
+                        material="shader:flat; color:#380015; opacity:0.98; transparent:true" look-at="[camera]"></a-plane>
+                    <!-- Left accent bar — thicker -->
+                    <a-plane position="-1.18 0 0.02" width="0.18" height="1.06"
+                        material="shader:flat; color:#FF3B7F; opacity:0.95; transparent:true" look-at="[camera]"></a-plane>
+                    <!-- Top border animated -->
+                    <a-plane position="0.25 0.54 0.01" width="3.35" height="0.04"
+                        material="shader:flat; color:#FF3B7F; opacity:0.9; transparent:true" look-at="[camera]"
+                        animation="property:material.color; from:#FF3B7F; to:#FFD700; dir:alternate; dur:600; loop:true"></a-plane>
+                    <!-- Bottom border -->
+                    <a-plane position="0.25 -0.54 0.01" width="3.35" height="0.04"
+                        material="shader:flat; color:#FF3B7F; opacity:0.9; transparent:true" look-at="[camera]"
+                        animation="property:material.color; from:#FF3B7F; to:#FFD700; dir:alternate; dur:600; loop:true"></a-plane>
+                    <!-- ⭐ Label -->
+                    <a-text value="⭐ 10:00 AM  ·  MAIN EVENT ⭐" position="0.25 0.30 0.04" align="center"
+                        color="#FF3B7F" width="4.0" material="shader:flat" look-at="[camera]"
                         animation="property:color; from:#FF3B7F; to:#FFD700; dir:alternate; dur:500; loop:true"></a-text>
-                    <a-text value="Wedding Ceremony" position="0.25 -0.03 0.02" align="center"
-                        color="#FFB6C1" width="3.8" material="shader:flat" look-at="[camera]"></a-text>
+                    <!-- Event name — bigger -->
+                    <a-text value="💍 Wedding Ceremony" position="0.25 0.02 0.04" align="center"
+                        color="#FFB6C1" width="4.4" material="shader:flat" look-at="[camera]"></a-text>
+                    <!-- Tagline -->
+                    <a-text value="The Sacred Moment" position="0.25 -0.26 0.04" align="center"
+                        color="rgba(255,182,193,0.55)" width="3.2" material="shader:flat" look-at="[camera]"></a-text>
                 </a-entity>
 
-                <a-entity position="0 -1.05 0">
-                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#FF9500"
-                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:1050; loop:true"></a-sphere>
-                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
-                        material="shader:flat; color:#2a0045; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
-                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
-                        material="shader:flat; color:#FF9500; transparent:true" look-at="[camera]"></a-plane>
-                    <a-text value="01:00 PM" position="0.25 0.19 0.02" align="center" color="#FF9500" width="3.4"
+                <!-- CARD 6: Reception — Orange -->
+                <a-entity position="0 -1.05 -0.20" rotation="0 6 0"
+                    animation="property:position; from:0 -1.25 -0.20; to:0 -1.05 -0.20; dur:700; delay:400; easing:easeOutBack">
+                    <a-sphere position="-1.55 0 0.1" radius="0.14" material="shader:flat; color:#FF9500"
+                        animation="property:scale; from:1 1 1; to:1.45 1.45 1.45; dir:alternate; dur:1050; loop:true"></a-sphere>
+                    <a-sphere position="-1.55 0 0.06" radius="0.22" material="shader:flat; color:#FF9500; opacity:0.18; transparent:true"
+                        animation="property:scale; from:1 1 1; to:1.5 1.5 1.5; dir:alternate; dur:1050; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.15" height="0.82"
+                        material="shader:flat; color:#281800; opacity:0.96; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.02" width="0.13" height="0.82"
+                        material="shader:flat; color:#FF9500; opacity:0.9; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="0.25 0.42 0.01" width="3.15" height="0.03"
+                        material="shader:flat; color:#FF9500; opacity:0.6; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="01:00 PM" position="0.25 0.21 0.03" align="center" color="#FF9500" width="3.4"
                         material="shader:flat" look-at="[camera]"></a-text>
-                    <a-text value="Reception and Lunch" position="0.25 -0.07 0.02" align="center" color="#FFE5B4" width="3.8"
-                        material="shader:flat" look-at="[camera]"></a-text>
-                </a-entity>
-
-                <a-entity position="0 -1.85 0">
-                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#C8A0FF"
-                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:1300; loop:true"></a-sphere>
-                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
-                        material="shader:flat; color:#1a0030; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
-                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
-                        material="shader:flat; color:#C8A0FF; transparent:true" look-at="[camera]"></a-plane>
-                    <a-text value="07:00 PM" position="0.25 0.19 0.02" align="center" color="#C8A0FF" width="3.4"
-                        material="shader:flat" look-at="[camera]"></a-text>
-                    <a-text value="Farewell and Send-off" position="0.25 -0.07 0.02" align="center" color="#EEE0FF" width="3.8"
+                    <a-text value="🍽️ Reception & Lunch" position="0.25 -0.08 0.03" align="center" color="#FFE5B4" width="4.0"
                         material="shader:flat" look-at="[camera]"></a-text>
                 </a-entity>
 
-                <a-text value="&lt;3" position="-3.0 2.5 0" align="center" width="2" material="shader:flat" look-at="[camera]"
-                    animation="property:position; from:-3.0 2.2 0; to:-3.0 3.0 0; dir:alternate; dur:2000; loop:true; easing:easeInOutSine"></a-text>
-                <a-text value="~" position="3.0 1.5 0" align="center" width="2" material="shader:flat" look-at="[camera]"
-                    animation="property:position; from:3.0 1.2 0; to:3.0 2.0 0; dir:alternate; dur:2400; loop:true; easing:easeInOutSine"></a-text>
-                <a-text value="*" position="3.0 3.2 0" align="center" width="2" material="shader:flat" look-at="[camera]"
-                    animation="property:position; from:3.0 2.9 0; to:3.0 3.6 0; dir:alternate; dur:1800; loop:true; easing:easeInOutSine"></a-text>
+                <!-- CARD 7: Farewell — Lavender -->
+                <a-entity position="0 -1.85 -0.15" rotation="0 -5 0"
+                    animation="property:position; from:0 -2.05 -0.15; to:0 -1.85 -0.15; dur:700; delay:480; easing:easeOutBack">
+                    <a-sphere position="-1.55 0 0.1" radius="0.14" material="shader:flat; color:#C8A0FF"
+                        animation="property:scale; from:1 1 1; to:1.45 1.45 1.45; dir:alternate; dur:1300; loop:true"></a-sphere>
+                    <a-sphere position="-1.55 0 0.06" radius="0.22" material="shader:flat; color:#C8A0FF; opacity:0.18; transparent:true"
+                        animation="property:scale; from:1 1 1; to:1.5 1.5 1.5; dir:alternate; dur:1300; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.15" height="0.82"
+                        material="shader:flat; color:#1a0030; opacity:0.96; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.02" width="0.13" height="0.82"
+                        material="shader:flat; color:#C8A0FF; opacity:0.9; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="0.25 0.42 0.01" width="3.15" height="0.03"
+                        material="shader:flat; color:#C8A0FF; opacity:0.6; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="07:00 PM" position="0.25 0.21 0.03" align="center" color="#C8A0FF" width="3.4"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                    <a-text value="🌙 Farewell & Send-off" position="0.25 -0.08 0.03" align="center" color="#EEE0FF" width="4.0"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                </a-entity>
 
-                <a-torus position="0 -1.4 0" radius="2.3" radius-tubular="0.03"
-                    material="shader:flat; color:#FF6B9D; opacity:0.2; transparent:true"
+                <!-- ═══════════════════════════════════ -->
+                <!-- 4️⃣  SPARKLE DECORATIONS — enhanced  -->
+                <!-- ═══════════════════════════════════ -->
+
+                <!-- Left floating hearts -->
+                <a-text value="♥" position="-3.0 2.8 -0.1" align="center" color="#FF6B9D" width="2.2"
+                    material="shader:flat" look-at="[camera]"
+                    animation="property:position; from:-3.0 2.5 -0.1; to:-3.0 3.1 -0.1; dir:alternate; dur:2000; loop:true; easing:easeInOutSine"></a-text>
+                <a-text value="♥" position="-3.3 0.5 -0.1" align="center" color="#FF3B7F" width="1.6"
+                    material="shader:flat" look-at="[camera]"
+                    animation="property:position; from:-3.3 0.2 -0.1; to:-3.3 0.8 -0.1; dir:alternate; dur:2600; loop:true; easing:easeInOutSine"></a-text>
+                <a-text value="♥" position="-3.1 -0.9 -0.1" align="center" color="#FFB6C1" width="1.3"
+                    material="shader:flat" look-at="[camera]"
+                    animation="property:position; from:-3.1 -1.2 -0.1; to:-3.1 -0.6 -0.1; dir:alternate; dur:2200; loop:true; easing:easeInOutSine"></a-text>
+
+                <!-- Right floating stars -->
+                <a-text value="✦" position="3.1 3.2 -0.1" align="center" color="#FFD700" width="2.2"
+                    material="shader:flat" look-at="[camera]"
+                    animation="property:position; from:3.1 2.9 -0.1; to:3.1 3.5 -0.1; dir:alternate; dur:1800; loop:true; easing:easeInOutSine"></a-text>
+                <a-text value="✦" position="3.3 1.4 -0.1" align="center" color="#FFD700" width="1.6"
+                    material="shader:flat" look-at="[camera]"
+                    animation="property:position; from:3.3 1.1 -0.1; to:3.3 1.7 -0.1; dir:alternate; dur:2400; loop:true; easing:easeInOutSine"></a-text>
+                <a-text value="✦" position="3.0 -0.5 -0.1" align="center" color="#C8A0FF" width="1.4"
+                    material="shader:flat" look-at="[camera]"
+                    animation="property:position; from:3.0 -0.8 -0.1; to:3.0 -0.2 -0.1; dir:alternate; dur:2100; loop:true; easing:easeInOutSine"></a-text>
+
+                <!-- Bottom ornament torus — slow spin in-plane -->
+                <a-torus position="0 -1.5 -0.1" radius="2.4" radius-tubular="0.035"
+                    material="shader:flat; color:#FF6B9D; opacity:0.22; transparent:true"
                     look-at="[camera]"
-                    animation="property:rotation; from:0 0 0; to:0 0 360; loop:true; dur:12000; easing:linear"></a-torus>
+                    animation="property:rotation; from:0 0 0; to:0 0 360; loop:true; dur:14000; easing:linear"></a-torus>
+
+                <!-- Top crown torus — counter-spin -->
+                <a-torus position="0 4.0 -0.1" radius="2.55" radius-tubular="0.025"
+                    material="shader:flat; color:#FFD700; opacity:0.14; transparent:true"
+                    look-at="[camera]"
+                    animation="property:rotation; from:0 0 0; to:0 0 -360; loop:true; dur:11000; easing:linear"></a-torus>
+
+                <!-- Tiny sparkle spheres — ambient depth particles -->
+                <a-sphere position="-2.5 3.5 -0.3" radius="0.06" material="shader:flat; color:#FFD700; opacity:0.7; transparent:true"
+                    animation="property:scale; from:0.5 0.5 0.5; to:1.5 1.5 1.5; dir:alternate; dur:1100; loop:true"></a-sphere>
+                <a-sphere position="2.6 2.0 -0.25" radius="0.05" material="shader:flat; color:#FF69B4; opacity:0.7; transparent:true"
+                    animation="property:scale; from:0.5 0.5 0.5; to:1.5 1.5 1.5; dir:alternate; dur:1400; loop:true"></a-sphere>
+                <a-sphere position="-2.2 -0.5 -0.3" radius="0.05" material="shader:flat; color:#C8A0FF; opacity:0.7; transparent:true"
+                    animation="property:scale; from:0.5 0.5 0.5; to:1.5 1.5 1.5; dir:alternate; dur:1700; loop:true"></a-sphere>
+                <a-sphere position="2.4 -1.5 -0.2" radius="0.06" material="shader:flat; color:#00FFD1; opacity:0.7; transparent:true"
+                    animation="property:scale; from:0.5 0.5 0.5; to:1.5 1.5 1.5; dir:alternate; dur:1250; loop:true"></a-sphere>
 
             </a-marker>
 
