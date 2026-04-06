@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Saira's Wedding 💍</title>
-
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { font-family: 'Georgia', serif; background: #0D0014; color: #fff; overflow-x: hidden; }
 
-        /* ══ LOADING ══ */
         #loading-screen {
             position: fixed; inset: 0; z-index: 9999; background: #0D0014;
             display: flex; flex-direction: column;
@@ -26,7 +24,6 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { color: rgba(255,182,193,0.7); font-size: 15px; letter-spacing: 2px; }
 
-        /* ══ PETALS ══ */
         .petals-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
         .petal { position: absolute; border-radius: 50%; opacity: 0.6; animation: fall linear infinite; }
         @keyframes fall {
@@ -34,13 +31,13 @@
             100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
         }
 
-        /* ══ LANDING PAGE ══ */
         #landing {
             position: relative; z-index: 1;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            min-height: 100vh; padding: 28px 20px;
+            min-height: 100vh; padding: 28px 20px 100px;
             background: radial-gradient(ellipse at top, #1a0028 0%, #0D0014 70%);
+            overflow-y: auto;
         }
 
         .invite-card {
@@ -52,40 +49,29 @@
             text-align: center; backdrop-filter: blur(12px);
             animation: fadeUp 1s ease both;
         }
-        @keyframes fadeUp {
-            from { opacity:0; transform:translateY(32px); }
-            to   { opacity:1; transform:translateY(0); }
-        }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(32px);} to{opacity:1;transform:translateY(0);} }
         .eyebrow { color: rgba(255,182,193,0.7); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }
         .names   { color: #FFB6C1; font-size: 36px; font-weight: 700; line-height: 1.1; }
         .amp     { color: rgba(255,182,193,0.45); font-size: 22px; margin: 6px 0; display: block; }
         .divider { width: 56px; height: 1px; background: rgba(255,182,193,0.3); margin: 18px auto; }
         .detail  { color: #fff; font-size: 14px; margin: 5px 0; }
         .ring    { font-size: 50px; margin: 20px 0 0; display: block; animation: pulse 2s ease-in-out infinite; }
-        @keyframes pulse { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.09); } }
+        @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.09);} }
 
-        /* ══ COUNTDOWN ══ */
         .countdown-wrap {
             position: relative; z-index: 2;
             width: 100%; max-width: 370px; margin-top: 16px;
             background: rgba(255,182,193,0.06);
             border: 1px solid rgba(255,182,193,0.2);
-            border-radius: 16px; padding: 14px 10px;
-            text-align: center;
+            border-radius: 16px; padding: 14px 10px; text-align: center;
             animation: fadeUp 1.1s ease both;
         }
         .countdown-label { color: rgba(255,182,193,0.55); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
         .countdown-boxes { display: flex; justify-content: center; gap: 8px; }
-        .cd-box {
-            display: flex; flex-direction: column; align-items: center;
-            background: rgba(255,59,127,0.13);
-            border: 1px solid rgba(255,59,127,0.32);
-            border-radius: 10px; padding: 9px 12px; min-width: 56px;
-        }
+        .cd-box { display: flex; flex-direction: column; align-items: center; background: rgba(255,59,127,0.13); border: 1px solid rgba(255,59,127,0.32); border-radius: 10px; padding: 9px 12px; min-width: 56px; }
         .cd-num  { color: #FFB6C1; font-size: 26px; font-weight: 700; font-family: monospace; line-height: 1; }
         .cd-unit { color: rgba(255,182,193,0.45); font-size: 9px; letter-spacing: 1px; margin-top: 4px; }
 
-        /* ══ BUTTONS ══ */
         .btn-group {
             position: relative; z-index: 2;
             width: 100%; max-width: 370px; margin-top: 16px;
@@ -94,85 +80,75 @@
         }
         .btn {
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; padding: 15px 20px;
-            border-radius: 14px; border: none; cursor: pointer;
+            width: 100%; padding: 15px 20px; border-radius: 14px; border: none; cursor: pointer;
             font-size: 15px; font-weight: 700; font-family: 'Georgia', serif;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            transition: transform 0.15s ease;
         }
         .btn:active { transform: scale(0.96); }
         .btn-invite   { background: linear-gradient(135deg,#FF3B7F,#c0255a); color:#fff; box-shadow:0 4px 20px rgba(255,59,127,0.35); }
         .btn-nav      { background: rgba(0,200,255,0.12); color:#00C8FF; border:1px solid rgba(0,200,255,0.4); }
         .btn-schedule { background: rgba(255,215,0,0.12); color:#FFD700; border:1px solid rgba(255,215,0,0.4); }
 
-        /* ══ AR FULLSCREEN OVERLAY ══
-           Uses visibility+opacity NOT display:none
-           so A-Frame canvas always has correct size
-        ══ */
-        #ar-schedule {
-            position: fixed; inset: 0; z-index: 700;
+        /* AR fullscreen overlay — empty until button tapped */
+        #ar-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 800;
             background: #000;
-            visibility: hidden; opacity: 0;
-            transition: opacity 0.3s;
+        }
+        #ar-overlay.open { display: block; }
+
+        /* HUD sits above the injected a-scene canvas */
+        #ar-hud {
+            display: none;
+            position: fixed; inset: 0; z-index: 850;
             pointer-events: none;
         }
-        #ar-schedule.visible {
-            visibility: visible; opacity: 1;
-            pointer-events: all;
-        }
+        #ar-hud.open { display: block; }
 
-        /* A-Frame scene fills overlay */
-        #ar-scene {
-            position: absolute !important;
-            inset: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        /* ══ HUD ══ */
-        #ar-status-bar {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 800;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 18px;
-            background: linear-gradient(to bottom, rgba(13,0,20,0.85) 0%, transparent 100%);
-        }
-        #ar-status-text {
+        #status-pill {
+            position: absolute; top: 16px; left: 16px; right: 70px;
+            background: rgba(13,0,20,0.78);
+            border: 1px solid rgba(255,182,193,0.3);
+            border-radius: 22px; padding: 9px 18px;
             color: rgba(255,182,193,0.95); font-size: 13px; font-weight: 700;
-            background: rgba(13,0,20,0.65); border: 1px solid rgba(255,182,193,0.25);
-            border-radius: 20px; padding: 8px 18px; backdrop-filter: blur(6px);
-            pointer-events: none;
+            font-family: Georgia, serif; letter-spacing: 0.3px;
+            backdrop-filter: blur(8px);
+            transition: background 0.4s, color 0.4s, border-color 0.4s;
         }
-        #ar-close-btn {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(13,0,20,0.75); border: 1px solid rgba(255,182,193,0.3);
-            color: #FFB6C1; font-size: 17px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(6px);
+        #status-pill.found {
+            background: rgba(0,30,20,0.88);
+            border-color: rgba(0,255,180,0.5);
+            color: #00FFD1;
         }
-
-        /* Hint card */
-        #ar-hint {
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-            z-index: 800; width: 88%; max-width: 310px;
-            background: rgba(13,0,20,0.88); border: 1px solid rgba(255,182,193,0.3);
+        #hint-card {
+            position: absolute; bottom: 72px; left: 50%; transform: translateX(-50%);
+            width: 88%; max-width: 300px;
+            background: rgba(13,0,20,0.92);
+            border: 1px solid rgba(255,182,193,0.3);
             border-radius: 18px; padding: 18px 22px;
-            text-align: center; backdrop-filter: blur(8px);
-            pointer-events: none; transition: opacity 0.4s;
+            text-align: center; backdrop-filter: blur(10px);
+            transition: opacity 0.5s;
         }
-        #ar-hint.hidden { opacity: 0; }
-        #ar-hint-title { color: #FFB6C1; font-size: 15px; font-weight: 700; margin-bottom: 7px; }
-        #ar-hint-body  { color: rgba(255,182,193,0.75); font-size: 12px; line-height: 1.7; }
+        #hint-card.hidden { opacity: 0; pointer-events: none; }
+        #hint-title { color: #FFB6C1; font-size: 15px; font-weight: 700; font-family: Georgia,serif; margin-bottom: 8px; }
+        #hint-body  { color: rgba(255,182,193,0.72); font-size: 12px; line-height: 1.75; font-family: Georgia,serif; }
+        #dot-bar {
+            position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 9px; align-items: center;
+        }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,182,193,0.22); transition: all 0.4s; }
+        .dot.on { background: #FF6B9D; transform: scale(1.6); box-shadow: 0 0 8px rgba(255,107,157,0.9); }
 
-        /* Event dot navigator */
-        #ar-dots {
-            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
-            z-index: 800; display: flex; gap: 9px; align-items: center;
-            pointer-events: none;
+        #ar-close-btn {
+            display: none;
+            position: fixed; top: 16px; right: 16px; z-index: 1000;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(13,0,20,0.85); border: 1px solid rgba(255,182,193,0.4);
+            color: #FFB6C1; font-size: 18px; cursor: pointer;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(8px);
         }
-        .ev-dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: rgba(255,182,193,0.25); transition: all 0.4s ease;
-        }
-        .ev-dot.on { background: #FF6B9D; transform: scale(1.6); box-shadow: 0 0 8px rgba(255,107,157,0.9); }
+        #ar-close-btn.open { display: flex; }
     </style>
 </head>
 <body>
@@ -184,7 +160,6 @@
 
 <div class="petals-bg" id="petals"></div>
 
-<!-- ══ LANDING ══ -->
 <div id="landing">
     <div class="invite-card">
         <div class="eyebrow">You're invited to</div>
@@ -209,338 +184,37 @@
     </div>
 
     <div class="btn-group">
-        <button class="btn btn-invite"   onclick="openARInvitation()"><span style="font-size:20px">📸</span><span>Open AR Invitation</span></button>
-        <button class="btn btn-nav"      onclick="openARNavigation()"><span style="font-size:20px">🧭</span><span>AR Navigate to Venue</span></button>
-        <button class="btn btn-schedule" onclick="openARSchedule()"><span style="font-size:20px">✨</span><span>AR Event Schedule</span></button>
+        <button class="btn btn-invite"   onclick="openARInvitation()">
+            <span style="font-size:20px">📸</span><span>Open AR Invitation</span>
+        </button>
+        <button class="btn btn-nav"      onclick="openARNavigation()">
+            <span style="font-size:20px">🧭</span><span>AR Navigate to Venue</span>
+        </button>
+        <button class="btn btn-schedule" onclick="openARSchedule()">
+            <span style="font-size:20px">✨</span><span>AR Event Schedule</span>
+        </button>
     </div>
 </div>
 
-<!-- ══ AR SCHEDULE OVERLAY ══ -->
-<div id="ar-schedule">
+<!-- AR overlay: a-scene is injected here dynamically on tap -->
+<div id="ar-overlay"></div>
 
-    <div id="ar-status-bar">
-        <div id="ar-status-text">📸 Point at Hiro marker</div>
-        <button id="ar-close-btn" onclick="closeARSchedule()">✕</button>
-    </div>
-
-    <div id="ar-hint">
-        <div id="ar-hint-title">✨ AR Schedule</div>
-        <div id="ar-hint-body">
+<!-- HUD always in DOM, shown/hidden via class -->
+<div id="ar-hud">
+    <div id="status-pill">📸 Point at Hiro marker</div>
+    <div id="hint-card">
+        <div id="hint-title">✨ AR Event Schedule</div>
+        <div id="hint-body">
             Point your camera at the<br>
             <strong style="color:#FFB6C1">Hiro AR marker</strong><br>
             to see all 7 events floating<br>
-            in 3D augmented reality
+            in 3D above it
         </div>
     </div>
+    <div id="dot-bar"></div>
+</div>
 
-    <div id="ar-dots"></div>
-
-    <!--
-        A-Frame scene is placed HERE in the HTML (not injected via JS).
-        This is the same approach that works in your AR invitation —
-        the scene is always in the DOM at full size so WebGL
-        initialises correctly.
-
-        KEY FIXES vs your previous schedule code:
-        1. shader:flat on ALL planes and text → no black boxes
-        2. material="transparent:true;opacity:0.88" on card backgrounds
-        3. look-at="[camera]" on text/planes so they always face the user
-        4. Scale matches your invitation (1 unit ≈ real world scale on Hiro)
-        5. Spinning ring decorations same as your invitation petals
-        6. Each card has: background plane + time text + event text + dot marker
-    -->
-    <a-scene
-        id="ar-scene"
-        embedded
-        arjs="sourceType: webcam; debugUIEnabled: false;"
-        renderer="logarithmicDepthBuffer: true; alpha: true;"
-        vr-mode-ui="enabled: false">
-
-        <a-light type="ambient"     intensity="2.0"></a-light>
-        <a-light type="directional" position="1 3 2" intensity="1"></a-light>
-
-        <a-marker preset="hiro" id="hiro-marker">
-
-            <!-- ════════════════════════════════
-                 TITLE HEADER
-            ════════════════════════════════ -->
-            <!-- Gold title banner -->
-            <a-plane
-                position="0 3.8 0"
-                width="4.2" height="0.7"
-                material="shader:flat;color:#1a0030;opacity:0.92;transparent:true"
-                look-at="[camera]">
-            </a-plane>
-            <a-text
-                value="💒 Saira & Rahul"
-                position="0 3.88 0.01"
-                align="center" color="#FFD700" width="5"
-                material="shader:flat" look-at="[camera]"
-                animation="property:scale; to:1.05 1.05 1.05; dir:alternate; dur:1500; loop:true">
-            </a-text>
-            <a-text
-                value="Wedding Day — 14 Feb 2026"
-                position="0 3.55 0.01"
-                align="center" color="#FFB6C1" width="3.8"
-                material="shader:flat" look-at="[camera]">
-            </a-text>
-
-            <!-- Decorative rotating ring around title -->
-            <a-torus
-                position="0 3.7 0"
-                radius="2.4" radius-tubular="0.04"
-                material="shader:flat;color:#FFD700;opacity:0.35;transparent:true"
-                look-at="[camera]"
-                animation="property:rotation; from:0 0 0; to:0 360 0; loop:true; dur:8000; easing:linear">
-            </a-torus>
-
-            <!-- ════════════════════════════════
-                 TIMELINE SPINE (vertical line)
-            ════════════════════════════════ -->
-            <a-box
-                position="-1.5 1.5 0"
-                width="0.06" height="5.2" depth="0.06"
-                material="shader:flat;color:#FF6B9D;opacity:0.45;transparent:true">
-            </a-box>
-
-            <!-- ════════════════════════════════
-                 EVENT 1 — 08:00 AM  HALDI
-            ════════════════════════════════ -->
-            <a-entity position="0 3.0 0">
-                <!-- Timeline dot -->
-                <a-sphere position="-1.5 0 0" radius="0.12"
-                    material="shader:flat;color:#FFD700"
-                    animation="property:scale; to:1.3 1.3 1.3; dir:alternate; dur:1000; loop:true">
-                </a-sphere>
-                <!-- Card background -->
-                <a-plane position="0.3 0 0" width="3.2" height="0.75"
-                    material="shader:flat;color:#2a0045;opacity:0.92;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <!-- Left accent strip -->
-                <a-plane position="-1.15 0 0.01" width="0.1" height="0.75"
-                    material="shader:flat;color:#FFD700;opacity:0.9;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <!-- Time -->
-                <a-text value="08:00 AM" position="0.3 0.18 0.02"
-                    align="center" color="#FFD700" width="3.5"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-                <!-- Event name -->
-                <a-text value="Haldi Ceremony 🌼" position="0.3 -0.08 0.02"
-                    align="center" color="#FFF5CC" width="4"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-            </a-entity>
-
-            <!-- ════════════════════════════════
-                 EVENT 2 — 02:00 PM  MEHENDI
-            ════════════════════════════════ -->
-            <a-entity position="0 2.2 0">
-                <a-sphere position="-1.5 0 0" radius="0.12"
-                    material="shader:flat;color:#FF69B4"
-                    animation="property:scale; to:1.3 1.3 1.3; dir:alternate; dur:1100; loop:true">
-                </a-sphere>
-                <a-plane position="0.3 0 0" width="3.2" height="0.75"
-                    material="shader:flat;color:#2a0045;opacity:0.92;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-plane position="-1.15 0 0.01" width="0.1" height="0.75"
-                    material="shader:flat;color:#FF69B4;opacity:0.9;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-text value="02:00 PM" position="0.3 0.18 0.02"
-                    align="center" color="#FF69B4" width="3.5"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-                <a-text value="Mehendi & Music 🎵" position="0.3 -0.08 0.02"
-                    align="center" color="#FFD6E7" width="4"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-            </a-entity>
-
-            <!-- ════════════════════════════════
-                 EVENT 3 — 07:00 PM  SANGEET
-            ════════════════════════════════ -->
-            <a-entity position="0 1.4 0">
-                <a-sphere position="-1.5 0 0" radius="0.12"
-                    material="shader:flat;color:#FFA500"
-                    animation="property:scale; to:1.3 1.3 1.3; dir:alternate; dur:900; loop:true">
-                </a-sphere>
-                <a-plane position="0.3 0 0" width="3.2" height="0.75"
-                    material="shader:flat;color:#2a0045;opacity:0.92;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-plane position="-1.15 0 0.01" width="0.1" height="0.75"
-                    material="shader:flat;color:#FFA500;opacity:0.9;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-text value="07:00 PM" position="0.3 0.18 0.02"
-                    align="center" color="#FFA500" width="3.5"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-                <a-text value="Sangeet Night 🎶" position="0.3 -0.08 0.02"
-                    align="center" color="#FFE5B4" width="4"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-            </a-entity>
-
-            <!-- ════════════════════════════════
-                 EVENT 4 — 09:00 AM  VARMALA
-            ════════════════════════════════ -->
-            <a-entity position="0 0.6 0">
-                <a-sphere position="-1.5 0 0" radius="0.12"
-                    material="shader:flat;color:#00FFD1"
-                    animation="property:scale; to:1.3 1.3 1.3; dir:alternate; dur:1200; loop:true">
-                </a-sphere>
-                <a-plane position="0.3 0 0" width="3.2" height="0.75"
-                    material="shader:flat;color:#002a2a;opacity:0.92;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-plane position="-1.15 0 0.01" width="0.1" height="0.75"
-                    material="shader:flat;color:#00FFD1;opacity:0.9;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-text value="09:00 AM" position="0.3 0.18 0.02"
-                    align="center" color="#00FFD1" width="3.5"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-                <a-text value="Varmala Ceremony 💐" position="0.3 -0.08 0.02"
-                    align="center" color="#CCF9F3" width="4"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-            </a-entity>
-
-            <!-- ════════════════════════════════
-                 EVENT 5 — 10:00 AM  MARRIAGE
-            ════════════════════════════════ -->
-            <a-entity position="0 -0.2 0">
-                <!-- Bigger pulsing dot for main event -->
-                <a-sphere position="-1.5 0 0" radius="0.18"
-                    material="shader:flat;color:#FF3B7F"
-                    animation="property:scale; to:1.5 1.5 1.5; dir:alternate; dur:800; loop:true">
-                </a-sphere>
-                <!-- Slightly taller card for main event -->
-                <a-plane position="0.3 0 0" width="3.2" height="0.9"
-                    material="shader:flat;color:#3a0020;opacity:0.95;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-plane position="-1.15 0 0.01" width="0.14" height="0.9"
-                    material="shader:flat;color:#FF3B7F;opacity:1;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-text value="10:00 AM  ✨ MAIN EVENT" position="0.3 0.22 0.02"
-                    align="center" color="#FF3B7F" width="3.8"
-                    material="shader:flat" look-at="[camera]"
-                    animation="property:color; from:#FF3B7F; to:#FFD700; dir:alternate; dur:600; loop:true">
-                </a-text>
-                <a-text value="Wedding Ceremony 💍" position="0.3 -0.05 0.02"
-                    align="center" color="#FFB6C1" width="4"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-            </a-entity>
-
-            <!-- ════════════════════════════════
-                 EVENT 6 — 01:00 PM  RECEPTION
-            ════════════════════════════════ -->
-            <a-entity position="0 -1.0 0">
-                <a-sphere position="-1.5 0 0" radius="0.12"
-                    material="shader:flat;color:#FF9500"
-                    animation="property:scale; to:1.3 1.3 1.3; dir:alternate; dur:1050; loop:true">
-                </a-sphere>
-                <a-plane position="0.3 0 0" width="3.2" height="0.75"
-                    material="shader:flat;color:#2a0045;opacity:0.92;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-plane position="-1.15 0 0.01" width="0.1" height="0.75"
-                    material="shader:flat;color:#FF9500;opacity:0.9;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-text value="01:00 PM" position="0.3 0.18 0.02"
-                    align="center" color="#FF9500" width="3.5"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-                <a-text value="Reception & Lunch 🍽️" position="0.3 -0.08 0.02"
-                    align="center" color="#FFE5B4" width="4"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-            </a-entity>
-
-            <!-- ════════════════════════════════
-                 EVENT 7 — 07:00 PM  FAREWELL
-            ════════════════════════════════ -->
-            <a-entity position="0 -1.8 0">
-                <a-sphere position="-1.5 0 0" radius="0.12"
-                    material="shader:flat;color:#C8A0FF"
-                    animation="property:scale; to:1.3 1.3 1.3; dir:alternate; dur:1300; loop:true">
-                </a-sphere>
-                <a-plane position="0.3 0 0" width="3.2" height="0.75"
-                    material="shader:flat;color:#1a0030;opacity:0.92;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-plane position="-1.15 0 0.01" width="0.1" height="0.75"
-                    material="shader:flat;color:#C8A0FF;opacity:0.9;transparent:true"
-                    look-at="[camera]">
-                </a-plane>
-                <a-text value="07:00 PM" position="0.3 0.18 0.02"
-                    align="center" color="#C8A0FF" width="3.5"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-                <a-text value="Farewell & Send-off 🌙" position="0.3 -0.08 0.02"
-                    align="center" color="#EEE0FF" width="4"
-                    material="shader:flat" look-at="[camera]">
-                </a-text>
-            </a-entity>
-
-            <!-- ════════════════════════════════
-                 DECORATIVE ELEMENTS
-                 Same style as your invitation petals
-            ════════════════════════════════ -->
-
-            <!-- Floating hearts -->
-            <a-text value="❤️" position="-2.8 2.5 0"
-                align="center" width="2"
-                material="shader:flat" look-at="[camera]"
-                animation="property:position; from:-2.8 2.5 0; to:-2.8 3.5 0; dir:alternate; dur:2000; loop:true; easing:easeInOutSine">
-            </a-text>
-            <a-text value="💕" position="2.8 1.5 0"
-                align="center" width="2"
-                material="shader:flat" look-at="[camera]"
-                animation="property:position; from:2.8 1.5 0; to:2.8 2.5 0; dir:alternate; dur:2400; loop:true; easing:easeInOutSine">
-            </a-text>
-            <a-text value="✨" position="2.8 3.0 0"
-                align="center" width="2"
-                material="shader:flat" look-at="[camera]"
-                animation="property:position; from:2.8 3.0 0; to:2.8 3.8 0; dir:alternate; dur:1800; loop:true; easing:easeInOutSine">
-            </a-text>
-            <a-text value="🌸" position="-2.8 0.5 0"
-                align="center" width="2"
-                material="shader:flat" look-at="[camera]"
-                animation="property:position; from:-2.8 0.5 0; to:-2.8 1.5 0; dir:alternate; dur:2200; loop:true; easing:easeInOutSine">
-            </a-text>
-
-            <!-- Spinning outer torus (bottom) -->
-            <a-torus
-                position="0 -1.2 0"
-                radius="2.2" radius-tubular="0.03"
-                material="shader:flat;color:#FF6B9D;opacity:0.25;transparent:true"
-                look-at="[camera]"
-                animation="property:rotation; from:0 0 0; to:0 0 360; loop:true; dur:10000; easing:linear">
-            </a-torus>
-
-            <!-- Small ring gems on the outer torus -->
-            <a-sphere position="2.2 -1.2 0" radius="0.08"
-                material="shader:flat;color:#FF6B9D"
-                animation="property:position; from:2.2 -1.2 0; to:-2.2 -1.2 0; dir:alternate; dur:5000; loop:true; easing:linear">
-            </a-sphere>
-
-        </a-marker>
-
-        <a-entity camera></a-entity>
-    </a-scene>
-
-</div><!-- end #ar-schedule -->
+<button id="ar-close-btn" onclick="closeARSchedule()">✕</button>
 
 <script>
     /* ── PETALS ── */
@@ -555,85 +229,259 @@
         }
     })();
 
-    /* ── LOADING ── */
-    window.addEventListener('load',()=>setTimeout(()=>document.getElementById('loading-screen').classList.add('hidden'),900));
+    window.addEventListener('load',()=>setTimeout(()=>
+        document.getElementById('loading-screen').classList.add('hidden'),900));
 
     /* ── COUNTDOWN ── */
-    const WEDDING_TS=new Date('2026-02-14T10:00:00+05:30').getTime();
-    function pad(n){return String(n).padStart(2,'0');}
-    function tickCountdown(){
-        const diff=WEDDING_TS-Date.now();
-        if(diff<=0) return;
-        const s=Math.floor(diff/1000);
-        document.getElementById('cd-d').textContent=pad(Math.floor(s/86400));
-        document.getElementById('cd-h').textContent=pad(Math.floor((s%86400)/3600));
-        document.getElementById('cd-m').textContent=pad(Math.floor((s%3600)/60));
-        document.getElementById('cd-s').textContent=pad(s%60);
+    const WT = new Date('2026-02-14T10:00:00+05:30').getTime();
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function tick(){
+        const d = WT - Date.now(); if(d<=0) return;
+        const s = Math.floor(d/1000);
+        document.getElementById('cd-d').textContent = pad(Math.floor(s/86400));
+        document.getElementById('cd-h').textContent = pad(Math.floor((s%86400)/3600));
+        document.getElementById('cd-m').textContent = pad(Math.floor((s%3600)/60));
+        document.getElementById('cd-s').textContent = pad(s%60);
     }
-    tickCountdown();
-    setInterval(tickCountdown,1000);
+    tick(); setInterval(tick, 1000);
 
-    /* ── BUTTONS 1 & 2 ── */
-    function openARInvitation(){
-        alert('📸 AR Invitation\n\nConnect this to your existing AR invite code.');
+    /* ── AR LIBS: loaded dynamically only when needed ── */
+    let arLibsLoaded = false;
+    let dotInterval  = null;
+
+    function loadARLibs(callback) {
+        if (arLibsLoaded) { callback(); return; }
+        const scripts = [
+            'https://aframe.io/releases/1.4.2/aframe.min.js',
+            'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js',
+            'https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js'
+        ];
+        let loaded = 0;
+        scripts.forEach(src => {
+            const s = document.createElement('script');
+            s.src = src;
+            s.onload = () => { if(++loaded === scripts.length){ arLibsLoaded = true; callback(); } };
+            document.head.appendChild(s);
+        });
     }
-    function openARNavigation(){
+
+    /* ── BUILD & INJECT a-scene HTML ── */
+    function buildARScene() {
+        return `
+        <a-scene
+            id="ar-scene"
+            embedded
+            arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
+            renderer="alpha: true; clearColor: #000000; clearAlpha: 0; logarithmicDepthBuffer: true; antialias: true;"
+            vr-mode-ui="enabled: false"
+            style="width:100%;height:100%;position:absolute;top:0;left:0;">
+
+            <a-light type="ambient" intensity="2.5"></a-light>
+            <a-light type="directional" position="0 5 2" intensity="1.2"></a-light>
+
+            <a-marker preset="hiro" id="hiro-marker">
+
+                <a-plane position="0 3.8 0" width="4.0" height="0.72"
+                    material="shader:flat; color:#1a0030; opacity:0.93; transparent:true"
+                    look-at="[camera]"></a-plane>
+                <a-text value="Saira and Rahul"
+                    position="0 3.88 0.02" align="center" color="#FFD700" width="4.8"
+                    material="shader:flat" look-at="[camera]"
+                    animation="property:scale; to:1.05 1.05 1.05; dir:alternate; dur:1500; loop:true"></a-text>
+                <a-text value="Wedding Day - 14 Feb 2026"
+                    position="0 3.55 0.02" align="center" color="#FFB6C1" width="3.6"
+                    material="shader:flat" look-at="[camera]"></a-text>
+
+                <a-torus position="0 3.72 0" radius="2.5" radius-tubular="0.04"
+                    material="shader:flat; color:#FFD700; opacity:0.28; transparent:true"
+                    look-at="[camera]"
+                    animation="property:rotation; from:0 0 0; to:0 360 0; loop:true; dur:9000; easing:linear"></a-torus>
+
+                <a-box position="-1.55 1.3 0" width="0.06" height="5.4" depth="0.06"
+                    material="shader:flat; color:#FF6B9D; opacity:0.38; transparent:true"></a-box>
+
+                <a-entity position="0 3.05 0">
+                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#FFD700"
+                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:1000; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
+                        material="shader:flat; color:#2a0045; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
+                        material="shader:flat; color:#FFD700; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="08:00 AM" position="0.25 0.19 0.02" align="center" color="#FFD700" width="3.4"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                    <a-text value="Haldi Ceremony" position="0.25 -0.07 0.02" align="center" color="#FFF5CC" width="3.8"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                </a-entity>
+
+                <a-entity position="0 2.25 0">
+                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#FF69B4"
+                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:1100; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
+                        material="shader:flat; color:#2a0045; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
+                        material="shader:flat; color:#FF69B4; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="02:00 PM" position="0.25 0.19 0.02" align="center" color="#FF69B4" width="3.4"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                    <a-text value="Mehendi and Music" position="0.25 -0.07 0.02" align="center" color="#FFD6E7" width="3.8"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                </a-entity>
+
+                <a-entity position="0 1.45 0">
+                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#FFA500"
+                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:950; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
+                        material="shader:flat; color:#2a0045; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
+                        material="shader:flat; color:#FFA500; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="07:00 PM" position="0.25 0.19 0.02" align="center" color="#FFA500" width="3.4"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                    <a-text value="Sangeet Night" position="0.25 -0.07 0.02" align="center" color="#FFE5B4" width="3.8"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                </a-entity>
+
+                <a-entity position="0 0.65 0">
+                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#00FFD1"
+                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:1200; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
+                        material="shader:flat; color:#002a2a; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
+                        material="shader:flat; color:#00FFD1; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="09:00 AM" position="0.25 0.19 0.02" align="center" color="#00FFD1" width="3.4"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                    <a-text value="Varmala Ceremony" position="0.25 -0.07 0.02" align="center" color="#CCF9F3" width="3.8"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                </a-entity>
+
+                <a-entity position="0 -0.18 0">
+                    <a-sphere position="-1.55 0 0" radius="0.20" material="shader:flat; color:#FF3B7F"
+                        animation="property:scale; to:1.5 1.5 1.5; dir:alternate; dur:700; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.1" height="0.95"
+                        material="shader:flat; color:#380020; opacity:0.96; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.01" width="0.16" height="0.95"
+                        material="shader:flat; color:#FF3B7F; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="10:00 AM - MAIN EVENT" position="0.25 0.25 0.02" align="center"
+                        color="#FF3B7F" width="3.8" material="shader:flat" look-at="[camera]"
+                        animation="property:color; from:#FF3B7F; to:#FFD700; dir:alternate; dur:500; loop:true"></a-text>
+                    <a-text value="Wedding Ceremony" position="0.25 -0.03 0.02" align="center"
+                        color="#FFB6C1" width="3.8" material="shader:flat" look-at="[camera]"></a-text>
+                </a-entity>
+
+                <a-entity position="0 -1.05 0">
+                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#FF9500"
+                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:1050; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
+                        material="shader:flat; color:#2a0045; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
+                        material="shader:flat; color:#FF9500; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="01:00 PM" position="0.25 0.19 0.02" align="center" color="#FF9500" width="3.4"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                    <a-text value="Reception and Lunch" position="0.25 -0.07 0.02" align="center" color="#FFE5B4" width="3.8"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                </a-entity>
+
+                <a-entity position="0 -1.85 0">
+                    <a-sphere position="-1.55 0 0" radius="0.13" material="shader:flat; color:#C8A0FF"
+                        animation="property:scale; to:1.35 1.35 1.35; dir:alternate; dur:1300; loop:true"></a-sphere>
+                    <a-plane position="0.25 0 0" width="3.1" height="0.78"
+                        material="shader:flat; color:#1a0030; opacity:0.93; transparent:true" look-at="[camera]"></a-plane>
+                    <a-plane position="-1.2 0 0.01" width="0.12" height="0.78"
+                        material="shader:flat; color:#C8A0FF; transparent:true" look-at="[camera]"></a-plane>
+                    <a-text value="07:00 PM" position="0.25 0.19 0.02" align="center" color="#C8A0FF" width="3.4"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                    <a-text value="Farewell and Send-off" position="0.25 -0.07 0.02" align="center" color="#EEE0FF" width="3.8"
+                        material="shader:flat" look-at="[camera]"></a-text>
+                </a-entity>
+
+                <a-text value="&lt;3" position="-3.0 2.5 0" align="center" width="2" material="shader:flat" look-at="[camera]"
+                    animation="property:position; from:-3.0 2.2 0; to:-3.0 3.0 0; dir:alternate; dur:2000; loop:true; easing:easeInOutSine"></a-text>
+                <a-text value="~" position="3.0 1.5 0" align="center" width="2" material="shader:flat" look-at="[camera]"
+                    animation="property:position; from:3.0 1.2 0; to:3.0 2.0 0; dir:alternate; dur:2400; loop:true; easing:easeInOutSine"></a-text>
+                <a-text value="*" position="3.0 3.2 0" align="center" width="2" material="shader:flat" look-at="[camera]"
+                    animation="property:position; from:3.0 2.9 0; to:3.0 3.6 0; dir:alternate; dur:1800; loop:true; easing:easeInOutSine"></a-text>
+
+                <a-torus position="0 -1.4 0" radius="2.3" radius-tubular="0.03"
+                    material="shader:flat; color:#FF6B9D; opacity:0.2; transparent:true"
+                    look-at="[camera]"
+                    animation="property:rotation; from:0 0 0; to:0 0 360; loop:true; dur:12000; easing:linear"></a-torus>
+
+            </a-marker>
+
+            <a-entity camera></a-entity>
+        </a-scene>`;
+    }
+
+    function openARSchedule() {
+        const overlay = document.getElementById('ar-overlay');
+
+        // Inject a-scene fresh into DOM — this triggers camera permission prompt
+        overlay.innerHTML = buildARScene();
+        overlay.classList.add('open');
+        document.getElementById('ar-hud').classList.add('open');
+        document.getElementById('ar-close-btn').classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        // Wire marker events after scene loads
+        const scene = document.getElementById('ar-scene');
+        const pill  = document.getElementById('status-pill');
+        const hint  = document.getElementById('hint-card');
+        pill.textContent = '📸 Point at Hiro marker';
+        pill.classList.remove('found');
+        hint.classList.remove('hidden');
+
+        scene.addEventListener('loaded', function() {
+            const marker = document.getElementById('hiro-marker');
+            marker.addEventListener('markerFound', function() {
+                pill.textContent = '✅ 7 events visible in AR!';
+                pill.classList.add('found');
+                hint.classList.add('hidden');
+            });
+            marker.addEventListener('markerLost', function() {
+                pill.textContent = '📸 Point at Hiro marker';
+                pill.classList.remove('found');
+                hint.classList.remove('hidden');
+            });
+        }, { once: true });
+
+        // Dot bar
+        const bar = document.getElementById('dot-bar');
+        bar.innerHTML = '';
+        ['Haldi','Mehendi','Sangeet','Varmala','Marriage','Reception','Farewell'].forEach((e, i) => {
+            const d = document.createElement('div');
+            d.className = 'dot' + (i === 0 ? ' on' : '');
+            d.title = e;
+            bar.appendChild(d);
+        });
+        let di = 0;
+        dotInterval = setInterval(() => {
+            document.querySelectorAll('.dot').forEach(d => d.classList.remove('on'));
+            di = (di + 1) % 7;
+            const dots = document.querySelectorAll('.dot');
+            if (dots[di]) dots[di].classList.add('on');
+        }, 1100);
+    }
+
+    function closeARSchedule() {
+        // Removing innerHTML tears down the WebGL context and stops the camera
+        const overlay = document.getElementById('ar-overlay');
+        overlay.innerHTML = '';
+        overlay.classList.remove('open');
+        document.getElementById('ar-hud').classList.remove('open');
+        document.getElementById('ar-close-btn').classList.remove('open');
+        document.body.style.overflow = '';
+        if (dotInterval) { clearInterval(dotInterval); dotInterval = null; }
+    }
+
+    function openARInvitation() {
+        window.open('index.html', '_blank');
+    }
+
+    function openARNavigation() {
         window.open('https://www.google.com/maps/dir/?api=1&destination=12.9692,79.1559&travelmode=walking','_blank');
     }
-
-    /* ── AR SCHEDULE ──
-       Uses visibility/opacity toggle (NOT display:none)
-       so A-Frame canvas always initialises at full size.
-       Marker listeners attached once after scene loads.
-    ── */
-    let arReady = false;
-
-    function openARSchedule(){
-        document.getElementById('ar-schedule').classList.add('visible');
-
-        if(!arReady){
-            arReady = true;
-            const scene = document.getElementById('ar-scene');
-
-            // Attach marker events once A-Frame fires 'loaded'
-            scene.addEventListener('loaded', ()=>{
-                const marker = document.getElementById('hiro-marker');
-                if(!marker) return;
-
-                marker.addEventListener('markerFound', ()=>{
-                    document.getElementById('ar-status-text').textContent = '✅ 7 events visible in AR!';
-                    document.getElementById('ar-hint').classList.add('hidden');
-                });
-                marker.addEventListener('markerLost', ()=>{
-                    document.getElementById('ar-status-text').textContent = '📸 Point at Hiro marker';
-                    document.getElementById('ar-hint').classList.remove('hidden');
-                });
-            });
-        }
-    }
-
-    function closeARSchedule(){
-        document.getElementById('ar-schedule').classList.remove('visible');
-    }
-
-    /* ── EVENT DOTS ── */
-    const EVENTS=['Haldi','Mehendi','Sangeet','Varmala','Marriage','Reception','Farewell'];
-    const dotWrap=document.getElementById('ar-dots');
-    EVENTS.forEach((e,i)=>{
-        const d=document.createElement('div');
-        d.className='ev-dot'+(i===0?' on':'');
-        d.title=e; dotWrap.appendChild(d);
-    });
-    let dotIdx=0;
-    setInterval(()=>{
-        document.querySelectorAll('.ev-dot').forEach(d=>d.classList.remove('on'));
-        dotIdx=(dotIdx+1)%EVENTS.length;
-        document.querySelectorAll('.ev-dot')[dotIdx].classList.add('on');
-    },1100);
-
 </script>
 
-<!-- A-Frame + AR.js loaded at end of body so page renders fast -->
+<!-- AR scripts loaded here (at end of body, after page is interactive) -->
+<!-- They register A-Frame custom elements but do NOT start camera until a-scene enters the DOM -->
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
