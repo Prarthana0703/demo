@@ -2,39 +2,25 @@
 <html>
 <head>
     <title>Premium AR Wedding Invite 💍</title>
-
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
     <style>
-    #invite-btn {
-        position: fixed; bottom: 20px; left: 20px;
-        width: 55px; height: 55px; border-radius: 50%;
-        border: none; font-size: 22px; background: #ff69b4;
-        color: white; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-        cursor: pointer;
-    }
-    #invite-box {
-        position: fixed; bottom: 90px; left: 20px;
-        width: 220px; padding: 12px; background: rgba(0,0,0,0.85);
-        color: white; border-radius: 10px; font-size: 14px;
-        display: none; z-index: 999; border: 1px solid #FFD700;
-    }
+        #invite-btn { position: fixed; bottom: 20px; left: 20px; width: 55px; height: 55px; border-radius: 50%; border: none; font-size: 22px; background: #ff69b4; color: white; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.4); cursor: pointer; }
+        #invite-box { position: fixed; bottom: 90px; left: 20px; width: 220px; padding: 12px; background: rgba(0,0,0,0.85); color: white; border-radius: 10px; font-size: 14px; display: none; z-index: 999; border: 1px solid #FFD700; }
     </style>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
 
 <button id="invite-btn" onclick="showInvite()">💌</button>
-
 <div id="invite-box">
-    <p>You are warmly invited to celebrate the wedding of <b>Rahul</b> & <b>Saira</b>, as they begin their beautiful journey of love and togetherness. Your presence will make this occasion truly special. 💍<br><br>Please do come and bless us ❤️</p>
+    <p>You are warmly invited to celebrate the wedding of <b>Rahul</b> & <b>Saira</b>. Your presence will make this occasion truly special. 💍<br><br>Please do come and bless us ❤️</p>
 </div>
 
 <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-
     <a-entity id="music"></a-entity>
     <a-light type="ambient" intensity="1.5"></a-light>
     <a-light type="directional" position="1 4 1" intensity="1"></a-light>
@@ -43,7 +29,7 @@
 
         <a-entity 
             gltf-model="wedding_gate-v1.glb" 
-            position="0 0 -1" 
+            position="0 0 -0.8" 
             scale="1.5 1.5 1.5" 
             rotation="0 0 0">
         </a-entity>
@@ -56,146 +42,93 @@
             animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
         </a-entity>
 
-        <a-entity position="0 2.2 -0.5" look-at="[camera]">
+        <a-entity position="0 2.5 -0.5" look-at="[camera]">
             <a-text 
                 value="RAHUL WEDS SAIRA" 
                 align="center" 
                 color="#FFD700" 
-                width="10" 
+                width="12" 
                 font="kelsonsans"
-                wrap-count="15"
-                animation="property: scale; to: 0.30 0.30 0.30; dir: alternate; dur: 1000; loop: true">
+                wrap-count="18"
+                animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; dur: 1000; loop: true">
             </a-text>
+            <a-text value="RAHUL WEDS SAIRA" align="center" color="#000" width="12.1" opacity="0.5" position="0.02 -0.02 -0.01"></a-text>
         </a-entity>
 
-        <a-plane src="rose_petal.png" position="-0.8 3 0" width="0.25" height="0.25" material="transparent:true;side:double" look-at="[camera]"
-            animation="property: position; to: -0.8 0 0; dur: 4000; loop: true; easing: linear"
-            animation__rot="property: rotation; to: 0 0 360; dur: 2000; loop: true">
-        </a-plane>
-        <a-plane src="rose_petal.png" position="0.8 3.5 0.5" width="0.25" height="0.25" material="transparent:true;side:double" look-at="[camera]"
-            animation="property: position; to: 0.8 0 0.5; dur: 5000; loop: true; easing: linear"
-            animation__rot="property: rotation; to: 0 0 -360; dur: 2500; loop: true">
-        </a-plane>
-        <a-plane src="rose_petal.png" position="-0.3 3.8 -0.2" width="0.22" height="0.22" material="transparent:true;side:double" look-at="[camera]"
-            animation="property: position; to: -0.3 0 -0.2; dur: 4200; loop: true; easing: linear"
-            animation__rot="property: rotation; to: 0 0 360; dur: 2100; loop: true">
-        </a-plane>
-        <a-plane src="rose_petal.png" position="0.3 4.2 0.1" width="0.22" height="0.22" material="transparent:true;side:double" look-at="[camera]"
-            animation="property: position; to: 0.3 0 0.1; dur: 4800; loop: true; easing: linear"
-            animation__rot="property: rotation; to: 0 0 -360; dur: 2400; loop: true">
-        </a-plane>
+        <a-entity id="petal-container">
+            <a-plane src="rose_petal.png" position="-0.8 3 0" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: -0.8 0 0; dur: 4000; loop: true; easing: linear"></a-plane>
+            <a-plane src="rose_petal.png" position="0.8 3.5 0.5" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: 0.8 0 0.5; dur: 5000; loop: true; easing: linear"></a-plane>
+            <a-plane src="rose_petal.png" position="-0.3 4 -0.5" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: -0.3 0 -0.5; dur: 4500; loop: true; easing: linear"></a-plane>
+            <a-plane src="rose_petal.png" position="0.4 4.5 0.2" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: 0.4 0 0.2; dur: 5500; loop: true; easing: linear"></a-plane>
+            <a-plane src="rose_petal.png" position="-0.1 5 0.3" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: -0.1 0 0.3; dur: 4200; loop: true; easing: linear"></a-plane>
+            <a-plane src="rose_petal.png" position="0.6 5.5 -0.2" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: 0.6 0 -0.2; dur: 6000; loop: true; easing: linear"></a-plane>
+        </a-entity>
 
-        <a-plane src="rose_petal.png" position="-0.6 4.5 0.3" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]"
-            animation="property: position; to: -0.6 0 0.3; dur: 6000; loop: true; easing: linear">
-        </a-plane>
-        <a-plane src="rose_petal.png" position="0.6 4.8 -0.4" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]"
-            animation="property: position; to: 0.6 0 -0.4; dur: 6500; loop: true; easing: linear">
-        </a-plane>
-        <a-plane src="rose_petal.png" position="-0.1 5.2 0.2" width="0.18" height="0.18" material="transparent:true;side:double" look-at="[camera]"
-            animation="property: position; to: -0.1 0 0.2; dur: 5800; loop: true; easing: linear">
-        </a-plane>
-        <a-plane src="rose_petal.png" position="0.1 5.5 -0.1" width="0.18" height="0.18" material="transparent:true;side:double" look-at="[camera]"
-            animation="property: position; to: 0.1 0 -0.1; dur: 6200; loop: true; easing: linear">
-        </a-plane>
-
-        <a-text 
-            id="detected-name" 
-            value="" 
-            position="0 -0.6 1" 
-            align="center" 
-            color="#FF69B4" 
-            width="5" 
-            font="kelsonsans" 
-            look-at="[camera]">
-        </a-text>
-
-        <a-text 
-            id="personal-msg" 
-            value="Scanning name..." 
-            position="0 -1.1 1" 
-            align="center" 
-            color="#FFF5CC" 
-            width="3.5" 
-            font="kelsonsans" 
-            look-at="[camera]">
-        </a-text>
+        <a-text id="detected-name" value="" position="0 -0.8 1" align="center" color="#FF69B4" width="6" font="kelsonsans" look-at="[camera]"></a-text>
+        <a-text id="personal-msg" value="Scanning name..." position="0 -1.3 1" align="center" color="#FFF5CC" width="4" font="kelsonsans" look-at="[camera]"></a-text>
 
     </a-marker>
-
     <a-entity camera></a-entity>
-
 </a-scene>
 
 <script>
-// (Keep your Script exactly the same)
-let lastName = "";
-let processing = false;
+    let lastName = "";
+    let processing = false;
 
-function speak(text) {
-    const msg = new SpeechSynthesisUtterance(text);
-    speechSynthesis.speak(msg);
-}
-
-window.addEventListener("click", () => {
-    const music = document.querySelector("#music");
-    if (!music.components.sound) {
-        music.setAttribute("sound", {
-            src: "url(wedding-music.mp3)",
-            autoplay: true, loop: true, volume: 0.7
-        });
-    } else { music.components.sound.playSound(); }
-});
-
-function showInvite() {
-    const box = document.getElementById("invite-box");
-    box.style.display = (box.style.display === "block") ? "none" : "block";
-}
-
-function extractName(text) {
-    text = text.replace(/[^a-zA-Z ]/g, " ");
-    let words = text.split(/\s+/);
-    const ignore = ["hiro","marker","camera","welcome","wedding","invitation","rahul","saira","weds","gate"];
-    let valid = words.filter(w => w.length >= 3 && w.length <= 12 && /^[A-Za-z]+$/.test(w) && !ignore.includes(w.toLowerCase()));
-    return valid[0] || "";
-}
-
-async function scan() {
-    if (processing) return;
-    processing = true;
-    const video = document.querySelector("video");
-    if (!video || video.readyState !== 4) {
-        processing = false;
-        setTimeout(scan, 1000);
-        return;
+    function speak(text) {
+        const msg = new SpeechSynthesisUtterance(text);
+        speechSynthesis.speak(msg);
     }
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let d = imgData.data;
-    for (let i=0; i<d.length; i+=4) { let g = (d[i]+d[i+1]+d[i+2])/3; d[i]=d[i+1]=d[i+2]=g; }
-    ctx.putImageData(imgData, 0, 0);
 
-    try {
-        const result = await Tesseract.recognize(canvas, 'eng');
-        let name = extractName(result.data.text);
-        if (name && name !== lastName) {
-            lastName = name;
-            let msg = `Dear ${name}, you are warmly invited to the wedding of Rahul and Saira.`;
-            let displayMsg = `Dear ${name},\nYou are warmly invited to celebrate the wedding of\nRahul & Saira 💍\nPlease do come and bless us ❤️`;
-            document.querySelector("#personal-msg").setAttribute("value", displayMsg);
-            document.querySelector("#detected-name").setAttribute("value", name.toUpperCase());
-            speak(msg);
-        }
-    } catch (err) { console.log(err); }
-    processing = false;
-    setTimeout(scan, 2500);
-}
-setTimeout(scan, 3000);
+    window.addEventListener("click", () => {
+        const music = document.querySelector("#music");
+        if (!music.components.sound) {
+            music.setAttribute("sound", { src: "url(wedding-music.mp3)", autoplay: true, loop: true, volume: 0.7 });
+        } else { music.components.sound.playSound(); }
+    });
+
+    function showInvite() {
+        const box = document.getElementById("invite-box");
+        box.style.display = (box.style.display === "block") ? "none" : "block";
+    }
+
+    function extractName(text) {
+        text = text.replace(/[^a-zA-Z ]/g, " ");
+        let words = text.split(/\s+/);
+        const ignore = ["hiro","marker","camera","welcome","wedding","invitation","rahul","saira","weds","gate"];
+        return words.filter(w => w.length >= 3 && w.length <= 12 && /^[A-Za-z]+$/.test(w) && !ignore.includes(w.toLowerCase()))[0] || "";
+    }
+
+    async function scan() {
+        if (processing) return;
+        processing = true;
+        const video = document.querySelector("video");
+        if (!video || video.readyState !== 4) { processing = false; setTimeout(scan, 1000); return; }
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let d = imgData.data;
+        for (let i=0; i<d.length; i+=4) { let g = (d[i]+d[i+1]+d[i+2])/3; d[i]=d[i+1]=d[i+2]=g; }
+        ctx.putImageData(imgData, 0, 0);
+
+        try {
+            const result = await Tesseract.recognize(canvas, 'eng');
+            let name = extractName(result.data.text);
+            if (name && name !== lastName) {
+                lastName = name;
+                let msg = `Dear ${name}, you are warmly invited to the wedding of Rahul and Saira.`;
+                let displayMsg = `Dear ${name},\nYou are warmly invited to celebrate the wedding of\nRahul & Saira 💍\nPlease do come and bless us ❤️`;
+                document.querySelector("#personal-msg").setAttribute("value", displayMsg);
+                document.querySelector("#detected-name").setAttribute("value", name.toUpperCase());
+                speak(msg);
+            }
+        } catch (err) { console.log(err); }
+        processing = false;
+        setTimeout(scan, 2500);
+    }
+    setTimeout(scan, 3000);
 </script>
-
 </body>
 </html>
