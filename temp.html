@@ -45,48 +45,34 @@
        <!-- ✅ STAGE (FIXED) -->
 <!-- 🌸 BACKGROUND (BEHIND EVERYTHING) -->
 <!-- 🌸 BACKGROUND (OPAQUE - NO TRANSPARENCY) -->
-<a-plane 
-    src="#bg"
-    position="0 1.5 -1"
-    width="3.5"
-    height="2.5"
-    material="shader: flat; opacity: 1">
-</a-plane>
+<a-entity 
+    geometry="primitive: cylinder; radius: 2; height: 2; thetaStart: 150; thetaLength: 60; openEnded: true"
+    material="src: #bg; side: back; shader: flat; transparent: true; opacity: 1"
+    position="0 1 -1.2" 
+    rotation="0 0 0">
+</a-entity>
 
-
-<!-- 💍 STAGE (ROTATED PROPERLY) -->
 <a-circle 
-    src="#marble" 
-    rotation="-90 180 0" 
-    radius="0.5" 
+    src="https://images.unsplash.com/photo-1516103074077-5cd274aa975b?w=600" 
+    rotation="-90 0 0" 
+    radius="0.6" 
     position="0 0.01 0"
-    material="roughness: 0.2; metalness: 0.3">
+    material="roughness: 0.5; metalness: 0.1"
+    crossorigin="anonymous">
 
-    <!-- GOLD RING -->
     <a-ring 
         color="#FFD700" 
-        radius-inner="0.48" 
-        radius-outer="0.5" 
-        position="0 0 0.01">
+        radius-inner="0.58" 
+        radius-outer="0.6" 
+        position="0 0 0.01"
+        material="emissive: #FFD700; emissiveIntensity: 0.5">
     </a-ring>
-
 </a-circle>
 
-
-<!-- ✨ OPTIONAL GLOW -->
 <a-circle 
-    color="#FFD700"
-    opacity="0.15"
-    radius="0.52"
-    rotation="-90 0 0"
-    position="0 0.005 0">
-</a-circle>
-
-<!-- ✨ OPTIONAL GLOW -->
-<a-circle 
-    color="#FFD700"
-    opacity="0.15"
-    radius="0.52"
+    color="#000"
+    opacity="0.2"
+    radius="0.65"
     rotation="-90 0 0"
     position="0 0.005 0">
 </a-circle>
