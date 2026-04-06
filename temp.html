@@ -23,6 +23,8 @@
 <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="colorManagement: true; antialias: true;">
     
     <a-assets>
+        <img id="bg" src="Background.png" crossorigin="anonymous">
+        
         <img id="p1" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=500" crossorigin="anonymous">
         <img id="p2" src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500" crossorigin="anonymous">
         <img id="p3" src="https://images.unsplash.com/photo-1465495910483-0d6745778503?w=500" crossorigin="anonymous">
@@ -30,7 +32,6 @@
         <img id="p5" src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500" crossorigin="anonymous">
         
         <img id="marble" src="https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?w=800" crossorigin="anonymous">
-        <img id="floral" src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=800" crossorigin="anonymous">
         
         <a-mixin id="frame" geometry="primitive: plane; width: 0.54; height: 0.54" material="color: #FFF; shader: standard; emissive: #FFD700; emissiveIntensity: 0.1"></a-mixin>
     </a-assets>
@@ -45,9 +46,11 @@
             <a-ring color="#FFD700" radius-inner="1.28" radius-outer="1.3" position="0 0 0.01"></a-ring>
         </a-circle>
 
-        <a-plane src="#floral" position="0 1.2 -1.2" width="3.5" height="2.5" opacity="0.7" material="transparent: true; shader: flat">
-            <a-plane color="#000" opacity="0.3" width="3.5" height="2.5" position="0 0 0.01"></a-plane>
-        </a-plane>
+        <a-entity geometry="primitive: cylinder; radius: 2.2; height: 3; thetaStart: 150; thetaLength: 60; openEnded: true"
+                  material="src: #bg; side: double; shader: flat; transparent: true; opacity: 0.85"
+                  position="0 1.2 -0.8"
+                  rotation="0 180 0">
+        </a-entity>
 
         <a-entity gltf-model="wedding_gate-v1.glb" position="0 0 -0.8" scale="1.5 1.5 1.5"></a-entity>
         <a-entity gltf-model="couple.glb" position="0 0 0.2" scale="0.75 0.75 0.75" animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true"></a-entity>
@@ -90,6 +93,7 @@
 </a-scene>
 
 <script>
+    // Javascript logic remains the same
     let lastName = "";
     let processing = false;
 
