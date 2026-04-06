@@ -43,6 +43,17 @@
     <a-marker preset="hiro">
 
        <!-- ✅ STAGE (FIXED) -->
+<!-- 🌸 BACKGROUND (BEHIND EVERYTHING) -->
+<a-plane 
+    src="#bg"
+    position="0 1.5 -1"
+    width="3.5"
+    height="2.5"
+    material="shader: flat; transparent: true; opacity: 0.5">
+</a-plane>
+
+
+<!-- 💍 STAGE (GROUND) -->
 <a-circle 
     src="#marble" 
     rotation="-90 0 0" 
@@ -50,7 +61,7 @@
     position="0 0.01 0"
     material="roughness: 0.2; metalness: 0.3">
 
-    <!-- ✅ CORRECT GOLD RING -->
+    <!-- GOLD RING -->
     <a-ring 
         color="#FFD700" 
         radius-inner="0.48" 
@@ -60,16 +71,8 @@
 
 </a-circle>
 
-<!-- ✅ BACKGROUND INSIDE STAGE -->
-<a-circle 
-    src="#bg"
-    rotation="-90 0 0"
-    radius="0.45"
-    position="0 0.02 0"
-    material="transparent: true; opacity: 0.9">
-</a-circle>
 
-<!-- ✨ OPTIONAL GLOW (premium look) -->
+<!-- ✨ OPTIONAL GLOW -->
 <a-circle 
     color="#FFD700"
     opacity="0.15"
