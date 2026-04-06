@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Premium AR Wedding Invite 💍</title>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
@@ -20,63 +20,70 @@
     <p>You are warmly invited to celebrate the wedding of <b>Rahul</b> & <b>Saira</b>. Your presence will make this occasion truly special. 💍<br><br>Please do come and bless us ❤️</p>
 </div>
 
-<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="colorManagement: true; antialias: true;">
+    
+    <a-assets>
+        <img id="p1" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=500" crossorigin="anonymous">
+        <img id="p2" src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500" crossorigin="anonymous">
+        <img id="p3" src="https://images.unsplash.com/photo-1465495910483-0d6745778503?w=500" crossorigin="anonymous">
+        <img id="p4" src="https://images.unsplash.com/photo-1519225495810-7514194cba81?w=500" crossorigin="anonymous">
+        <img id="p5" src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500" crossorigin="anonymous">
+        
+        <img id="marble" src="https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?w=800" crossorigin="anonymous">
+        <img id="floral" src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=800" crossorigin="anonymous">
+        
+        <a-mixin id="frame" geometry="primitive: plane; width: 0.54; height: 0.54" material="color: #FFF; shader: standard; emissive: #FFD700; emissiveIntensity: 0.1"></a-mixin>
+    </a-assets>
+
     <a-entity id="music"></a-entity>
-    <a-light type="ambient" intensity="1.5"></a-light>
+    <a-light type="ambient" intensity="1.2"></a-light>
     <a-light type="directional" position="1 4 1" intensity="1"></a-light>
 
     <a-marker preset="hiro">
 
-        <a-entity 
-            gltf-model="wedding_gate-v1.glb" 
-            position="0 0 -0.8" 
-            scale="1.5 1.5 1.5" 
-            rotation="0 0 0">
+        <a-circle src="#marble" rotation="-90 0 0" radius="1.3" position="0 0.01 0" material="roughness: 0.2; metalness: 0.3">
+            <a-ring color="#FFD700" radius-inner="1.28" radius-outer="1.3" position="0 0 0.01"></a-ring>
+        </a-circle>
+
+        <a-plane src="#floral" position="0 1.2 -1.2" width="3.5" height="2.5" opacity="0.7" material="transparent: true; shader: flat">
+            <a-plane color="#000" opacity="0.3" width="3.5" height="2.5" position="0 0 0.01"></a-plane>
+        </a-plane>
+
+        <a-entity gltf-model="wedding_gate-v1.glb" position="0 0 -0.8" scale="1.5 1.5 1.5"></a-entity>
+        <a-entity gltf-model="couple.glb" position="0 0 0.2" scale="0.75 0.75 0.75" animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true"></a-entity>
+
+        <a-entity position="0 2.2 -0.5" look-at="[camera]">
+            <a-text value="RAHUL WEDS SAIRA" align="center" color="#FFD700" width="5" animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; dur: 1200; loop: true"></a-text>
+            <a-text value="RAHUL WEDS SAIRA" align="center" color="#000" width="5" opacity="0.4" position="0.03 -0.03 -0.01"></a-text>
         </a-entity>
 
-        <a-entity 
-            gltf-model="couple.glb" 
-            position="0 0 0.2" 
-            scale="0.75 0.75 0.75" 
-            rotation="0 0 0"
-            animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
+        <a-entity position="0 0.8 0">
+            <a-entity position="-1.3 0.2 0.6" rotation="0 45 0" animation="property: position; to: -1.3 0.28 0.6; dir: alternate; dur: 2000; loop: true; easing: easeInOutQuad">
+                <a-entity mixin="frame" position="0 0 -0.01"></a-entity>
+                <a-plane src="#p1" width="0.5" height="0.5" material="shader: flat; transparent: true" crossorigin="anonymous"></a-plane>
+            </a-entity>
+            <a-entity position="-0.7 0.5 0.2" rotation="0 25 0" animation="property: position; to: -0.7 0.58 0.2; dir: alternate; dur: 2200; loop: true; easing: easeInOutQuad">
+                <a-entity mixin="frame" position="0 0 -0.01"></a-entity>
+                <a-plane src="#p2" width="0.5" height="0.5" material="shader: flat; transparent: true" crossorigin="anonymous"></a-plane>
+            </a-entity>
+            <a-entity position="0.7 0.5 0.2" rotation="0 -25 0" animation="property: position; to: 0.7 0.58 0.2; dir: alternate; dur: 2200; loop: true; easing: easeInOutQuad">
+                <a-entity mixin="frame" position="0 0 -0.01"></a-entity>
+                <a-plane src="#p4" width="0.5" height="0.5" material="shader: flat; transparent: true" crossorigin="anonymous"></a-plane>
+            </a-entity>
+            <a-entity position="1.3 0.2 0.6" rotation="0 -45 0" animation="property: position; to: 1.3 0.28 0.6; dir: alternate; dur: 2000; loop: true; easing: easeInOutQuad">
+                <a-entity mixin="frame" position="0 0 -0.01"></a-entity>
+                <a-plane src="#p5" width="0.5" height="0.5" material="shader: flat; transparent: true" crossorigin="anonymous"></a-plane>
+            </a-entity>
         </a-entity>
-
-       <a-entity position="0 2 -0.5" look-at="[camera]">
-
-    <a-text 
-        value="RAHUL WEDS SAIRA" 
-        align="center" 
-        color="#FFD700" 
-        width="4" 
-        wrap-count="20"
-        scale="0.8 0.8 0.8"
-        animation="property: scale; to: 0.9 0.9 0.9; dir: alternate; dur: 1200; loop: true">
-    </a-text>
-
-    <!-- Shadow -->
-    <a-text 
-        value="RAHUL WEDS SAIRA" 
-        align="center" 
-        color="#000" 
-        width="4" 
-        opacity="0.4" 
-        position="0.02 -0.02 -0.01">
-    </a-text>
-
-</a-entity>
 
         <a-entity id="petal-container">
             <a-plane src="rose_petal.png" position="-0.8 3 0" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: -0.8 0 0; dur: 4000; loop: true; easing: linear"></a-plane>
             <a-plane src="rose_petal.png" position="0.8 3.5 0.5" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: 0.8 0 0.5; dur: 5000; loop: true; easing: linear"></a-plane>
             <a-plane src="rose_petal.png" position="-0.3 4 -0.5" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: -0.3 0 -0.5; dur: 4500; loop: true; easing: linear"></a-plane>
-            <a-plane src="rose_petal.png" position="0.4 4.5 0.2" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: 0.4 0 0.2; dur: 5500; loop: true; easing: linear"></a-plane>
-            <a-plane src="rose_petal.png" position="-0.1 5 0.3" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: -0.1 0 0.3; dur: 4200; loop: true; easing: linear"></a-plane>
-            <a-plane src="rose_petal.png" position="0.6 5.5 -0.2" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: 0.6 0 -0.2; dur: 6000; loop: true; easing: linear"></a-plane>
         </a-entity>
 
-        <a-text id="detected-name" value="" position="0 -0.8 1" align="center" color="#FF69B4" width="6" font="kelsonsans" look-at="[camera]"></a-text>
-        <a-text id="personal-msg" value="Scanning name..." position="0 -1.3 1" align="center" color="#FFF5CC" width="4" font="kelsonsans" look-at="[camera]"></a-text>
+        <a-text id="detected-name" value="" position="0 -0.8 1" align="center" color="#FF69B4" width="6" font="roboto" look-at="[camera]"></a-text>
+        <a-text id="personal-msg" value="Scanning name..." position="0 -1.3 1" align="center" color="#FFF5CC" width="4" font="roboto" look-at="[camera]"></a-text>
 
     </a-marker>
     <a-entity camera></a-entity>
