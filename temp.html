@@ -46,7 +46,7 @@
 <!-- 🌸 BACKGROUND (BEHIND EVERYTHING) -->
 <!-- 🌸 BACKGROUND (OPAQUE - NO TRANSPARENCY) -->
 <a-entity 
-    geometry="primitive: cylinder; radius: 3.5; height: 3; thetaStart: 150; thetaLength: 60; openEnded: true"
+    geometry="primitive: cylinder; radius: 4; height: 3.5; thetaStart: 150; thetaLength: 60; openEnded: true"
     material="src: #bg; side: back; shader: flat; transparent: true; opacity: 1"
     position="0 0 -1.2" 
     rotation="0 0 0">
@@ -54,17 +54,17 @@
 
 <a-circle 
 <a-circle 
-    src="Wood.jpg" 
+    src="texture.jpg" 
     rotation="-90 0 0" 
-    radius="2" 
+    radius="1" 
     position="0 0.01 0"
     material="roughness: 0.8; metalness: 0.1"
     crossorigin="anonymous">
 
     <a-ring 
         src="wood.jpg"
-        radius-inner="1.95" 
-        radius-outer="2.05" 
+        radius-inner="0.95" 
+        radius-outer="1.05" 
         position="0 0 0.01"
         material="shader: standard; roughness: 0.6; metalness: 0.2">
     </a-ring>
@@ -74,7 +74,7 @@
 <a-circle 
     color="#000"
     opacity="0.2"
-    radius="2.1"
+    radius="1.1"
     rotation="-90 0 0"
     position="0 0.005 0">
 </a-circle>
