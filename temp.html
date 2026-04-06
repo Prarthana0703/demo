@@ -42,53 +42,31 @@
     <a-marker preset="hiro">
 
         <a-entity 
-            glTF-model="wedding_gate-v1.glb" 
-            position="0 0 -1.5" 
-            scale="2.5 2.5 2.5" 
+            gltf-model="wedding_gate-v1.glb" 
+            position="0 0 -1" 
+            scale="2 2 2" 
             rotation="0 0 0">
         </a-entity>
 
         <a-entity 
-            glTF-model="couple.glb" 
-            position="0 0 0" 
-            scale="0.9 0.9 0.9" 
+            gltf-model="couple.glb" 
+            position="0 0 0.2" 
+            scale="0.85 0.85 0.85" 
             rotation="0 0 0"
             animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
         </a-entity>
 
-        <a-entity position="0 2.5 -1" look-at="[camera]">
+        <a-entity position="0 2.2 -0.5" look-at="[camera]">
             <a-text 
                 value="RAHUL WEDS SAIRA" 
                 align="center" 
                 color="#FFD700" 
-                width="8" 
+                width="10" 
                 font="kelsonsans"
+                wrap-count="15"
                 animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; dur: 1000; loop: true">
             </a-text>
-            <a-text value="RAHUL WEDS SAIRA" align="center" color="#FFF" width="8.1" opacity="0.3" position="0 0 -0.01"></a-text>
         </a-entity>
-
-        <a-text 
-            id="detected-name" 
-            value="" 
-            position="0 1.5 1" 
-            align="center" 
-            color="#FF69B4" 
-            width="5" 
-            font="kelsonsans" 
-            look-at="[camera]">
-        </a-text>
-
-        <a-text 
-            id="personal-msg" 
-            value="Waiting for name..." 
-            position="0 0.8 1.2" 
-            align="center" 
-            color="#FFF5CC" 
-            width="3.5" 
-            font="kelsonsans" 
-            look-at="[camera]">
-        </a-text>
 
         <a-plane src="rose_petal.png" position="-0.8 3 0" width="0.25" height="0.25" material="transparent:true;side:double" look-at="[camera]"
             animation="property: position; to: -0.8 0 0; dur: 4000; loop: true; easing: linear"
@@ -98,6 +76,28 @@
             animation="property: position; to: 0.8 0 0.5; dur: 5000; loop: true; easing: linear"
             animation__rot="property: rotation; to: 0 0 -360; dur: 2500; loop: true">
         </a-plane>
+
+        <a-text 
+            id="detected-name" 
+            value="" 
+            position="0 -0.6 1" 
+            align="center" 
+            color="#FF69B4" 
+            width="5" 
+            font="kelsonsans" 
+            look-at="[camera]">
+        </a-text>
+
+        <a-text 
+            id="personal-msg" 
+            value="Scanning name..." 
+            position="0 -1.1 1" 
+            align="center" 
+            color="#FFF5CC" 
+            width="3.5" 
+            font="kelsonsans" 
+            look-at="[camera]">
+        </a-text>
 
     </a-marker>
 
@@ -152,7 +152,6 @@ async function scan() {
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Grayscale for better OCR
     let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     let d = imgData.data;
     for (let i=0; i<d.length; i+=4) { let g = (d[i]+d[i+1]+d[i+2])/3; d[i]=d[i+1]=d[i+2]=g; }
