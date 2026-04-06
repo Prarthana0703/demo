@@ -42,18 +42,29 @@
             animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
         </a-entity>
 
-        <a-entity position="0 3.2 -0.5" look-at="[camera]">
-            <a-text 
-                value="RAHUL WEDS SAIRA" 
-                align="center" 
-                color="#FFD700" 
-                width="12" 
-                font="kelsonsans"
-                wrap-count="18"
-                animation="property: scale; to: 0.5 0.5 0.5; dir: alternate; dur: 1000; loop: true">
-            </a-text>
-            <a-text value="RAHUL WEDS SAIRA" align="center" color="#000" width="3" opacity="0.5" position="0.02 -0.02 -0.01"></a-text>
-        </a-entity>
+       <a-entity position="0 2 -0.5" look-at="[camera]">
+
+    <a-text 
+        value="RAHUL WEDS SAIRA" 
+        align="center" 
+        color="#FFD700" 
+        width="4" 
+        wrap-count="20"
+        scale="0.8 0.8 0.8"
+        animation="property: scale; to: 0.9 0.9 0.9; dir: alternate; dur: 1200; loop: true">
+    </a-text>
+
+    <!-- Shadow -->
+    <a-text 
+        value="RAHUL WEDS SAIRA" 
+        align="center" 
+        color="#000" 
+        width="4" 
+        opacity="0.4" 
+        position="0.02 -0.02 -0.01">
+    </a-text>
+
+</a-entity>
 
         <a-entity id="petal-container">
             <a-plane src="rose_petal.png" position="-0.8 3 0" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: -0.8 0 0; dur: 4000; loop: true; easing: linear"></a-plane>
