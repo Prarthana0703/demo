@@ -44,19 +44,20 @@
 
        <!-- ✅ STAGE (FIXED) -->
 <!-- 🌸 BACKGROUND (BEHIND EVERYTHING) -->
+<!-- 🌸 BACKGROUND (OPAQUE - NO TRANSPARENCY) -->
 <a-plane 
     src="#bg"
     position="0 1.5 -1"
     width="3.5"
     height="2.5"
-    material="shader: flat; transparent: true; opacity: 0.5">
+    material="shader: flat; opacity: 1">
 </a-plane>
 
 
-<!-- 💍 STAGE (GROUND) -->
+<!-- 💍 STAGE (ROTATED PROPERLY) -->
 <a-circle 
     src="#marble" 
-    rotation="-90 0 0" 
+    rotation="-90 180 0" 
     radius="0.5" 
     position="0 0.01 0"
     material="roughness: 0.2; metalness: 0.3">
@@ -71,6 +72,15 @@
 
 </a-circle>
 
+
+<!-- ✨ OPTIONAL GLOW -->
+<a-circle 
+    color="#FFD700"
+    opacity="0.15"
+    radius="0.52"
+    rotation="-90 0 0"
+    position="0 0.005 0">
+</a-circle>
 
 <!-- ✨ OPTIONAL GLOW -->
 <a-circle 
