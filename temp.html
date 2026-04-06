@@ -46,9 +46,9 @@
 <!-- 🌸 BACKGROUND (BEHIND EVERYTHING) -->
 <!-- 🌸 BACKGROUND (OPAQUE - NO TRANSPARENCY) -->
 <a-entity 
-    geometry="primitive: cylinder; radius: 4; height: 3.5; thetaStart: 150; thetaLength: 60; openEnded: true"
+    geometry="primitive: cylinder; radius: 4.5; height: 3; thetaStart: 150; thetaLength: 60; openEnded: true"
     material="src: #bg; side: back; shader: flat; transparent: true; opacity: 1"
-    position="0 0 -1.2" 
+    position="0 0 -0.6" 
     rotation="0 0 0">
 </a-entity>
 
@@ -86,7 +86,7 @@
             <a-text value="RAHUL WEDS SAIRA" align="center" color="#000" width="5" opacity="0.4" position="0.03 -0.03 -0.01"></a-text>
         </a-entity>
 
-        <a-entity position="0 0.8 0">
+        <!-- <a-entity position="0 0.8 0">
             <a-entity position="-1.3 0.2 0.6" rotation="0 45 0" animation="property: position; to: -1.3 0.28 0.6; dir: alternate; dur: 2000; loop: true; easing: easeInOutQuad">
                 <a-entity mixin="frame" position="0 0 -0.01"></a-entity>
                 <a-plane src="#p1" width="0.5" height="0.5" material="shader: flat; transparent: true" crossorigin="anonymous"></a-plane>
@@ -103,7 +103,7 @@
                 <a-entity mixin="frame" position="0 0 -0.01"></a-entity>
                 <a-plane src="#p5" width="0.5" height="0.5" material="shader: flat; transparent: true" crossorigin="anonymous"></a-plane>
             </a-entity>
-        </a-entity>
+        </a-entity> -->
 
         <a-entity id="petal-container">
             <a-plane src="rose_petal.png" position="-0.8 3 0" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]" animation="property: position; to: -0.8 0 0; dur: 4000; loop: true; easing: linear"></a-plane>
