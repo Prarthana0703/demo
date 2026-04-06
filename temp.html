@@ -44,14 +44,15 @@
             <a-ring color="#FFD700" radius-inner="1.28" radius-outer="1.3" position="0 0 0.01"></a-ring>
         </a-circle>
 
-        <a-entity geometry="primitive: cylinder; radius: 1.8; height: 1.5; thetaStart: 150; thetaLength: 60; openEnded: true"
-                  material="src: #bg; side: back; shader: flat; transparent: true; opacity: 0.9"
-                  position="0 0.75 -0.9" 
-                  rotation="0 0 0">
-        </a-entity>
+     <a-entity 
+    geometry="primitive: cylinder; radius: 3; height: 3.5; thetaStart: 150; thetaLength: 60; openEnded: true"
+    material="src: #bg; side: back; shader: flat; transparent: true; opacity: 0.9"
+    position="0 1 -1" 
+    rotation="0 0 0">
+</a-entity>
 
         <a-entity gltf-model="wedding_gate-v1.glb" position="0 0 -0.8" scale="1.5 1.5 1.5"></a-entity>
-        <a-entity gltf-model="couple.glb" position="0 0 0.2" scale="0.75 0.75 0.75" animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true"></a-entity>
+        <a-entity gltf-model="couple.glb" position="0 1 0.2" scale="0.75 0.75 0.75" animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true"></a-entity>
 
         <a-entity position="0 2.2 -0.5" look-at="[camera]">
             <a-text value="RAHUL WEDS SAIRA" align="center" color="#FFD700" width="5" animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; dur: 1200; loop: true"></a-text>
