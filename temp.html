@@ -17,19 +17,21 @@
 
 <button id="invite-btn" onclick="showInvite()">💌</button>
 <div id="invite-box">
-    <p>You are warmly invited to celebrate the wedding of <b>Rahul</b> & <b>Saira</b>. 💍<br><br>Please do come and bless us ❤️</p>
+    <p>You are warmly invited to celebrate the wedding of <b>Rahul</b> & <b>Saira</b>. Your presence will make this occasion truly special. 💍<br><br>Please do come and bless us ❤️</p>
 </div>
 
 <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="colorManagement: true; antialias: true;">
     
     <a-assets>
         <img id="bg" src="Background.png" crossorigin="anonymous">
-        <img id="marble" src="stage.png" crossorigin="anonymous">
         
         <img id="p1" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=500" crossorigin="anonymous">
         <img id="p2" src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500" crossorigin="anonymous">
+        <img id="p3" src="https://images.unsplash.com/photo-1465495910483-0d6745778503?w=500" crossorigin="anonymous">
         <img id="p4" src="https://images.unsplash.com/photo-1519225495810-7514194cba81?w=500" crossorigin="anonymous">
         <img id="p5" src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500" crossorigin="anonymous">
+        
+        <img id="marble" src="stage.png" crossorigin="anonymous">
         
         <a-mixin id="frame" geometry="primitive: plane; width: 0.54; height: 0.54" material="color: #FFF; shader: standard; emissive: #FFD700; emissiveIntensity: 0.1"></a-mixin>
     </a-assets>
@@ -44,17 +46,16 @@
             <a-ring color="#FFD700" radius-inner="1.28" radius-outer="1.3" position="0 0 0.01"></a-ring>
         </a-circle>
 
-     <a-entity 
-    geometry="primitive: cylinder; radius: 3.5; height: 3; thetaStart: 150; thetaLength: 60; openEnded: true"
-    material="src: #bg; side: back; shader: flat; transparent: true; opacity: 0.9"
-    position="0 1 -1" 
-    rotation="0 0 0">
-</a-entity>
+        <a-entity geometry="primitive: cylinder; radius: 3; height: 3.5; thetaStart: 150; thetaLength: 60; openEnded: true"
+                  material="src: #bg; side: back; shader: flat; transparent: true; opacity: 0.9"
+                  position="0 -1 -0.8"
+                  rotation="0 0 0">
+        </a-entity>
 
         <a-entity gltf-model="wedding_gate-v1.glb" position="0 0 -0.8" scale="1.5 1.5 1.5"></a-entity>
         <a-entity gltf-model="couple.glb" position="0 1 0.2" scale="0.75 0.75 0.75" animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true"></a-entity>
 
-        <a-entity position="0 2.2 -0.5" look-at="[camera]">
+        <a-entity position="0 2.5 -0.5" look-at="[camera]">
             <a-text value="RAHUL WEDS SAIRA" align="center" color="#FFD700" width="5" animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; dur: 1200; loop: true"></a-text>
             <a-text value="RAHUL WEDS SAIRA" align="center" color="#000" width="5" opacity="0.4" position="0.03 -0.03 -0.01"></a-text>
         </a-entity>
@@ -92,29 +93,34 @@
 </a-scene>
 
 <script>
-    /* Javascript logic remains identical */
+    // Logic remains identical
     let lastName = "";
     let processing = false;
+
     function speak(text) {
         const msg = new SpeechSynthesisUtterance(text);
         speechSynthesis.speak(msg);
     }
+
     window.addEventListener("click", () => {
         const music = document.querySelector("#music");
         if (!music.components.sound) {
             music.setAttribute("sound", { src: "url(wedding-music.mp3)", autoplay: true, loop: true, volume: 0.7 });
         } else { music.components.sound.playSound(); }
     });
+
     function showInvite() {
         const box = document.getElementById("invite-box");
         box.style.display = (box.style.display === "block") ? "none" : "block";
     }
+
     function extractName(text) {
         text = text.replace(/[^a-zA-Z ]/g, " ");
         let words = text.split(/\s+/);
         const ignore = ["hiro","marker","camera","welcome","wedding","invitation","rahul","saira","weds","gate"];
         return words.filter(w => w.length >= 3 && w.length <= 12 && /^[A-Za-z]+$/.test(w) && !ignore.includes(w.toLowerCase()))[0] || "";
     }
+
     async function scan() {
         if (processing) return;
         processing = true;
@@ -128,6 +134,7 @@
         let d = imgData.data;
         for (let i=0; i<d.length; i+=4) { let g = (d[i]+d[i+1]+d[i+2])/3; d[i]=d[i+1]=d[i+2]=g; }
         ctx.putImageData(imgData, 0, 0);
+
         try {
             const result = await Tesseract.recognize(canvas, 'eng');
             let name = extractName(result.data.text);
