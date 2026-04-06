@@ -30,7 +30,7 @@
 <button id="invite-btn" onclick="showInvite()">💌</button>
 
 <div id="invite-box">
-    <p>Dear Guest,<br><br>You are warmly invited to celebrate the wedding of <b>Rahul</b> & <b>Saira</b> 💍<br><br>Please do come and bless us ❤️</p>
+    <p>You are warmly invited to celebrate the wedding of <b>Rahul</b> & <b>Saira</b>, as they begin their beautiful journey of love and togetherness. Your presence will make this occasion truly special. 💍<br><br>Please do come and bless us ❤️</p>
 </div>
 
 <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
@@ -44,14 +44,14 @@
         <a-entity 
             gltf-model="wedding_gate-v1.glb" 
             position="0 0 -1" 
-            scale="2 2 2" 
+            scale="1 1 1" 
             rotation="0 0 0">
         </a-entity>
 
         <a-entity 
             gltf-model="couple.glb" 
             position="0 0 0.2" 
-            scale="0.85 0.85 0.85" 
+            scale="0.30 0.30 0.30" 
             rotation="0 0 0"
             animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
         </a-entity>
@@ -75,6 +75,27 @@
         <a-plane src="rose_petal.png" position="0.8 3.5 0.5" width="0.25" height="0.25" material="transparent:true;side:double" look-at="[camera]"
             animation="property: position; to: 0.8 0 0.5; dur: 5000; loop: true; easing: linear"
             animation__rot="property: rotation; to: 0 0 -360; dur: 2500; loop: true">
+        </a-plane>
+        <a-plane src="rose_petal.png" position="-0.3 3.8 -0.2" width="0.22" height="0.22" material="transparent:true;side:double" look-at="[camera]"
+            animation="property: position; to: -0.3 0 -0.2; dur: 4200; loop: true; easing: linear"
+            animation__rot="property: rotation; to: 0 0 360; dur: 2100; loop: true">
+        </a-plane>
+        <a-plane src="rose_petal.png" position="0.3 4.2 0.1" width="0.22" height="0.22" material="transparent:true;side:double" look-at="[camera]"
+            animation="property: position; to: 0.3 0 0.1; dur: 4800; loop: true; easing: linear"
+            animation__rot="property: rotation; to: 0 0 -360; dur: 2400; loop: true">
+        </a-plane>
+
+        <a-plane src="rose_petal.png" position="-0.6 4.5 0.3" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]"
+            animation="property: position; to: -0.6 0 0.3; dur: 6000; loop: true; easing: linear">
+        </a-plane>
+        <a-plane src="rose_petal.png" position="0.6 4.8 -0.4" width="0.2" height="0.2" material="transparent:true;side:double" look-at="[camera]"
+            animation="property: position; to: 0.6 0 -0.4; dur: 6500; loop: true; easing: linear">
+        </a-plane>
+        <a-plane src="rose_petal.png" position="-0.1 5.2 0.2" width="0.18" height="0.18" material="transparent:true;side:double" look-at="[camera]"
+            animation="property: position; to: -0.1 0 0.2; dur: 5800; loop: true; easing: linear">
+        </a-plane>
+        <a-plane src="rose_petal.png" position="0.1 5.5 -0.1" width="0.18" height="0.18" material="transparent:true;side:double" look-at="[camera]"
+            animation="property: position; to: 0.1 0 -0.1; dur: 6200; loop: true; easing: linear">
         </a-plane>
 
         <a-text 
@@ -106,6 +127,7 @@
 </a-scene>
 
 <script>
+// (Keep your Script exactly the same)
 let lastName = "";
 let processing = false;
 
