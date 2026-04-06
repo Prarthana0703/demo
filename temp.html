@@ -10,33 +10,17 @@
 
     <style>
     #invite-btn {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        width: 55px;
-        height: 55px;
-        border-radius: 50%;
-        border: none;
-        font-size: 22px;
-        background: #ff69b4;
-        color: white;
-        z-index: 999;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        position: fixed; bottom: 20px; left: 20px;
+        width: 55px; height: 55px; border-radius: 50%;
+        border: none; font-size: 22px; background: #ff69b4;
+        color: white; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         cursor: pointer;
     }
-
     #invite-box {
-        position: fixed;
-        bottom: 90px;
-        left: 20px;
-        width: 220px;
-        padding: 12px;
-        background: rgba(0,0,0,0.75);
-        color: white;
-        border-radius: 10px;
-        font-size: 14px;
-        display: none;
-        z-index: 999;
+        position: fixed; bottom: 90px; left: 20px;
+        width: 220px; padding: 12px; background: rgba(0,0,0,0.85);
+        color: white; border-radius: 10px; font-size: 14px;
+        display: none; z-index: 999; border: 1px solid #FFD700;
     }
     </style>
 </head>
@@ -46,96 +30,74 @@
 <button id="invite-btn" onclick="showInvite()">💌</button>
 
 <div id="invite-box">
-    <p>
-        Dear Guest,<br><br>
-        You are warmly invited to celebrate the wedding of 
-        <b>Rahul</b> & <b>Saira</b> 💍<br><br>
-        Please do come and bless us ❤️
-    </p>
+    <p>Dear Guest,<br><br>You are warmly invited to celebrate the wedding of <b>Rahul</b> & <b>Saira</b> 💍<br><br>Please do come and bless us ❤️</p>
 </div>
 
 <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
 
     <a-entity id="music"></a-entity>
-
     <a-light type="ambient" intensity="1.5"></a-light>
-    <a-light type="directional" position="1 3 1" intensity="0.8"></a-light>
+    <a-light type="directional" position="1 4 1" intensity="1"></a-light>
 
     <a-marker preset="hiro">
 
         <a-entity 
-            gltf-model="couple.glb" 
-            position="0 0 0" 
-            scale="0.8 0.8 0.8" 
-            rotation="0 0 0"
-            animation="property: rotation; to: 0 360 0; dur: 12000; easing: linear; loop: true">
-        </a-entity>
-
-        <a-entity 
-            gltf-model="wedding_gate-v1.glb" 
-            position="0 0 -1" 
-            scale="1.8 1.8 1.8" 
+            glTF-model="wedding_gate-v1.glb" 
+            position="0 0 -1.5" 
+            scale="2.5 2.5 2.5" 
             rotation="0 0 0">
         </a-entity>
 
-        <a-text 
-            value="RAHUL WEDS SAIRA" 
-            position="0 2.2 -0.5" 
-            align="center" 
-            color="#FFD700" 
-            width="6" 
-            font="kelsonsans"
-            look-at="[camera]"
-            animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; dur: 1500; loop: true">
-        </a-text>
+        <a-entity 
+            glTF-model="couple.glb" 
+            position="0 0 0" 
+            scale="0.9 0.9 0.9" 
+            rotation="0 0 0"
+            animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
+        </a-entity>
 
-        <a-plane src="rose_petal.png" 
-            position="-0.6 3 0" 
-            width="0.2" height="0.2" 
-            material="transparent:true;side:double" 
-            look-at="[camera]"
-            animation="property: position; to: -0.6 0 0; dur: 4000; loop: true; easing: linear"
-            animation__rot="property: rotation; to: 0 0 360; dur: 2000; loop: true">
-        </a-plane>
-
-        <a-plane src="rose_petal.png" 
-            position="0.6 3.5 0.3" 
-            width="0.2" height="0.2" 
-            material="transparent:true;side:double" 
-            look-at="[camera]"
-            animation="property: position; to: 0.6 0 0.3; dur: 5000; loop: true; easing: linear"
-            animation__rot="property: rotation; to: 0 0 -360; dur: 2500; loop: true">
-        </a-plane>
-
-        <a-plane src="rose_petal.png" 
-            position="0 4 0.1" 
-            width="0.2" height="0.2" 
-            material="transparent:true;side:double" 
-            look-at="[camera]"
-            animation="property: position; to: 0 0 0.1; dur: 4500; loop: true; easing: linear">
-        </a-plane>
+        <a-entity position="0 2.5 -1" look-at="[camera]">
+            <a-text 
+                value="RAHUL WEDS SAIRA" 
+                align="center" 
+                color="#FFD700" 
+                width="8" 
+                font="kelsonsans"
+                animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; dur: 1000; loop: true">
+            </a-text>
+            <a-text value="RAHUL WEDS SAIRA" align="center" color="#FFF" width="8.1" opacity="0.3" position="0 0 -0.01"></a-text>
+        </a-entity>
 
         <a-text 
             id="detected-name" 
             value="" 
-            position="0 1.2 0.8" 
+            position="0 1.5 1" 
             align="center" 
             color="#FF69B4" 
-            width="4" 
+            width="5" 
             font="kelsonsans" 
             look-at="[camera]">
         </a-text>
 
         <a-text 
             id="personal-msg" 
-            value="Scanning name..." 
-            position="0 0.7 0.8" 
+            value="Waiting for name..." 
+            position="0 0.8 1.2" 
             align="center" 
             color="#FFF5CC" 
             width="3.5" 
             font="kelsonsans" 
             look-at="[camera]">
         </a-text>
+
+        <a-plane src="rose_petal.png" position="-0.8 3 0" width="0.25" height="0.25" material="transparent:true;side:double" look-at="[camera]"
+            animation="property: position; to: -0.8 0 0; dur: 4000; loop: true; easing: linear"
+            animation__rot="property: rotation; to: 0 0 360; dur: 2000; loop: true">
+        </a-plane>
+        <a-plane src="rose_petal.png" position="0.8 3.5 0.5" width="0.25" height="0.25" material="transparent:true;side:double" look-at="[camera]"
+            animation="property: position; to: 0.8 0 0.5; dur: 5000; loop: true; easing: linear"
+            animation__rot="property: rotation; to: 0 0 -360; dur: 2500; loop: true">
+        </a-plane>
 
     </a-marker>
 
@@ -157,13 +119,9 @@ window.addEventListener("click", () => {
     if (!music.components.sound) {
         music.setAttribute("sound", {
             src: "url(wedding-music.mp3)",
-            autoplay: true,
-            loop: true,
-            volume: 0.7
+            autoplay: true, loop: true, volume: 0.7
         });
-    } else {
-        music.components.sound.playSound();
-    }
+    } else { music.components.sound.playSound(); }
 });
 
 function showInvite() {
@@ -174,8 +132,8 @@ function showInvite() {
 function extractName(text) {
     text = text.replace(/[^a-zA-Z ]/g, " ");
     let words = text.split(/\s+/);
-    const ignore = ["hiro","marker","camera","welcome","wedding","invitation","rahul","saira","weds"];
-    let valid = words.filter(w => w.length >= 3 && w.length <= 10 && /^[A-Za-z]+$/.test(w) && !ignore.includes(w.toLowerCase()));
+    const ignore = ["hiro","marker","camera","welcome","wedding","invitation","rahul","saira","weds","gate"];
+    let valid = words.filter(w => w.length >= 3 && w.length <= 12 && /^[A-Za-z]+$/.test(w) && !ignore.includes(w.toLowerCase()));
     return valid[0] || "";
 }
 
@@ -185,7 +143,7 @@ async function scan() {
     const video = document.querySelector("video");
     if (!video || video.readyState !== 4) {
         processing = false;
-        setTimeout(scan, 1500);
+        setTimeout(scan, 1000);
         return;
     }
     const canvas = document.createElement("canvas");
@@ -193,29 +151,29 @@ async function scan() {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Grayscale for better OCR
     let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let data = imgData.data;
-    for (let i = 0; i < data.length; i += 4) {
-        let gray = (data[i] + data[i+1] + data[i+2]) / 3;
-        data[i] = data[i+1] = data[i+2] = gray;
-    }
+    let d = imgData.data;
+    for (let i=0; i<d.length; i+=4) { let g = (d[i]+d[i+1]+d[i+2])/3; d[i]=d[i+1]=d[i+2]=g; }
     ctx.putImageData(imgData, 0, 0);
+
     try {
         const result = await Tesseract.recognize(canvas, 'eng');
         let name = extractName(result.data.text);
         if (name && name !== lastName) {
             lastName = name;
-            let msg = `Dear ${name}, you are warmly invited to celebrate the wedding of Rahul and Saira. Please do come and bless us.`;
+            let msg = `Dear ${name}, you are warmly invited to the wedding of Rahul and Saira.`;
             let displayMsg = `Dear ${name},\nYou are warmly invited to celebrate the wedding of\nRahul & Saira 💍\nPlease do come and bless us ❤️`;
             document.querySelector("#personal-msg").setAttribute("value", displayMsg);
-            document.querySelector("#detected-name").setAttribute("value", name);
+            document.querySelector("#detected-name").setAttribute("value", name.toUpperCase());
             speak(msg);
         }
-    } catch (err) { console.error("OCR Error:", err); }
+    } catch (err) { console.log(err); }
     processing = false;
-    setTimeout(scan, 3000);
+    setTimeout(scan, 2500);
 }
-setTimeout(scan, 2000);
+setTimeout(scan, 3000);
 </script>
 
 </body>
