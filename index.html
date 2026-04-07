@@ -38,6 +38,8 @@
             <a-mixin id="timelineEvent" font="serif" color="#5C4033" align="center" width="1.8"></a-mixin>
             <a-mixin id="timelineTime" font="serif" color="#8B4513" align="center" width="1.5"></a-mixin>
             <a-mixin id="photoFrame" geometry="primitive: plane; width: 0.35; height: 0.45" material="color: #ffffff; shader: standard; roughness: 0.2; metalness: 0.8"></a-mixin>
+            
+            <a-mixin id="sparkle" geometry="primitive: sphere; radius: 0.01" material="shader: flat; opacity: 0.8; transparent: true"></a-mixin>
         </a-assets>
 
         <a-marker preset="hiro">
@@ -62,24 +64,24 @@
                     rotation="0 5 0"
                     material="transparent: true; alphaTest: 0.5; shader: flat">
                     
-                    <a-text value="THE CELEBRATION" position="0 0.6 0.03" mixin="timelineHeader" width="3.2"></a-text>
+                    <a-text value="THE CELEBRATION" position="0 0.6 0.08" mixin="timelineHeader" width="3.2"></a-text>
 
-                    <a-entity position="0 0.35 0.03">
+                    <a-entity position="0 0.35 0.08">
                         <a-text value="Ganesh Sthapana & Haldi" mixin="timelineEvent"></a-text>
                         <a-text value="10:00 AM" position="0 -0.12 0" mixin="timelineTime"></a-text>
                     </a-entity>
 
-                    <a-entity position="0 0.05 0.03">
+                    <a-entity position="0 0.05 0.08">
                         <a-text value="Baraat Swagat" mixin="timelineEvent"></a-text>
                         <a-text value="04:00 PM" position="0 -0.12 0" mixin="timelineTime"></a-text>
                     </a-entity>
 
-                    <a-entity position="0 -0.25 0.03">
+                    <a-entity position="0 -0.25 0.08">
                         <a-text value="Jaimala Ceremony" mixin="timelineEvent"></a-text>
                         <a-text value="05:00 PM" position="0 -0.12 0" mixin="timelineTime"></a-text>
                     </a-entity>
 
-                    <a-entity position="0 -0.55 0.03">
+                    <a-entity position="0 -0.55 0.08">
                         <a-text value="Pheras & Hast Melap" mixin="timelineEvent"></a-text>
                         <a-text value="06:30 PM" position="0 -0.12 0" mixin="timelineTime"></a-text>
                     </a-entity>
@@ -106,25 +108,27 @@
             </a-entity>
 
             <a-entity id="sparkle-system">
-                <a-sphere position="-0.6 1.2 0.2" radius="0.01" color="#FFD700" 
+                <a-entity mixin="sparkle" color="#FFD700" position="-0.6 1.2 0.2" 
                     animation="property: position; to: -0.6 1.6 0.2; dur: 3000; dir: alternate; loop: true; easing: easeInOutSine"
-                    animation__fade="property: opacity; from: 0.2; to: 1; dur: 1500; dir: alternate; loop: true">
-                </a-sphere>
-                <a-sphere position="0.7 0.8 -0.3" radius="0.008" color="#FFFFFF" 
-                    animation="property: position; to: 0.7 1.2 -0.3; dur: 4500; dir: alternate; loop: true; easing: easeInOutSine"
-                    animation__twinkle="property: scale; from: 1 1 1; to: 0.2 0.2 0.2; dur: 1000; dir: alternate; loop: true">
-                </a-sphere>
-                <a-sphere position="0.2 1.5 0.1" radius="0.01" color="#FFD700" 
-                    animation="property: position; to: 0 1.5 0.3; dur: 5000; dir: alternate; loop: true; easing: easeInOutSine"
-                    animation__fade="property: opacity; from: 0.1; to: 0.8; dur: 2500; dir: alternate; loop: true">
-                </a-sphere>
-                <a-sphere position="-0.3 0.5 -0.6" radius="0.007" color="#FFFFFF" 
-                    animation="property: position; to: -0.5 0.9 -0.6; dur: 3500; dir: alternate; loop: true; easing: easeInOutSine">
-                </a-sphere>
+                    animation__twinkle="property: scale; from: 1 1 1; to: 0.3 0.3 0.3; dur: 1000; dir: alternate; loop: true">
+                </a-entity>
+                <a-entity mixin="sparkle" color="#FFFFFF" position="0.7 0.8 -0.3" 
+                    animation="property: position; to: 0.7 1.4 -0.3; dur: 4500; dir: alternate; loop: true; easing: easeInOutSine"
+                    animation__fade="property: material.opacity; from: 0.1; to: 1; dur: 800; dir: alternate; loop: true">
+                </a-entity>
+                <a-entity mixin="sparkle" color="#FFD700" position="0.2 1.5 0.1" 
+                    animation="property: position; to: -0.2 1.3 0.4; dur: 5000; dir: alternate; loop: true; easing: easeInOutSine">
+                </a-entity>
+                <a-entity mixin="sparkle" color="#FFFFFF" position="-0.3 0.5 -0.6" 
+                    animation="property: material.opacity; from: 0.2; to: 0.9; dur: 1200; dir: alternate; loop: true">
+                </a-entity>
+                <a-entity mixin="sparkle" color="#FFF5CC" position="0 1 -0.2" scale="1.5 1.5 1.5"
+                    animation="property: scale; to: 0.5 0.5 0.5; dur: 2000; dir: alternate; loop: true">
+                </a-entity>
             </a-entity>
 
-            <a-light type="ambient" color="#FFF5CC" intensity="1.2"></a-light>
-            <a-light type="directional" position="1 4 1" intensity="0.8" color="#FFD700"></a-light>
+            <a-light type="ambient" color="#FFF5CC" intensity="1.5"></a-light>
+            <a-light type="directional" position="1 4 1" intensity="1.0" color="#FFD700"></a-light>
 
         </a-marker>
 
