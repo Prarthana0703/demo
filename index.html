@@ -19,16 +19,13 @@
         <img id="g_sanget" src="Sangeet.png">
         
         <a-mixin id="sparkle" geometry="primitive: sphere; radius: 0.015" material="shader: flat; transparent: true; opacity: 0.8"></a-mixin>
+        <a-mixin id="functionTitle" align="center" color="#5C4033" width="2.2" font="serif"></a-mixin>
+        <a-mixin id="timeSub" align="center" color="#8B4513" width="1.6"></a-mixin>
     </a-assets>
 
     <a-marker preset="hiro">
 
-        <a-circle 
-            rotation="-90 0 0" 
-            radius="1.3" 
-            position="0 0.01 0"
-            material="src: #wood; roughness: 1">
-        </a-circle>
+        <a-circle rotation="-90 0 0" radius="1.3" position="0 0.01 0" material="src: #wood; roughness: 1"></a-circle>
 
         <a-entity 
             geometry="primitive: cylinder; radius: 1.6; height: 2; thetaStart: 110; thetaLength: 140; openEnded: true"
@@ -40,33 +37,29 @@
 
             <a-entity position="-0.4 0 0" rotation="0 8 0">
 
-                <a-plane 
-                    src="#archBoard" 
-                    width="1" height="1.6"
-                    material="transparent: true; alphaTest: 0.5; shader: flat">
-                </a-plane>
+                <a-plane src="#archBoard" width="1" height="1.7" material="transparent: true; alphaTest: 0.5; shader: flat"></a-plane>
 
                 <a-entity position="0 0 0.1">
-                    <a-text value="THE WEDDING SCHEDULE" position="0 0.6 0" align="center" color="#4A3728" width="3" font="serif"></a-text>
+                    <a-text value="THE WEDDING SCHEDULE" position="0 0.7 0" align="center" color="#4A3728" width="3.2" font="serif"></a-text>
 
-                    <a-entity position="0 0.35 0">
-                        <a-text value="HALDI CEREMONY" align="center" color="#5C4033" width="2" font="serif"></a-text>
-                        <a-text value="10:30 AM" position="0 -0.1 0" align="center" color="#8B4513" width="1.6"></a-text>
+                    <a-entity position="0 0.4 0">
+                        <a-text value="10:30 AM" mixin="timeSub"></a-text>
+                        <a-text value="HALDI CEREMONY" position="0 -0.12 0" mixin="functionTitle"></a-text>
                     </a-entity>
 
-                    <a-entity position="0 0.05 0">
-                        <a-text value="BARAAT & SWAGAT" align="center" color="#5C4033" width="2" font="serif"></a-text>
-                        <a-text value="04:00 PM" position="0 -0.1 0" align="center" color="#8B4513" width="1.6"></a-text>
+                    <a-entity position="0 0.1 0">
+                        <a-text value="04:00 PM" mixin="timeSub"></a-text>
+                        <a-text value="BARAAT & SWAGAT" position="0 -0.12 0" mixin="functionTitle"></a-text>
                     </a-entity>
 
-                    <a-entity position="0 -0.25 0">
-                        <a-text value="SHUBH VIVAH" align="center" color="#5C4033" width="2" font="serif"></a-text>
-                        <a-text value="06:30 PM" position="0 -0.1 0" align="center" color="#8B4513" width="1.6"></a-text>
+                    <a-entity position="0 -0.2 0">
+                        <a-text value="06:30 PM" mixin="timeSub"></a-text>
+                        <a-text value="SHUBH VIVAH" position="0 -0.12 0" mixin="functionTitle"></a-text>
                     </a-entity>
 
-                    <a-entity position="0 -0.55 0">
-                        <a-text value="DINNER & SANGEET" align="center" color="#5C4033" width="2" font="serif"></a-text>
-                        <a-text value="08:30 PM" position="0 -0.1 0" align="center" color="#8B4513" width="1.6"></a-text>
+                    <a-entity position="0 -0.5 0">
+                        <a-text value="08:30 PM" mixin="timeSub"></a-text>
+                        <a-text value="DINNER & SANGEET" position="0 -0.12 0" mixin="functionTitle"></a-text>
                     </a-entity>
                 </a-entity>
             </a-entity>
@@ -79,15 +72,12 @@
 
         </a-entity>
 
-        <a-entity id="sparkles">
-            <a-entity mixin="sparkle" color="#FFD700" position="-0.5 1.2 0.3" 
-                animation="property: position; to: -0.5 1.5 0.3; dur: 3000; dir: alternate; loop: true; easing: easeInOutSine">
+        <a-entity id="sparkle-layer">
+            <a-entity mixin="sparkle" color="#FFD700" position="-0.4 1.2 0.3" 
+                animation="property: position; to: -0.4 1.5 0.3; dur: 3000; dir: alternate; loop: true">
             </a-entity>
-            <a-entity mixin="sparkle" color="#FFFFFF" position="0.6 0.8 0.4" 
-                animation="property: scale; from: 1 1 1; to: 0.2 0.2 0.2; dur: 1000; dir: alternate; loop: true">
-            </a-entity>
-            <a-entity mixin="sparkle" color="#FFD700" position="0.2 1.5 0.2" 
-                animation="property: material.opacity; from: 0.2; to: 1; dur: 1500; dir: alternate; loop: true">
+            <a-entity mixin="sparkle" color="#FFFFFF" position="0.5 0.9 0.4" 
+                animation="property: scale; from: 1 1 1; to: 0.3 0.3 0.3; dur: 1200; dir: alternate; loop: true">
             </a-entity>
         </a-entity>
 
@@ -95,7 +85,6 @@
     </a-marker>
 
     <a-entity camera></a-entity>
-
 </a-scene>
 
 </body>
