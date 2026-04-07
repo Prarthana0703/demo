@@ -3,7 +3,6 @@
 <head>
     <title>AR Wedding Invitation ✨</title>
 
-    <!-- AFRAME + ARJS -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 
@@ -30,7 +29,7 @@
     <!-- ✅ MARKER -->
     <a-marker preset="hiro">
 
-        <!-- ✅ FLOOR -->
+        <!-- FLOOR -->
         <a-circle 
             rotation="-90 0 0" 
             radius="1.2" 
@@ -38,126 +37,114 @@
             material="src: #wood">
         </a-circle>
 
-        <!-- ✅ CURVED BACKGROUND (FIXED) -->
+        <!-- CURVED BACKGROUND -->
         <a-entity 
             geometry="primitive: cylinder; radius: 2; height: 2.5; thetaStart: 110; thetaLength: 140; openEnded: true"
             material="src: #hallEnv; side: back; shader: flat"
             position="0 1.2 -2">
         </a-entity>
 
-        <!-- ✅ MAIN CONTENT -->
-        <a-entity position="0 0.9 -0.6">
+        <!-- MAIN CONTENT -->
+        <a-entity position="0 0.9 -0.7">
 
-            <!-- ✅ BIG BOARD -->
-            <a-entity position="-0.6 0 0">
+            <!-- BOARD -->
+            <a-entity position="-0.6 0 0" rotation="0 8 0">
 
                 <a-plane 
                     src="#archBoard" 
-                    width="1.1" 
-                    height="1.9">
-                </a-plane>
-
-                <!-- DARK OVERLAY -->
-                <a-plane 
-                    width="1.0" 
-                    height="1.6" 
-                    position="0 0 0.01"
-                    color="#111"
-                    opacity="0.6">
+                    width="1.3" 
+                    height="2">
                 </a-plane>
 
                 <!-- TEXT -->
                 <a-text value="THE WEDDING SCHEDULE"
-                        position="0 0.7 0.02"
+                        position="0 0.75 0.05"
                         align="center"
                         color="#FFD700"
-                        width="3.5">
+                        width="4">
                 </a-text>
 
                 <a-text value="HALDI CEREMONY"
-                        position="0 0.4 0.02"
+                        position="0 0.45 0.05"
                         align="center"
                         color="#FFFFFF"
-                        width="2.8">
+                        width="3">
                 </a-text>
 
                 <a-text value="10:30 AM"
-                        position="0 0.25 0.02"
+                        position="0 0.3 0.05"
                         align="center"
                         color="#FFD700"
-                        width="2.2">
+                        width="2.5">
                 </a-text>
 
                 <a-text value="BARAAT & SWAGAT"
-                        position="0 0.05 0.02"
+                        position="0 0.05 0.05"
                         align="center"
                         color="#FFFFFF"
-                        width="2.8">
+                        width="3">
                 </a-text>
 
                 <a-text value="04:00 PM"
-                        position="0 -0.1 0.02"
+                        position="0 -0.1 0.05"
                         align="center"
                         color="#FFD700"
-                        width="2.2">
+                        width="2.5">
                 </a-text>
 
                 <a-text value="SHUBH VIVAH"
-                        position="0 -0.3 0.02"
+                        position="0 -0.35 0.05"
                         align="center"
                         color="#FFFFFF"
-                        width="2.8">
+                        width="3">
                 </a-text>
 
                 <a-text value="06:30 PM"
-                        position="0 -0.45 0.02"
+                        position="0 -0.5 0.05"
                         align="center"
                         color="#FFD700"
-                        width="2.2">
+                        width="2.5">
                 </a-text>
 
                 <a-text value="DINNER & SANGEET"
-                        position="0 -0.65 0.02"
+                        position="0 -0.75 0.05"
                         align="center"
                         color="#FFFFFF"
-                        width="2.8">
+                        width="3">
                 </a-text>
 
                 <a-text value="08:30 PM"
-                        position="0 -0.8 0.02"
+                        position="0 -0.9 0.05"
                         align="center"
                         color="#FFD700"
-                        width="2.2">
+                        width="2.5">
                 </a-text>
 
             </a-entity>
 
-            <!-- ✅ ZIG-ZAG GALLERY -->
-            <a-entity position="0.7 0 0">
+            <!-- ZIG-ZAG GALLERY -->
+            <a-entity position="0.8 0 0">
 
                 <!-- TOP -->
-                <a-entity position="-0.1 0.4 0.05" rotation="0 0 -12">
-                    <a-plane width="0.34" height="0.44" color="#fff"></a-plane>
-                    <a-plane src="#g_bride" width="0.3" height="0.4" position="0 0 0.01"></a-plane>
+                <a-entity position="-0.15 0.45 0.05" rotation="0 0 -12">
+                    <a-plane src="#g_bride" width="0.32" height="0.42"></a-plane>
                 </a-entity>
 
                 <!-- MIDDLE -->
-                <a-entity position="0.18 0.1 0.07" rotation="0 0 10">
-                    <a-plane width="0.34" height="0.44" color="#fff"></a-plane>
-                    <a-plane src="#g_barat" width="0.3" height="0.4" position="0 0 0.01"></a-plane>
+                <a-entity position="0.2 0.1 0.06" rotation="0 0 10">
+                    <a-plane src="#g_barat" width="0.32" height="0.42"></a-plane>
                 </a-entity>
 
                 <!-- BOTTOM -->
-                <a-entity position="-0.05 -0.35 0.06" rotation="0 0 -8">
-                    <a-plane width="0.34" height="0.44" color="#fff"></a-plane>
-                    <a-plane src="#g_sanget" width="0.3" height="0.4" position="0 0 0.01"></a-plane>
+                <a-entity position="-0.1 -0.35 0.05" rotation="0 0 -8">
+                    <a-plane src="#g_sanget" width="0.32" height="0.42"></a-plane>
                 </a-entity>
 
             </a-entity>
 
         </a-entity>
 
-        <!-- ✅ LIGHT -->
+        <!-- LIGHT -->
         <a-light type="ambient" intensity="1.5"></a-light>
 
     </a-marker>
