@@ -37,32 +37,31 @@
 
             <a-entity position="-0.4 0 0" rotation="0 8 0">
 
-                <a-plane src="#archBoard" width="1" height="1.7" material="transparent: true; alphaTest: 0.5; shader: flat"></a-plane>
+               <a-plane src="#archBoard" width="1" height="1.7" material="transparent: true; alphaTest: 0.5; shader: flat"></a-plane>
 
-                <a-entity position="0 0 0.1">
-                    <a-text value="THE WEDDING SCHEDULE" position="0 0.7 0" align="center" color="#4A3728" width="3.2" font="serif"></a-text>
+<a-entity position="0 0 0.1">
+    <a-text value="THE WEDDING SCHEDULE" position="0 0.7 0" align="center" color="#000000" width="2" font="serif"></a-text>
 
-                    <a-entity position="0 0.4 0">
-                        <a-text value="10:30 AM" mixin="timeSub"></a-text>
-                        <a-text value="HALDI CEREMONY" position="0 -0.12 0" mixin="functionTitle"></a-text>
-                    </a-entity>
+    <a-entity position="-0.3 0.4 0">
+        <a-text value="10:30 AM" color="#000000" width="2" align="left"></a-text>
+        <a-text value="HALDI CEREMONY" position="0 -0.12 0" color="#000000" width="2" align="left" font="serif"></a-text>
+    </a-entity>
 
-                    <a-entity position="0 0.1 0">
-                        <a-text value="04:00 PM" mixin="timeSub"></a-text>
-                        <a-text value="BARAAT & SWAGAT" position="0 -0.12 0" mixin="functionTitle"></a-text>
-                    </a-entity>
+    <a-entity position="-0.3 0.1 0">
+        <a-text value="04:00 PM" color="#000000" width="2" align="left"></a-text>
+        <a-text value="BARAAT & SWAGAT" position="0 -0.12 0" color="#000000" width="2" align="left" font="serif"></a-text>
+    </a-entity>
 
-                    <a-entity position="0 -0.2 0">
-                        <a-text value="06:30 PM" mixin="timeSub"></a-text>
-                        <a-text value="SHUBH VIVAH" position="0 -0.12 0" mixin="functionTitle"></a-text>
-                    </a-entity>
+    <a-entity position="-0.3 -0.2 0">
+        <a-text value="06:30 PM" color="#000000" width="2" align="left"></a-text>
+        <a-text value="SHUBH VIVAH" position="0 -0.12 0" color="#000000" width="2" align="left" font="serif"></a-text>
+    </a-entity>
 
-                    <a-entity position="0 -0.5 0">
-                        <a-text value="08:30 PM" mixin="timeSub"></a-text>
-                        <a-text value="DINNER & SANGEET" position="0 -0.12 0" mixin="functionTitle"></a-text>
-                    </a-entity>
-                </a-entity>
-            </a-entity>
+    <a-entity position="-0.3 -0.5 0">
+        <a-text value="08:30 PM" color="#000000" width="2" align="left"></a-text>
+        <a-text value="DINNER & SANGEET" position="0 -0.12 0" color="#000000" width="2" align="left" font="serif"></a-text>
+    </a-entity>
+</a-entity>
 
             <a-entity id="gallery" position="0.5 0 0" rotation="0 -10 0">
                 <a-plane src="#g_bride" width="0.35" height="0.45" position="-0.1 0.3 0.05" rotation="0 0 -5" material="shader: flat"></a-plane>
