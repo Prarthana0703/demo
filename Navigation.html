@@ -1,156 +1,822 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AR Navigation + Mini Map</title>
-
-    <!-- Google Maps -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Navigation</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh_SqXafoV8q-EEXifAaCGqWOeRi50jNA"></script>
-
-    <!-- AFRAME -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-
-    <!-- AR.js -->
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
     <style>
-        #map {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 200px;
-            height: 200px;
-            z-index: 10;
-            border: 2px solid white;
+        :root {
+            --hud-bg: rgba(0, 10, 20, 0.82);
+            --accent: #00ffe7;
+            --accent2: #ff6a00;
+            --warn: #ffe600;
+            --panel-border: 1px solid rgba(0,255,231,0.22);
+            --font-main: 'Rajdhani', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
         }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            overflow: hidden;
+            background: #000;
+            font-family: var(--font-main);
+        }
+
+        /* ── AR SCENE ── */
+        a-scene { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+
+        /* ── HUD OVERLAY ── */
+        #hud {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Scan-line effect */
+        #hud::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,255,231,0.015) 2px,
+                rgba(0,255,231,0.015) 4px
+            );
+            pointer-events: none;
+        }
+
+        /* Corner brackets */
+        .corner {
+            position: absolute;
+            width: 40px; height: 40px;
+            pointer-events: none;
+        }
+        .corner-tl { top: 12px; left: 12px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+        .corner-tr { top: 12px; right: 12px; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+        .corner-bl { bottom: 12px; left: 12px; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+        .corner-br { bottom: 12px; right: 12px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+
+        /* ── TOP STATUS BAR ── */
+        #topbar {
+            position: absolute;
+            top: 20px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--hud-bg);
+            border: var(--panel-border);
+            border-radius: 4px;
+            padding: 8px 22px;
+            display: flex; align-items: center; gap: 18px;
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+        }
+        #topbar .label { color: rgba(0,255,231,0.5); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+        #topbar .value { color: var(--accent); font-family: var(--font-mono); font-size: 15px; }
+        #gps-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        /* ── DIRECTION PANEL (center bottom) ── */
+        #direction-panel {
+            position: absolute;
+            bottom: 230px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--hud-bg);
+            border: var(--panel-border);
+            border-radius: 6px;
+            padding: 14px 30px;
+            display: flex; align-items: center; gap: 16px;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+            min-width: 280px;
+            justify-content: center;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 30px rgba(0,255,231,0.08);
+        }
+        #dir-arrow-svg {
+            width: 44px; height: 44px;
+            transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1);
+            filter: drop-shadow(0 0 6px var(--accent));
+        }
+        #dir-text {
+            font-size: 22px; font-weight: 700;
+            color: #fff; letter-spacing: 1px;
+        }
+        #dir-dist {
+            font-family: var(--font-mono);
+            font-size: 13px; color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        /* ── COMPASS ── */
+        #compass {
+            position: absolute;
+            top: 80px; right: 20px;
+            width: 80px; height: 80px;
+            background: var(--hud-bg);
+            border: var(--panel-border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+        }
+        #compass-needle {
+            position: absolute;
+            width: 4px; height: 32px;
+            background: linear-gradient(to bottom, #ff3b3b 50%, rgba(255,255,255,0.3) 50%);
+            border-radius: 2px;
+            transform-origin: center bottom;
+            bottom: 50%;
+            left: calc(50% - 2px);
+            transition: transform 0.4s ease;
+        }
+        #compass-label {
+            position: absolute;
+            bottom: -20px; left: 50%;
+            transform: translateX(-50%);
+            color: var(--accent); font-size: 10px;
+            letter-spacing: 2px;
+        }
+
+        /* ── MINI MAP ── */
+        #map-container {
+            position: absolute;
+            bottom: 20px; right: 20px;
+            width: 190px; height: 190px;
+            border: var(--panel-border);
+            border-radius: 4px;
+            overflow: hidden;
+            pointer-events: all;
+            box-shadow: 0 0 20px rgba(0,255,231,0.1);
+        }
+        #map { width: 100%; height: 100%; }
+        #map-label {
+            position: absolute;
+            top: 5px; left: 8px;
+            color: var(--accent); font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 2;
+            text-shadow: 0 0 6px var(--accent);
+        }
+
+        /* ── VOICE / INSTRUCTION TOAST ── */
+        #voice-toast {
+            position: absolute;
+            top: 80px; left: 20px;
+            background: var(--hud-bg);
+            border: 1px solid rgba(255,106,0,0.3);
+            border-left: 3px solid var(--accent2);
+            border-radius: 4px;
+            padding: 10px 16px;
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+            max-width: 220px;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.35s ease;
+        }
+        #voice-toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        #voice-icon { color: var(--accent2); font-size: 16px; margin-right: 6px; }
+        #voice-text {
+            color: #fff; font-size: 14px; font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* ── ETA / DISTANCE ── */
+        #stats-panel {
+            position: absolute;
+            bottom: 20px; left: 20px;
+            background: var(--hud-bg);
+            border: var(--panel-border);
+            border-radius: 4px;
+            padding: 12px 18px;
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+        }
+        .stat-row { display: flex; flex-direction: column; margin-bottom: 8px; }
+        .stat-row:last-child { margin-bottom: 0; }
+        .stat-label { color: rgba(0,255,231,0.5); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; }
+        .stat-val { color: #fff; font-family: var(--font-mono); font-size: 16px; }
+
+        /* ── START BUTTON ── */
         #startBtn {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 20;
-            padding: 12px;
-            font-size: 16px;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: transparent;
+            border: 1.5px solid var(--accent);
+            color: var(--accent);
+            font-family: var(--font-main);
+            font-size: 18px; font-weight: 700;
+            letter-spacing: 3px;
+            padding: 18px 42px;
+            cursor: pointer;
+            pointer-events: all;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            backdrop-filter: blur(4px);
+            background: rgba(0,10,20,0.7);
+        }
+        #startBtn::before {
+            content: '';
+            position: absolute; inset: -4px;
+            border: 1px solid rgba(0,255,231,0.2);
+        }
+        #startBtn:hover {
+            background: rgba(0,255,231,0.1);
+            box-shadow: 0 0 30px rgba(0,255,231,0.3);
+        }
+        #startBtn:active { transform: translate(-50%, -50%) scale(0.97); }
+
+        /* ── LOADING ── */
+        #loading {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 3px;
+            display: none;
+            text-align: center;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 2px solid rgba(0,255,231,0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── STEP LIST ── (hidden scrollable) */
+        #steps-scroll {
+            position: absolute;
+            top: 80px; left: 20px;
+            width: 240px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            pointer-events: all;
+        }
+        #steps-scroll.open { max-height: 300px; overflow-y: auto; }
+        #steps-list { display: flex; flex-direction: column; gap: 6px; }
+        .step-item {
+            background: var(--hud-bg);
+            border: var(--panel-border);
+            border-radius: 3px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            display: flex; gap: 8px; align-items: flex-start;
+        }
+        .step-item.active { border-color: var(--accent); color: #fff; }
+        .step-num { color: var(--accent); font-family: var(--font-mono); min-width: 18px; }
+
+        /* Steps toggle */
+        #steps-toggle {
+            position: absolute;
+            top: 80px; left: 20px;
+            background: var(--hud-bg);
+            border: var(--panel-border);
+            border-radius: 4px;
+            padding: 7px 14px;
+            color: var(--accent);
+            font-size: 11px; letter-spacing: 2px;
+            cursor: pointer; pointer-events: all;
+            display: none;
         }
     </style>
 </head>
 
-<body style="margin:0; overflow:hidden;">
-
-<button id="startBtn" onclick="requestPermissions()">Start AR Navigation</button>
-
-<!-- MINI MAP -->
-<div id="map"></div>
+<body>
 
 <!-- AR SCENE -->
-<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-    <a-camera gps-camera rotation-reader></a-camera>
+<a-scene id="arScene" embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
+    <a-camera id="arCamera" gps-camera rotation-reader></a-camera>
 </a-scene>
 
+<!-- HUD -->
+<div id="hud">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <!-- TOP BAR -->
+    <div id="topbar">
+        <div id="gps-dot"></div>
+        <div><div class="label">GPS</div><div class="value" id="gps-coords">--</div></div>
+        <div><div class="label">Heading</div><div class="value" id="heading-val">--°</div></div>
+        <div><div class="label">Accuracy</div><div class="value" id="acc-val">--m</div></div>
+    </div>
+
+    <!-- COMPASS -->
+    <div id="compass">
+        <div id="compass-needle"></div>
+        <div id="compass-label">N</div>
+    </div>
+
+    <!-- DIRECTION PANEL -->
+    <div id="direction-panel" style="display:none;">
+        <svg id="dir-arrow-svg" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon id="dir-arrow-poly" points="22,4 38,36 22,28 6,36" fill="#00ffe7"/>
+        </svg>
+        <div>
+            <div id="dir-text">Loading…</div>
+            <div id="dir-dist"></div>
+        </div>
+    </div>
+
+    <!-- VOICE TOAST -->
+    <div id="voice-toast">
+        <span id="voice-icon">🔊</span>
+        <span id="voice-text"></span>
+    </div>
+
+    <!-- STEPS TOGGLE -->
+    <div id="steps-toggle" onclick="toggleSteps()">▼ ROUTE STEPS</div>
+    <div id="steps-scroll">
+        <div id="steps-list"></div>
+    </div>
+
+    <!-- STATS -->
+    <div id="stats-panel" style="display:none;">
+        <div class="stat-row">
+            <span class="stat-label">Distance Left</span>
+            <span class="stat-val" id="dist-left">--</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Est. Time</span>
+            <span class="stat-val" id="eta-val">--</span>
+        </div>
+    </div>
+
+    <!-- MINI MAP -->
+    <div id="map-container">
+        <div id="map-label">MINI MAP</div>
+        <div id="map"></div>
+    </div>
+
+    <!-- START BUTTON -->
+    <button id="startBtn" onclick="requestPermissions()">◉ START AR NAV</button>
+
+    <!-- LOADING -->
+    <div id="loading">
+        <div class="spinner"></div>
+        ACQUIRING SIGNAL…
+    </div>
+</div>
+
 <script>
+// ═══════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════
+const DESTINATION = "Vellore Institute of Technology";
+const WAYPOINT_TRIGGER_RADIUS = 15; // metres – how close before "arrived at step"
+const VOICE_AHEAD_DISTANCE   = 40; // metres – announce turn this far in advance
 
-let map;
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let map, directionsService, directionsRenderer;
+let userMarker, headingMarker;
+let routeSteps = [];
+let currentStepIndex = 0;
+let userLat = 0, userLng = 0;
+let deviceHeading = 0;
+let watchId = null;
+let lastVoiceStep = -1;
+let arObjects = [];
 
-// 🚀 STEP 1: PERMISSION HANDLER
+// ═══════════════════════════════════════════════════
+//  PERMISSIONS & BOOT
+// ═══════════════════════════════════════════════════
 function requestPermissions() {
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
 
-    // camera
-    navigator.mediaDevices.getUserMedia({ video: true });
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .catch(() => {});
 
-    // location
+    if (!navigator.geolocation) {
+        alert("Geolocation not supported"); return;
+    }
+
     navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            startNavigation(pos);
-        },
-        () => {
-            alert("❌ Please allow location");
-        }
+        pos => startNavigation(pos),
+        err => { alert("❌ Location denied – " + err.message); resetUI(); },
+        { enableHighAccuracy: true, timeout: 15000 }
     );
 }
 
-// 🚀 STEP 2: MAIN NAVIGATION
+function resetUI() {
+    document.getElementById('startBtn').style.display = '';
+    document.getElementById('loading').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT MAP & ROUTE
+// ═══════════════════════════════════════════════════
 function startNavigation(position) {
+    userLat = position.coords.latitude;
+    userLng = position.coords.longitude;
 
-    const origin = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-    };
+    const origin = { lat: userLat, lng: userLng };
 
-    const destination = "Vellore Institute of Technology";
-
-    // 🗺️ INIT MAP
+    // Mini map
     map = new google.maps.Map(document.getElementById("map"), {
-        center: origin,
-        zoom: 15
+        center: origin, zoom: 16,
+        disableDefaultUI: true,
+        styles: darkMapStyle()
     });
 
-    // 📍 USER MARKER
-    new google.maps.Marker({
-        position: origin,
-        map: map,
-        label: "You"
+    userMarker = new google.maps.Marker({
+        position: origin, map,
+        icon: {
+            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+            scale: 5, fillColor: '#00ffe7', fillOpacity: 1,
+            strokeColor: '#fff', strokeWeight: 1, rotation: 0
+        }
     });
 
-    const directionsService = new google.maps.DirectionsService();
-    const directionsRenderer = new google.maps.DirectionsRenderer({
-        suppressMarkers: false
+    directionsService  = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({
+        suppressMarkers: false,
+        polylineOptions: { strokeColor: '#00ffe7', strokeWeight: 3, strokeOpacity: 0.7 }
     });
-
     directionsRenderer.setMap(map);
 
-    directionsService.route(
-        {
-            origin: origin,
-            destination: destination,
-            travelMode: google.maps.TravelMode.WALKING
-        },
-        function(result, status) {
-
-            if (status === "OK") {
-
-                directionsRenderer.setDirections(result);
-
-                const route = result.routes[0].overview_path;
-
-                showAR(route);
-
-            } else {
-                alert("Error: " + status);
-            }
+    directionsService.route({
+        origin,
+        destination: DESTINATION,
+        travelMode: google.maps.TravelMode.WALKING
+    }, (result, status) => {
+        if (status === "OK") {
+            directionsRenderer.setDirections(result);
+            processRoute(result);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('direction-panel').style.display = 'flex';
+            document.getElementById('stats-panel').style.display = 'block';
+            document.getElementById('steps-toggle').style.display = 'block';
+            startTracking();
+            setupCompass();
+        } else {
+            alert("Directions error: " + status);
+            resetUI();
         }
-    );
-}
-
-// 🚀 STEP 3: AR OBJECTS
-function showAR(points) {
-
-    const scene = document.querySelector("a-scene");
-
-    points.slice(0, 5).forEach((point) => {
-
-        const entity = document.createElement("a-cone");
-
-        entity.setAttribute("gps-entity-place", `
-            latitude: ${point.lat()};
-            longitude: ${point.lng()};
-        `);
-
-        entity.setAttribute("color", "yellow");
-        entity.setAttribute("scale", "20 20 20");
-        entity.setAttribute("position", "0 10 0");
-
-        entity.setAttribute("animation", `
-            property: position;
-            to: 0 20 0;
-            direction: alternate;
-            loop: true;
-            dur: 1500
-        `);
-
-        scene.appendChild(entity);
     });
 }
 
-</script>
+// ═══════════════════════════════════════════════════
+//  ROUTE PROCESSING  – extract clean steps
+// ═══════════════════════════════════════════════════
+function processRoute(result) {
+    const leg = result.routes[0].legs[0];
+    routeSteps = leg.steps.map((s, i) => ({
+        index: i,
+        instruction: stripHTML(s.instructions),
+        maneuver: s.maneuver || '',
+        distMeters: s.distance.value,
+        distText: s.distance.text,
+        duration: s.duration.text,
+        lat: s.end_location.lat(),
+        lng: s.end_location.lng(),
+        startLat: s.start_location.lat(),
+        startLng: s.start_location.lng()
+    }));
 
+    // Place AR arrows on first 8 waypoints
+    placeARArrows(routeSteps.slice(0, 8));
+
+    // Build steps list
+    const list = document.getElementById('steps-list');
+    list.innerHTML = '';
+    routeSteps.forEach((s, i) => {
+        const div = document.createElement('div');
+        div.className = 'step-item' + (i === 0 ? ' active' : '');
+        div.id = 'step-' + i;
+        div.innerHTML = `<span class="step-num">${i + 1}</span><span>${s.instruction}</span>`;
+        list.appendChild(div);
+    });
+
+    // ETA
+    document.getElementById('eta-val').textContent = leg.duration.text;
+    document.getElementById('dist-left').textContent = leg.distance.text;
+
+    // First instruction
+    updateDirectionPanel(routeSteps[0]);
+    speakInstruction("Navigation started. " + routeSteps[0].instruction);
+}
+
+// ═══════════════════════════════════════════════════
+//  AR ARROWS  – accurate heading-based placement
+// ═══════════════════════════════════════════════════
+function placeARArrows(steps) {
+    const scene = document.querySelector('a-scene');
+    // Remove old
+    arObjects.forEach(o => o.parentNode && o.parentNode.removeChild(o));
+    arObjects = [];
+
+    steps.forEach((step, idx) => {
+        // Floating arrow model made from primitives
+        const group = document.createElement('a-entity');
+        group.setAttribute('gps-entity-place', `latitude: ${step.lat}; longitude: ${step.lng}`);
+        group.setAttribute('position', '0 3 0');
+
+        // Arrow body (box)
+        const body = document.createElement('a-box');
+        body.setAttribute('color', idx === 0 ? '#00ffe7' : '#ff6a00');
+        body.setAttribute('width', '1.2');
+        body.setAttribute('height', '0.3');
+        body.setAttribute('depth', '2.4');
+        body.setAttribute('opacity', '0.92');
+
+        // Arrow head (cone)
+        const head = document.createElement('a-cone');
+        head.setAttribute('color', idx === 0 ? '#00ffe7' : '#ff6a00');
+        head.setAttribute('radius-bottom', '0.9');
+        head.setAttribute('radius-top', '0');
+        head.setAttribute('height', '1.6');
+        head.setAttribute('rotation', '0 0 -90');
+        head.setAttribute('position', '1.8 0 0');
+        head.setAttribute('opacity', '0.92');
+
+        // Step number label
+        const label = document.createElement('a-text');
+        label.setAttribute('value', String(step.index + 1));
+        label.setAttribute('align', 'center');
+        label.setAttribute('color', '#fff');
+        label.setAttribute('scale', '3 3 3');
+        label.setAttribute('position', '0 1.2 0');
+
+        // Vertical pole
+        const pole = document.createElement('a-cylinder');
+        pole.setAttribute('color', '#00ffe7');
+        pole.setAttribute('radius', '0.07');
+        pole.setAttribute('height', '3');
+        pole.setAttribute('opacity', '0.5');
+        pole.setAttribute('position', '0 -1.5 0');
+
+        // Bounce animation
+        group.setAttribute('animation__bob', `
+            property: position;
+            from: 0 3 0; to: 0 4.2 0;
+            dir: alternate; loop: true; dur: 1800; easing: easeInOutSine
+        `);
+
+        // Face the heading from previous to this waypoint
+        const bearing = idx === 0
+            ? computeBearing(userLat, userLng, step.lat, step.lng)
+            : computeBearing(steps[idx - 1].lat, steps[idx - 1].lng, step.lat, step.lng);
+        group.setAttribute('rotation', `0 ${bearing} 0`);
+
+        group.appendChild(pole);
+        group.appendChild(body);
+        group.appendChild(head);
+        group.appendChild(label);
+        scene.appendChild(group);
+        arObjects.push(group);
+    });
+}
+
+// ═══════════════════════════════════════════════════
+//  GPS TRACKING
+// ═══════════════════════════════════════════════════
+function startTracking() {
+    watchId = navigator.geolocation.watchPosition(
+        onLocationUpdate,
+        err => console.warn("GPS error", err),
+        { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
+    );
+}
+
+function onLocationUpdate(pos) {
+    userLat = pos.coords.latitude;
+    userLng = pos.coords.longitude;
+    const acc = Math.round(pos.coords.accuracy);
+
+    // Update HUD coords
+    document.getElementById('gps-coords').textContent =
+        userLat.toFixed(5) + ', ' + userLng.toFixed(5);
+    document.getElementById('acc-val').textContent = acc + 'm';
+
+    // Update map marker
+    if (userMarker) {
+        const ll = new google.maps.LatLng(userLat, userLng);
+        userMarker.setPosition(ll);
+        map.panTo(ll);
+    }
+
+    checkStepProgress();
+    updateDirectionToNextStep();
+}
+
+// ═══════════════════════════════════════════════════
+//  STEP PROGRESS
+// ═══════════════════════════════════════════════════
+function checkStepProgress() {
+    if (currentStepIndex >= routeSteps.length) return;
+    const step = routeSteps[currentStepIndex];
+    const dist = haversine(userLat, userLng, step.lat, step.lng);
+
+    document.getElementById('dist-left').textContent = formatDist(dist);
+
+    // Arrived at waypoint?
+    if (dist < WAYPOINT_TRIGGER_RADIUS) {
+        currentStepIndex++;
+        if (currentStepIndex < routeSteps.length) {
+            highlightStep(currentStepIndex);
+            updateDirectionPanel(routeSteps[currentStepIndex]);
+            speakInstruction(routeSteps[currentStepIndex].instruction);
+            lastVoiceStep = currentStepIndex;
+        } else {
+            // Destination reached
+            document.getElementById('dir-text').textContent = 'Arrived!';
+            document.getElementById('dir-dist').textContent = '';
+            speakInstruction("You have arrived at your destination.");
+        }
+        return;
+    }
+
+    // Pre-announce upcoming turn
+    if (currentStepIndex !== lastVoiceStep && dist < VOICE_AHEAD_DISTANCE) {
+        speakInstruction("In " + formatDist(dist) + ", " + step.instruction);
+        lastVoiceStep = currentStepIndex;
+    }
+}
+
+// ═══════════════════════════════════════════════════
+//  DIRECTION PANEL + ARROW
+// ═══════════════════════════════════════════════════
+function updateDirectionToNextStep() {
+    if (currentStepIndex >= routeSteps.length) return;
+    const step = routeSteps[currentStepIndex];
+    const bearing = computeBearing(userLat, userLng, step.lat, step.lng);
+    const relBearing = (bearing - deviceHeading + 360) % 360;
+
+    // Rotate SVG arrow
+    document.getElementById('dir-arrow-svg').style.transform =
+        `rotate(${relBearing}deg)`;
+
+    // Heading display
+    document.getElementById('heading-val').textContent = Math.round(deviceHeading) + '°';
+
+    // Distance
+    const dist = haversine(userLat, userLng, step.lat, step.lng);
+    document.getElementById('dir-dist').textContent = formatDist(dist) + ' away';
+}
+
+function updateDirectionPanel(step) {
+    document.getElementById('dir-text').textContent = step.instruction;
+    document.getElementById('dir-dist').textContent = step.distText;
+
+    // Arrow color: cyan for straight, orange for turns
+    const isTurn = /turn|left|right|merge|ramp/i.test(step.maneuver + step.instruction);
+    const c = isTurn ? '#ff6a00' : '#00ffe7';
+    document.getElementById('dir-arrow-poly').setAttribute('fill', c);
+}
+
+function highlightStep(idx) {
+    document.querySelectorAll('.step-item').forEach(el => el.classList.remove('active'));
+    const el = document.getElementById('step-' + idx);
+    if (el) { el.classList.add('active'); el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+}
+
+// ═══════════════════════════════════════════════════
+//  COMPASS
+// ═══════════════════════════════════════════════════
+function setupCompass() {
+    if (window.DeviceOrientationEvent) {
+        const evtName = typeof DeviceOrientationEvent.requestPermission === 'function'
+            ? 'deviceorientationabsolute' : 'deviceorientation';
+        window.addEventListener(evtName, onOrientation, true);
+        window.addEventListener('deviceorientationabsolute', onOrientation, true);
+    }
+}
+
+function onOrientation(e) {
+    let heading = 0;
+    if (e.webkitCompassHeading != null) {
+        heading = e.webkitCompassHeading; // iOS
+    } else if (e.absolute && e.alpha != null) {
+        heading = 360 - e.alpha; // Android
+    } else if (e.alpha != null) {
+        heading = 360 - e.alpha;
+    }
+    deviceHeading = heading;
+    document.getElementById('compass-needle').style.transform =
+        `rotate(${-heading}deg)`;
+    document.getElementById('heading-val').textContent = Math.round(heading) + '°';
+    updateDirectionToNextStep();
+}
+
+// ═══════════════════════════════════════════════════
+//  VOICE  – Web Speech API
+// ═══════════════════════════════════════════════════
+let speechQueue = [];
+let isSpeaking = false;
+
+function speakInstruction(text) {
+    if (!window.speechSynthesis) return;
+
+    // Show toast
+    const toast = document.getElementById('voice-toast');
+    document.getElementById('voice-text').textContent = text;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4500);
+
+    // Queue speech
+    speechQueue.push(text);
+    if (!isSpeaking) processQueue();
+}
+
+function processQueue() {
+    if (!speechQueue.length) { isSpeaking = false; return; }
+    isSpeaking = true;
+    const utt = new SpeechSynthesisUtterance(speechQueue.shift());
+    utt.lang = 'en-IN';
+    utt.rate = 1.0;
+    utt.pitch = 1.0;
+    utt.volume = 1.0;
+    utt.onend = processQueue;
+    window.speechSynthesis.speak(utt);
+}
+
+// ═══════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════
+function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2)**2 +
+              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function computeBearing(lat1, lon1, lat2, lon2) {
+    const dLon = toRad(lon2 - lon1);
+    const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+    const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+               Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+    return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+function toRad(d) { return d * Math.PI / 180; }
+function toDeg(r) { return r * 180 / Math.PI; }
+
+function formatDist(m) {
+    return m >= 1000 ? (m / 1000).toFixed(1) + ' km' : Math.round(m) + ' m';
+}
+
+function stripHTML(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+}
+
+function toggleSteps() {
+    const el = document.getElementById('steps-scroll');
+    el.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════
+//  DARK MAP STYLE
+// ═══════════════════════════════════════════════════
+function darkMapStyle() {
+    return [
+        { elementType: 'geometry', stylers: [{ color: '#0d1117' }] },
+        { elementType: 'labels.text.stroke', stylers: [{ color: '#0d1117' }] },
+        { elementType: 'labels.text.fill', stylers: [{ color: '#8ec3b9' }] },
+        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1a2332' }] },
+        { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212a37' }] },
+        { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#2c3e50' }] },
+        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a1628' }] },
+        { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+        { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+        { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#00ffe7' }] },
+    ];
+}
+</script>
 </body>
 </html>
